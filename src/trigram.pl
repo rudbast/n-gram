@@ -23,7 +23,7 @@ sub main {
     }
 }
 
-sub trigram {
+sub construct {
     my $ref_trigrams = shift;
     my $line        = shift;
 
