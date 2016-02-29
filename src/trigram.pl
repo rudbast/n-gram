@@ -7,8 +7,9 @@ main();
 
 sub main {
     my %trigrams;
+    my $inputFile = $ARGV[0];
 
-    open(INPUT, "input.dat") or die "open file error.";
+    open(INPUT, $inputFile) or die "open file error.";
     while(<INPUT>) {
         chomp(my $line = $_);
         # start trigram word splicing
