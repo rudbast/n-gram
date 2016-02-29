@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-package Bigram;
 
 use strict;
 use warnings;
