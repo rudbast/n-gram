@@ -1,4 +1,4 @@
-
+## NPM RELATED
 # Logs
 logs
 *.log
@@ -34,8 +34,13 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
+## COMPOSER RELATED
 vendor
 
 # Commit your application's lock file http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file
 # You may choose to ignore a library lock file http://getcomposer.org/doc/02-libraries.md#lock-file
 # composer.lock
+
+## CUSTOM (own)
+src/test.pl
+out/test.dat
