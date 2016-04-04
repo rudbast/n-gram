@@ -1,12 +1,6 @@
-# N-gram
+# Spelling Correction Using N-Gram [Essay]
 
-## How to
-
-Run from root folder in console / terminal / command line.
-
-```shell
-$ perl -Ilib/ src/information-retrieval.pl res/input.dat
-```
+A Spelling Correction System for both kind of spelling mistake type (real word & non-word) using N-Gram and Edit Distance with Trie Structure.
 
 ## License
 
