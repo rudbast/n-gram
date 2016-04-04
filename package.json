@@ -1,0 +1,22 @@
+{
+  "name": "essay",
+  "version": "1.0.0",
+  "description": "my essay",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rudbast/n-gram.git"
+  },
+  "author": "rudolf",
+  "license": "WTFPL",
+  "bugs": {
+    "url": "https://github.com/rudbast/n-gram/issues"
+  },
+  "homepage": "https://github.com/rudbast/n-gram#readme",
+  "dependencies": {
+    "indonesian-news-scraper": "^2.7.7"
+  }
+}
