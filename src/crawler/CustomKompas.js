@@ -158,12 +158,14 @@ Kompas.prototype.getDataFromSinglePage = function(scrap) {
 	var url = Kompas.prototype.getURL($)
 	var title = Kompas.prototype.getTitle($)
 	var date = Kompas.prototype.getDate($)
+	var category = Kompas.prototype.getCategory($)
 	var img = Kompas.prototype.getImg($)
 	var content = Kompas.prototype.getContent($)
 	var result = {
 		'url': url,
 		'title': title,
 		'date': date,
+		'category': category,
 		'img': img,
 		'content': content,
 		'source': Kompas.prototype.source
@@ -215,6 +217,17 @@ Kompas.prototype.getDate = function($) {
 
 	var d = moment(date, 'D MMMM YYYY | HH:mm')
 	return d.toISOString()
+}
+
+/**
+ * Get news category from Cheerio load object.
+ * @param  {object} $ - Cheerio load object.
+ * @return {string} news' category
+ */
+Kompas.prototype.getCategory = function ($) {
+  var content = $('h1.tcenter').text();
+  content = Kompas.prototype.cleanContent(content);
+  return content;
 }
 
 /**

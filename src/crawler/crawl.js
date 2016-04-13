@@ -4,14 +4,13 @@ var fs     = require('fs');
 var prompt = require('prompt');
 // var kompas = require('indonesian-news-scraper').Kompas;
 var kompas = require('./CustomKompas.js');
+var jsfile = require('jsonfile');
 
 var currDate = new Date();
 kompas.setDesiredDate(currDate.getDate(), currDate.getMonth(), currDate.getFullYear());
 
 // Main Logic Variables
 var docFile      = (process.argv.length > 2 ? process.argv[2] : '');
-var containNews  = true;
-var articleCount = 0;
 var index        = 0;
 
 prompt.start();
@@ -50,15 +49,9 @@ function waitForCommandInput(callback) {
             case 'check':
                 var result = 'date          : ' + currDate.getDate() + '/' + currDate.getMonth()  + '/' + currDate.getFullYear() + '\n';
                 result += 'file path     : ' + docFile + '\n';
-                result += 'article count : ' + articleCount + '\n';
                 result += 'index         : ' + index;
 
                 console.log(result);
-                break;
-
-            case 'count':
-                articleCount = cmd[1];
-                console.log('article count set.');
                 break;
 
             case 'clear':
@@ -92,8 +85,12 @@ function waitForCommandInput(callback) {
 
             case 'scrap':
                 console.log('start scrapping ..');
-                startScrapper((cmd[1] != 'undefined' ? cmd[1] : 0), function () {
+                startScrapper((cmd[1] != 'undefined' ? cmd[1] : 0), function (data) {
                     console.log('Scrapping finished.');
+
+                    jsfile.writeFile(docFile, data, {spaces: 4}, function (err) {
+                        if (err) onErr(err);
+                    });
                 });
                 break;
 
@@ -117,7 +114,7 @@ function waitForCommandInput(callback) {
  * @return {integer}     Exit type
  */
 function onErr(err) {
-    console.log(err);
+    console.error(err);
     return 1;
 }
 
@@ -128,12 +125,11 @@ function onErr(err) {
  */
 function printMenu() {
     var menu = 'check                      - check program\'s variables\n';
-        menu += 'count <article count>      - set article count\n';
         menu += 'clear                      - clear screen\n';
         menu += 'date  <day> <month> <year> - set article date to scrap from\n';
         menu += 'file  <file path>          - set file to be appended on scrap\n';
         menu += 'index <number>             - set article index\n';
-        menu += 'page <number>              - set page to scrap from\n';
+        menu += 'page  <number>             - set page to scrap from\n';
         menu += 'scrap <?article limit>     - start scrapping (limitable)\n';
         menu += 'exit                       - exit program';
 
@@ -153,7 +149,8 @@ function clearScreen() {
 /**
  * Start scrap process.
  *
- * @param  {integer} scrapLimit Article's scrap limit
+ * @param  {integer}  scrapLimit Article's scrap limit
+ * @param  {Function} callback   Callback function
  * @return {void}
  */
 function startScrapper(scrapLimit, callback) {
@@ -168,18 +165,29 @@ function startScrapper(scrapLimit, callback) {
 
         kompas.scrap().then(function (scraps) {
             scraps.forEach(function (news) {
-                var newContent = "";
+                if (!news.content || scrapLimit == articleCount) {
+                    return;
+                }
 
-                newContent += '<ARTICLE>\n';
-                newContent += '\t<INDEX>' + news.source + '-' + (++index) + '</INDEX>\n';
-                newContent += '\t<TITLE>' + news.title + '</TITLE>\n';
-                newContent += '\t<DATE>' + news.date + '</DATE>\n';
-                newContent += '\t<CONTENT>\n';
-                newContent += '\t\t' + news.content + '\n';
-                newContent += '\t</CONTENT>\n';
-                newContent += '</ARTICLE>\n';
+                var article = {};
 
-                fs.appendFile(docFile, newContent);
+                // newContent += '<ARTICLE>\n';
+                // newContent += '\t<INDEX>' + news.source + '-' + (++index) + '</INDEX>\n';
+                // newContent += '\t<TITLE>' + news.title + '</TITLE>\n';
+                // newContent += '\t<DATE>' + news.date + '</DATE>\n';
+                // newContent += '\t<CONTENT>' + news.content + '</CONTENT>\n';
+                // newContent += '</ARTICLE>\n';
+
+                // fs.appendFile(docFile, newContent);
+
+                article.index    = news.source + '-' + (++index);
+                article.category = news.category;
+                article.title    = news.title;
+                article.date     = news.date;
+                article.content  = news.content;
+
+                data.articles.push(article);
+                ++data.count;
                 ++articleCount;
             });
 
@@ -201,10 +209,13 @@ function startScrapper(scrapLimit, callback) {
                 console.log();
                 doScrap();
             } else if (scrapLimit <= articleCount) {
-                callback();
+                callback(data);
             }
         });
     }
+
+    var data         = {count: 0, articles: []};
+    var articleCount = 0;
 
     doScrap();
 }
