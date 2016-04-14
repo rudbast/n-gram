@@ -6,7 +6,9 @@
  */
 function clean(content) {
     content = content.toLowerCase();
-    content = content.replace(/"/g, ' ');
+    content = content.replace(/("|\*|'|\/)/g, '');
+    content = content.replace(/(:|\(|\))/g, ',');
+    content = content.replace(/(\-)/g, ' ');
     content = content.replace(/\s+/g, ' ');
     return content;
 }
