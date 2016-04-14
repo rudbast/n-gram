@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Compute levenshtein distance of given strings.
  *
