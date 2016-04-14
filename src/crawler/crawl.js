@@ -10,8 +10,8 @@ var currDate = new Date();
 kompas.setDesiredDate(currDate.getDate(), currDate.getMonth(), currDate.getFullYear());
 
 // Main Logic Variables
-var docFile      = (process.argv.length > 2 ? process.argv[2] : '');
-var index        = 0;
+var docFile = (process.argv.length > 2 ? process.argv[2] : '');
+var index   = 0;
 
 prompt.start();
 waitForCommandInput();
