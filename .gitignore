@@ -42,5 +42,5 @@ vendor
 # composer.lock
 
 ## CUSTOM (own)
-src/test.pl
+src/test/
 out/test.dat
