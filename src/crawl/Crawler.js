@@ -169,22 +169,13 @@ function startScrapper(scrapLimit, callback) {
                     return;
                 }
 
-                var article = {};
-
-                // newContent += '<ARTICLE>\n';
-                // newContent += '\t<INDEX>' + news.source + '-' + (++index) + '</INDEX>\n';
-                // newContent += '\t<TITLE>' + news.title + '</TITLE>\n';
-                // newContent += '\t<DATE>' + news.date + '</DATE>\n';
-                // newContent += '\t<CONTENT>' + news.content + '</CONTENT>\n';
-                // newContent += '</ARTICLE>\n';
-
-                // fs.appendFile(docFile, newContent);
-
-                article.index    = news.source + '-' + (++index);
-                article.category = news.category;
-                article.title    = news.title;
-                article.date     = news.date;
-                article.content  = news.content;
+                var article = {
+                    index: news.source + '-' + (++index),
+                    category: news.category,
+                    title: news.title,
+                    date: news.date,
+                    content: news.content
+                };
 
                 data.articles.push(article);
                 ++data.count;
@@ -219,4 +210,3 @@ function startScrapper(scrapLimit, callback) {
 
     doScrap();
 }
-
