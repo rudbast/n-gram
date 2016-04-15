@@ -27,7 +27,7 @@ Kompas.prototype.year;
  * @return {string} Website's base URL, can be HTML/RSS/XML.
  */
 Kompas.prototype.getBaseURL = function() {
-	return Kompas.prototype.baseURL + Kompas.prototype.getDesiredDate() + Kompas.prototype.getDesiredPage();
+	return Kompas.prototype.baseURL + Kompas.prototype.getDesiredDate + Kompas.prototype.getDesiredPage;
 }
 
 /**
