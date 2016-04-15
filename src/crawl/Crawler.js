@@ -3,7 +3,7 @@
 var fs     = require('fs');
 var prompt = require('prompt');
 // var kompas = require('indonesian-news-scraper').Kompas;
-var kompas = require('./CustomKompas.js');
+var kompas = require(__dirname + '/CustomKompas.js');
 var jsfile = require('jsonfile');
 
 var currDate = new Date();
