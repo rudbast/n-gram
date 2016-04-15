@@ -36,7 +36,7 @@ Trie.prototype.data = new Object();
  * @param  {string} word Word to be inserted
  * @return {void}
  */
-Trie.prototype.insert = function (word) {
+Trie.prototype.insert = function (word, callback) {
     var currTrie = Trie.prototype.data;
 
     for(var i = 0; i < word.length; ++i) {
@@ -63,7 +63,6 @@ Trie.prototype.has = function (word) {
 
     for (var i = 0; i < word.length; i++) {
         var node = word.charAt(i);
-        console.log(node);
         if (!(node in trail)) {
             return false;
         } else {
