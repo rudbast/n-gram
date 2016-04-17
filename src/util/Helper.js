@@ -8,7 +8,7 @@
  */
 function cleanInitial(content) {
     content = content.toLowerCase();
-    content = content.replace(/([:;()!?<>\%\$\/"'\*\d{}^=|]|\s\-\s)/g, ',');
+    content = content.replace(/([:;()!?<>\%\$\/\\"'\*\d{}^=|]|\s\-\s)/g, ',');
     content = content.replace(/,+/g, ', ');
     content = content.replace(/\s+/g, ' ');
     return content;
@@ -42,8 +42,19 @@ function splitToSentence(text) {
     return sentences;
 }
 
+/**
+ * Sort object by property name.
+ *
+ * @param  {object} o Object to be sorted
+ * @return {object}   Sorted object
+ */
+function sortObject(o) {
+    return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
+}
+
 module.exports = {
     cleanInitial,
     cleanExtra,
-    splitToSentence
+    splitToSentence,
+    sortObject
 };
