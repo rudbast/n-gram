@@ -1,5 +1,10 @@
 'use strict';
 
+var assert = require('assert');
+
+var mongoClient   = require('mongodb').MongoClient,
+    mongoObjectId = require('mongodb').ObjectId;
+
 /**
  * Clean article content.
  *
@@ -52,9 +57,26 @@ function sortObject(o) {
     return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
 }
 
+/**
+ * Connect to database.
+ *
+ * @param  {function} callback Callback function
+ * @return {void}
+ */
+function connectDatabase(hostname, port, database, callback) {
+    var url = `mongodb://${hostname}:${port}/${database}`;
+    mongoClient.connect(url, function (err, db) {
+        assert.equal(null, err);
+
+        if (callback) callback(db);
+        else db.close();
+    });
+}
+
 module.exports = {
     cleanInitial,
     cleanExtra,
     splitToSentence,
-    sortObject
+    sortObject,
+    connectDatabase
 };
