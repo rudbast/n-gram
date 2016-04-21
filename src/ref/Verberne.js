@@ -51,7 +51,7 @@ Verberne.prototype = {
             if (this.data.unigrams.hasOwnProperty(dictWord)) {
                 var distance = levenshtein.distance(inputWord, dictWord );
 
-                if (distance < this.distanceLimit) {
+                if (distance <= this.distanceLimit) {
                     var rank = this.data.unigrams[dictWord];
                     suggestions[dictWord] = rank;
                 }

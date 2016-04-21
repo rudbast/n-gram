@@ -56,9 +56,10 @@ Setiadi.prototype = {
                 var wordLength = dictWord.length;
                 // Pruning words distance calculation.
                 if (wordLength >= checkedLength - 1 || wordLength <= checkedLength + 1) {
-                    var distance = levenshtein.damLevDistance(inputWord, dictWord);
+                    // var distance = levenshtein.damLevDistance(inputWord, dictWord);
+                    var distance = levenshtein.distance(inputWord, dictWord);
 
-                    if (distance < this.distanceLimit) {
+                    if (distance <= this.distanceLimit) {
                         // Bayes theorem implementation.
                         var rank = this.data.unigrams[dictWord];
 

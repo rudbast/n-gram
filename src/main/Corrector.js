@@ -70,9 +70,10 @@ Corrector.prototype = {
 
         for (var dictWord in this.data.unigrams) {
             if (this.data.unigrams.hasOwnProperty(dictWord)) {
-                var distance = levenshtein.distanceOnThreshold(inputWord, dictWord, distanceLimit);
+                // var distance = levenshtein.distanceOnThreshold(inputWord, dictWord, this.distanceLimit);
+                var distance = levenshtein.distance(inputWord, dictWord);
 
-                if (distance < this.distanceLimit ) {
+                if (distance <= this.distanceLimit ) {
                     var rank = this.data.unigrams[dictWord];
                     suggestions[dictWord] = rank;
                 }
