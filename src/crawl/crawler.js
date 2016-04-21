@@ -1,17 +1,17 @@
 'use strict';
 
-var fs     = require('fs');
-var prompt = require('prompt');
+var fs     = require('fs'),
+    prompt = require('prompt'),
+    jsfile = require('jsonfile');
 // var kompas = require('indonesian-news-scraper').Kompas;
 var kompas = require(__dirname + '/CustomKompas.js');
-var jsfile = require('jsonfile');
 
 var currDate = new Date();
 kompas.setDesiredDate(currDate.getDate(), currDate.getMonth(), currDate.getFullYear());
 
 // Main Logic Variables
-var docFile = (process.argv.length > 2 ? process.argv[2] : '');
-var index   = 0;
+var docFile = (process.argv.length > 2 ? process.argv[2] : ''),
+    index   = 0;
 
 prompt.start();
 waitForCommandInput();

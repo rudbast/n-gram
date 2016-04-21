@@ -1,7 +1,7 @@
 var express = require('express');
 var app     = express();
 
-var helper    = require(__dirname + '/../util/Helper.js'),
+var helper    = require(__dirname + '/../util/helper.js'),
     Indexer   = require(__dirname + '/../main/Indexer.js'),
     // Corrector = require(__dirname + '/../main/Corrector.js');
     Corrector = require(__dirname + '/../ref/Setiadi.js');

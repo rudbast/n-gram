@@ -1,7 +1,7 @@
 'use strict';
 
 var levenshtein = require(__dirname + '/../util/Levenshtein.js'),
-    helper      = require(__dirname + '/../util/Helper.js');
+    helper      = require(__dirname + '/../util/helper.js');
 
 /**
  * Spelling correction main class (as implemented by Iskandar Setiadi).

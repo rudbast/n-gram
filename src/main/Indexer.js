@@ -4,8 +4,8 @@ var fs     = require('fs'),
     jsFile = require('jsonfile'),
     assert = require('assert');
 
-var ngramUtil   = require(__dirname + '/../util/NGram.js'),
-    helper      = require(__dirname + '/../util/Helper.js');
+var ngramUtil   = require(__dirname + '/../util/ngram.js'),
+    helper      = require(__dirname + '/../util/helper.js');
 
 /**
  * Index builder class.
