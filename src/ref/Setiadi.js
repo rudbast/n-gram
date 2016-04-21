@@ -86,7 +86,36 @@ Setiadi.prototype = {
      * @return {object}          List of suggestions (if error exists)
      */
     tryCorrect: function (sentence) {
-        var suggestions = new Object();
+        var self = this;
+
+        var corrections = new Array(),
+            parts       = sentence.split(/\s+/);
+
+        parts.forEach(function (part) {
+            var containsInvalidChars = part.match(/[\W\d_]/),
+                word                 = part.replace(/[\W\d_]/g, '');
+
+            word = word.toLowerCase();
+
+            if (containsInvalidChars || (!containsInvalidChars && self.isValid(word))) {
+                corrections.push({
+                    [`${part}`]: self.data.unigrams[word]
+                });
+            } else {
+                var wordSuggestions     = self.getSuggestions(word),
+                    wordSuggestionsSize = Object.keys(wordSuggestions).length;
+
+                if (wordSuggestionsSize != 0 ) {
+                    corrections.push(wordSuggestions);
+                } else {
+                    corrections.push({
+                        [`${part}`]: self.data.unigrams[word]
+                    });
+                }
+            }
+        });
+
+        var suggestions = helper.createCombination(corrections);
         return suggestions;
     }
 };
