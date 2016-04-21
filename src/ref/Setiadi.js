@@ -14,12 +14,12 @@ var levenshtein = require(__dirname + '/../util/Levenshtein.js'),
  * @property {integer} distanceLimit Words distance limit
  * @constructor
  */
-var Setiadi = function (ngrams, distanceLimit = 1) {
+var Setiadi = function (ngrams, distanceLimit) {
     this.data          = ngrams;
-    this.distanceLimit = distanceLimit;
+    this.distanceLimit = distanceLimit !== undefined ? distanceLimit : 1;
 };
 
-var Setiadi.prototype = {
+Setiadi.prototype = {
     /**
      * Checks a word's validity.
      *
@@ -47,7 +47,7 @@ var Setiadi.prototype = {
     getSuggestions: function (inputWord) {
         var checkedLength = inputWord.length,
             dictLength    = Object.keys(this.data.unigrams).length,
-            ranksMarginal = Math.floor(dictLength / 3),
+            ranksMarginal = Math.floor(dictLength / 3);
 
         var suggestions   = new Object();
 

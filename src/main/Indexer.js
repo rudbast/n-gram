@@ -5,7 +5,7 @@ var fs     = require('fs'),
     assert = require('assert');
 
 var ngramUtil   = require(__dirname + '/../util/NGram.js'),
-    helper      = require(__dirname + '/../util/Helper.js'),
+    helper      = require(__dirname + '/../util/Helper.js');
 
 /**
  * Index builder class.
@@ -25,14 +25,14 @@ var Indexer = function (db) {
     };
 };
 
-var Indexer.prototype = {
+Indexer.prototype = {
     /**
      * Retrieve the words index data.
      *
      * @return {object} Words index
      */
     getData: function () {
-        return this.ngrams;
+        return this.data;
     },
 
     /**
@@ -260,3 +260,5 @@ var Indexer.prototype = {
         }
     },
 };
+
+module.exports = Indexer;

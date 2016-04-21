@@ -14,10 +14,12 @@ var Trie        = require(__dirname + '/../util/Trie.js'),
  * @property {object}  vocabularies  Trie's structured vocabularies
  * @constructor
  */
-var Corrector = function (ngrams, distanceLimit = 2) {
+var Corrector = function (ngrams, distanceLimit) {
     this.data          = ngrams;
-    this.distanceLimit = distanceLimit;
+    this.distanceLimit = distanceLimit !== undefined ? distanceLimit : 2;
     this.vocabularies  = new Trie();
+
+    this.buildVocabularies();
 };
 
 Corrector.prototype = {
@@ -28,14 +30,14 @@ Corrector.prototype = {
      */
     setDistanceLimit: function (distanceLimit) {
         this.distanceLimit = distanceLimit;
-    }
+    },
 
     /**
-     * Fill vocabularies list from words index.
+     * Build vocabularies information from words index.
      *
      * @return {void}
      */
-    fillVocabulary: function () {
+    buildVocabularies: function () {
         for (var word in this.data.unigrams) {
             if (this.data.unigrams.hasOwnProperty(word)) {
                 this.vocabularies.insert(word);

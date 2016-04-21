@@ -14,12 +14,12 @@ var levenshtein = require(__dirname + '/../util/Levenshtein.js'),
  * @property {integer} distanceLimit Words distance limit
  * @constructor
  */
-var Verberne = function (ngrams, distanceLimit = 2) {
+var Verberne = function (ngrams, distanceLimit) {
     this.data          = ngrams;
-    this.distanceLimit = distanceLimit;
+    this.distanceLimit = distanceLimit !== undefined ? distanceLimit : 2;
 };
 
-var Verberne.prototype = {
+Verberne.prototype = {
     /**
      * Checks a word's validity.
      *
@@ -73,4 +73,4 @@ var Verberne.prototype = {
     }
 };
 
-module.exports = Setiadi;
+module.exports = Verberne;
