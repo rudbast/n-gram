@@ -14,7 +14,7 @@ var Trie        = require(__dirname + '/../util/Trie.js'),
  * @property {object}  vocabularies  Trie's structured vocabularies
  * @constructor
  */
-var Corrector = function (ngrams, distanceLimit) {
+var Corrector = function (ngrams, distanceLimit = 2) {
     this.data          = ngrams;
     this.distanceLimit = distanceLimit;
     this.vocabularies  = new Trie();

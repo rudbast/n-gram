@@ -8,14 +8,15 @@ var levenshtein = require(__dirname + '/../util/Levenshtein.js'),
  * @see https://www.researchgate.net/publication/268334497_Damerau-Levenshtein_Algorithm_and_Bayes_Theorem_for_Spell_Checker_Optimization
  *
  * @param {object}  ngrams        Word index
+ * @param {integer} distanceLimit Words distance limit
  *
  * @property {object}  data          N-grams words index container
  * @property {integer} distanceLimit Words distance limit
  * @constructor
  */
-var Setiadi = function (ngrams) {
+var Setiadi = function (ngrams, distanceLimit = 1) {
     this.data          = ngrams;
-    this.distanceLimit = 1;
+    this.distanceLimit = distanceLimit;
 };
 
 var Setiadi.prototype = {

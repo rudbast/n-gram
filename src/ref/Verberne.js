@@ -8,12 +8,13 @@ var levenshtein = require(__dirname + '/../util/Levenshtein.js'),
  * @see http://sverberne.ruhosting.nl/papers/verberne2002.pdf
  *
  * @param {object}  ngrams        Word index
+ * @param {integer} distanceLimit Words distance limit
  *
  * @property {object}  data          N-grams words index container
  * @property {integer} distanceLimit Words distance limit
  * @constructor
  */
-var Verberne = function (ngrams, distanceLimit) {
+var Verberne = function (ngrams, distanceLimit = 2) {
     this.data          = ngrams;
     this.distanceLimit = distanceLimit;
 };
