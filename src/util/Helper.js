@@ -13,7 +13,8 @@ var mongoClient   = require('mongodb').MongoClient,
  */
 function cleanInitial(content) {
     content = content.toLowerCase();
-    content = content.replace(/([:;()!?<>\%\$\/\\"'\*\d{}^=|]|\s\-\s)/g, ',');
+    content = content.replace(/([:;()!?<>\%\$\/\\"'\*\d{}\^=\|\~&\[\]]|\s\-\s)/g, ',');
+    content = content.replace(/[@\+’]/g, '');
     content = content.replace(/,+/g, ', ');
     content = content.replace(/\s+/g, ' ');
     return content;
@@ -27,7 +28,6 @@ function cleanInitial(content) {
  */
 function cleanExtra(content) {
     content = content.replace(/\./g, ' ');
-    content = content.replace(/\-/g, ' ');
     content = content.replace(/\s+/g, ' ');
     return content;
 }
