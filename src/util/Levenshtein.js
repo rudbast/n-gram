@@ -91,11 +91,11 @@ var distanceOnThreshold = function (source, target, threshold) {
                                curr[i-1] + 1);
         }
 
-        for (var check = 0; check < curr.length; check++) {
-            if (check > 0) process.stdout.write(' ');
-            process.stdout.write(curr[check] + '');
-        }
-        console.log();
+        // for (var check = 0; check < curr.length; check++) {
+        //     if (check > 0) process.stdout.write(' ');
+        //     process.stdout.write(curr[check] + '');
+        // }
+        // console.log();
 
         temp = prev;
         prev = curr;
