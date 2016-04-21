@@ -73,10 +73,44 @@ function connectDatabase(hostname, port, database, callback) {
     });
 }
 
+/**
+ * Create a combination of words (as sentences) given a list of
+ * words' with probability values in the corrections list.
+ *
+ * @param  {array}  corrections Multiple words' parts container
+ * @return {object}          Sentence made from words combination with it's probability
+ */
+function createCombination(corrections) {
+    var combination = new Object();
+
+    corrections.forEach(function (correction) {
+        var newCombination    = new Object(),
+            combinationLength = Object.keys(combination).length;
+
+        for (var word in correction) {
+            if (combinationLength == 0) {
+                newCombination[word] = correction[word];
+            } else {
+                for (var sentence in combination) {
+                    // NOTE: current probability method is computed by multiplication,
+                    //      this might need more consideration, since addition could be
+                    //      a solution too.
+                    newCombination[`${sentence} ${word}`] = combination[sentence] * correction[word];
+                }
+            }
+        }
+
+        combination = newCombination;
+    });
+
+    return combination;
+}
+
 module.exports = {
-    cleanInitial,
     cleanExtra,
-    splitToSentence,
+    cleanInitial,
+    connectDatabase,
+    createCombination,
     sortObject,
-    connectDatabase
+    splitToSentence
 };
