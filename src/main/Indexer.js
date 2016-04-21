@@ -172,6 +172,14 @@ Indexer.prototype = {
                     self.data[gramFileName] = data;
 
                     if ((++loadCount) == files.length) {
+                        var unigramSize = Object.keys(self.data.unigrams).length;
+                        var bigramSize = Object.keys(self.data.bigrams).length;
+                        var trigramSize = Object.keys(self.data.trigrams).length;
+
+                        console.log(`unigram: ${unigramSize}`);
+                        console.log(`bigram: ${bigramSize}`);
+                        console.log(`trigram: ${trigramSize}`);
+
                         if (callback && typeof callback == "function") callback();
                     }
                 });
