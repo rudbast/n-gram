@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+ * Program arguments: <file>
+ *
+ * @param {string} file Full path of the file used as program output (articles data).
+ */
+
 var fs     = require('fs'),
     prompt = require('prompt'),
     jsfile = require('jsonfile');

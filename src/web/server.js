@@ -1,3 +1,11 @@
+'use strict';
+
+/**
+ * Program arguments: <directory>
+ *
+ * @param {string} directory Directory path which contains the ngrams index file (to be loaded upon demand)
+ */
+
 var express = require('express');
 var app     = express();
 
