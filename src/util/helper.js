@@ -77,10 +77,11 @@ function connectDatabase(hostname, port, database, callback) {
  * Create a combination of words (as sentences) given a list of
  * words' with probability values in the corrections list.
  *
- * @param  {array}  corrections Multiple words' parts container
- * @return {object}          Sentence made from words combination with it's probability
+ * @param  {array}  corrections   Multiple words' parts container
+ * @param  {string} rankOperation Type of operation to deal with ranks
+ * @return {object}               Sentence made from words combination with it's probability
  */
-function createCombination(corrections) {
+function createCombination(corrections, rankOperation) {
     var combination = new Object();
 
     corrections.forEach(function (correction) {
@@ -92,10 +93,20 @@ function createCombination(corrections) {
                 newCombination[word] = correction[word];
             } else {
                 for (var sentence in combination) {
-                    // NOTE: current probability method is computed by multiplication,
-                    //      this might need more consideration, since addition could be
-                    //      a solution too.
-                    newCombination[`${sentence} ${word}`] = combination[sentence] * correction[word];
+                    var newRank;
+                    switch (rankOperation) {
+                        case 'plus':
+                            newRank = combination[sentence] + correction[word];
+                            break;
+
+                        case 'multiply':
+                            newRank = combination[sentence] * correction[word];
+                            break;
+
+                        default:
+                            newRank = combination[sentence] + correction[word];
+                    }
+                    newCombination[`${sentence} ${word}`] = newRank;
                 }
             }
         }

@@ -41,10 +41,11 @@ Setiadi.prototype = {
     /**
      * Get list of similar words suggestion given a word.
      *
-     * @param  {string} inputWord Input word
-     * @return {object}           Suggestion list of similar words
+     * @param  {string}  inputWord         Input word
+     * @param  {boolean} useWordAssumption Indicates needs of additional points for word rank
+     * @return {object}                    Suggestion list of similar words
      */
-    getSuggestions: function (inputWord) {
+    getSuggestions: function (inputWord, useWordAssumption) {
         var checkedLength = inputWord.length,
             dictLength    = Object.keys(this.data.unigrams).length,
             ranksMarginal = Math.floor(dictLength / 3);
@@ -64,10 +65,12 @@ Setiadi.prototype = {
                         var rank = this.data.unigrams[dictWord];
 
                         // Words' statictics' probabilities using assumption.
-                        if (wordLength > checkedLength) {
-                            rank += 3 * ranksMarginal;
-                        } else if (wordLength == checkedLength) {
-                            rank += 2 * ranksMarginal;
+                        if (useWordAssumption) {
+                            if (wordLength > checkedLength) {
+                                rank += 3 * ranksMarginal;
+                            } else if (wordLength == checkedLength) {
+                                rank += 2 * ranksMarginal;
+                            }
                         }
 
                         suggestions[dictWord] = rank;
@@ -102,20 +105,21 @@ Setiadi.prototype = {
                     [`${part}`]: self.data.unigrams[word]
                 });
             } else {
-                var wordSuggestions     = self.getSuggestions(word),
+                var useWordAssumption   = false,
+                    wordSuggestions     = self.getSuggestions(word, useWordAssumption),
                     wordSuggestionsSize = Object.keys(wordSuggestions).length;
 
-                if (wordSuggestionsSize != 0 ) {
+                if (wordSuggestionsSize != 0) {
                     corrections.push(wordSuggestions);
                 } else {
                     corrections.push({
-                        [`${part}`]: self.data.unigrams[word]
+                        [`${part}`]: 0
                     });
                 }
             }
         });
 
-        var suggestions = helper.createCombination(corrections);
+        var suggestions = helper.createCombination(corrections, 'plus');
         return suggestions;
     }
 };
