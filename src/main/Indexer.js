@@ -5,24 +5,29 @@ var fs     = require('fs'),
     assert = require('assert');
 
 var ngramUtil   = require(__dirname + '/../util/ngram.js'),
-    helper      = require(__dirname + '/../util/helper.js');
+    helper      = require(__dirname + '/../util/helper.js'),
+    levenshtein = require(__dirname + '/../util/Levenshtein.js');
 
 /**
  * Index builder class.
  *
  * @param {object} db Database connection object
  *
- * @property {object} db   Database connection object
- * @property {object} data N-grams words index container
+ * @property {object}  db            Database connection object
+ * @property {object}  data          N-grams words index container
+ * @property {object}  similars      Words similarity pair container
+ * @property {integer} distanceLimit Words similarity distance limit
  * @constructor
  */
-var Indexer = function (db) {
+var Indexer = function (db, distanceLimit) {
     this.db   = db;
     this.data = {
         unigrams: new Object(),
         bigrams: new Object(),
         trigrams: new Object()
     };
+    this.similars = new Object();
+    this.distanceLimit = distanceLimit;
 };
 
 Indexer.prototype = {
@@ -33,6 +38,15 @@ Indexer.prototype = {
      */
     getData: function () {
         return this.data;
+    },
+
+    /**
+     * Retrive the words similarities data.
+     *
+     * @return {object} Words similarities
+     */
+    getSimilars: function () {
+        return this.similars;
     },
 
     /**
@@ -267,6 +281,75 @@ Indexer.prototype = {
             }
         }
     },
+
+
+    /**
+     * Construct words similarity information.
+     *
+     * @param  {function} callback Callback function
+     * @return {void}
+     */
+    constructSimilarities: function (callback) {
+        var similarityIndex = 0;
+
+        for (var sourceWord in this.data.unigrams) {
+            this.similars[sourceWord] = new Array();
+
+            for (var targetWord in this.data.unigrams) {
+                if (sourceWord != targetWord) {
+                    var distance = levenshtein.distance(sourceWord, targetWord);
+
+                    if (distance <= this.distanceLimit) {
+                        var similarWord = [targetWord, distance];
+                        this.similars[sourceWord].push(similarWord);
+                    }
+                }
+            }
+
+            if (this.similars[sourceWord].length > 1) {
+                // Sort list in an ascending manner of distance's value.
+                // @see: http://stackoverflow.com/a/1069840/3190026
+                this.similars[sourceWord].sort(function (a, b) {
+                    return a[1] - b[1];
+                });
+            }
+
+            console.log('Similarity index count: ' + (++similarityIndex));
+        }
+
+        if (callback && typeof callback == "function") callback();
+    },
+
+    /**
+     * Load words similarities information from file.
+     *
+     * @param  {string}   file     Complete file path to be loaded from
+     * @param  {function} callback Callback function
+     * @return {void}
+     */
+    loadSimilaritiesFromFile: function (file, callback) {
+        var self = this;
+
+        jsFile.readFile(`${file}`, function (err, data) {
+            assert.equal(err, null);
+            self.similars = data;
+            if (callback && typeof callback == "function") callback();
+        });
+    },
+
+    /**
+     * Save words similarities information to file.
+     *
+     * @param  {string}   file     Complete file path to be saved to
+     * @param  {function} callback Callback function
+     * @return {void}
+     */
+    saveSimilaritiesToFile: function (file, callback) {
+        jsFile.writeFile(`${file}`, this.similars, {spaces: 4}, function (err) {
+            assert.equal(err, null);
+            if (callback && typeof callback == "function") callback();
+        });
+    }
 };
 
 module.exports = Indexer;
