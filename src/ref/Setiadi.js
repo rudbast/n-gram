@@ -57,8 +57,7 @@ Setiadi.prototype = {
                 var wordLength = dictWord.length;
                 // Pruning words distance calculation.
                 if (wordLength >= checkedLength - 1 || wordLength <= checkedLength + 1) {
-                    // var distance = levenshtein.damLevDistance(inputWord, dictWord);
-                    var distance = levenshtein.distance(inputWord, dictWord);
+                    var distance = levenshtein.damerauDistance(inputWord, dictWord);
 
                     if (distance <= this.distanceLimit) {
                         // Bayes theorem implementation.
