@@ -8,9 +8,11 @@ var levenshtein = require(__dirname + '/../util/Levenshtein.js'),
  * @see https://www.researchgate.net/publication/268334497_Damerau-Levenshtein_Algorithm_and_Bayes_Theorem_for_Spell_Checker_Optimization
  *
  * @param {object}  ngrams        Word index
+ * @param {object}  similars      Words with it's similars pairs
  * @param {integer} distanceLimit Words distance limit
  *
  * @property {object}  data          N-grams words index container
+ * @property {object}  similars      Words with it's similars pairs
  * @property {integer} distanceLimit Words distance limit
  * @constructor
  */
