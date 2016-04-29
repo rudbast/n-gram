@@ -12,48 +12,85 @@ var app     = express();
 var helper    = require(__dirname + '/../util/helper.js'),
     Indexer   = require(__dirname + '/../main/Indexer.js'),
     // Corrector = require(__dirname + '/../main/Corrector.js');
-    Corrector = require(__dirname + '/../ref/Setiadi.js');
-    // Corrector = require(__dirname + '/../ref/Verberne.js');
+    // Corrector = require(__dirname + '/../ref/Setiadi.js');
+    Corrector = require(__dirname + '/../ref/Verberne.js');
 
 const DB_HOST  = 'localhost',
       DB_PORT  = '27017',
-      DB_NAME  = 'autocorrect'
+      DB_NAME  = 'autocorrect',
       WEB_PORT = '3000';
 
 var connection,
     indexer,
     corrector;
 
-var outputDir = process.argv[2];
+const DISTANCE_LIMIT = 2;
+
+var outputDir  = process.argv.length > 2 ? process.argv[2] : __dirname + '/../../out/ngrams',
+    outputFile = process.argv.length > 3 ? process.argv[3] : __dirname + '/../../out/similars.json';
 
 /** Index page. */
 app.get('/', function (request, response) {
     response.send('home');
 });
 
-/** Words index manipulation. */
-app.get('/index/:action/:target', function (request, response) {
+/** Words informations manipulation. */
+app.get('/data/:action/:target', function (request, response) {
     var action = request.params.action,
         target = request.params.target;
 
+    const totalTask = 2;
+
+    var check = function (finishedTask, callback) {
+        if (finishedTask == totalTask) {
+            callback();
+        }
+    }
+
+    var taskCount = 0;
     switch (action) {
         case 'load':
             if (target == 'file') {
-                indexer.loadIndexFromFile(outputDir, function () {
-                    corrector = new Corrector(indexer.getData());
+                var finished = function () {
+                    corrector = new Corrector(indexer.getData(), indexer.getSimilars());
+                    response.send('finished loading informations from file.');
+                }
 
-                    response.send('finished loading index from file.');
+                // Load informations.
+                indexer.loadIndexFromFile(outputDir, function () {
+                    check(++taskCount, finished);
+                });
+                indexer.loadSimilaritiesFromFile(outputFile, function () {
+                    check(++taskCount, finished);
                 });
             } else {}
             break;
 
         case 'build':
             if (target == 'file') {
-                indexer.constructIndex(function () {
-                    indexer.saveIndexToFile(outputDir, function () {
-                        corrector = new Corrector(indexer.getData());
+                var finished = function () {
+                    corrector = new Corrector(indexer.getData(), indexer.getSimilars());
+                    response.send('saved index to file.');
+                }
 
-                        response.send('saved index to file.');
+                console.time('constructIndex');
+
+                // Construct informations.
+                indexer.constructIndex(function () {
+                    console.timeEnd('constructIndex');
+
+                    // Save informations.
+                    indexer.saveIndexToFile(outputDir, function () {
+                        check(++taskCount, finished);
+
+                        console.time('constructSimilarities');
+                        indexer.constructSimilarities(function () {
+                            console.timeEnd('constructSimilarities');
+
+                            indexer.saveSimilaritiesToFile(outputFile, function () {
+                                check(++taskCount, finished);
+                            });
+                        });
                     });
                 });
             } else {}
@@ -97,7 +134,7 @@ helper.connectDatabase(DB_HOST, DB_PORT, DB_NAME, function (db) {
     console.log('Connected to database.');
 
     connection = db;
-    indexer    = new Indexer(db);
+    indexer    = new Indexer(db, DISTANCE_LIMIT);
 
     process.on('exit', function () {
         connection.close();
