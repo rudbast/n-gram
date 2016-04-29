@@ -57,6 +57,8 @@ Indexer.prototype = {
      * @return {void}
      */
     extractIndex: function (article, callback) {
+        var self = this;
+
         var ngrams = {
             unigrams: new Object(),
             bigrams: new Object(),
@@ -66,19 +68,130 @@ Indexer.prototype = {
         var content   = helper.cleanInitial(`${article.title}, ${article.content}`),
             sentences = helper.splitToSentence(content);
 
+        const INVALID_BRACKET = 'INVALID';
+
+        /**
+         * Extract content inside a bracket.
+         *
+         * @param  {string} sentence Text sentence
+         * @return {object}          Extracted text and the resulting sentence
+         */
+        var extractBracketContents = function (sentence) {
+            var openBracketPos  = sentence.indexOf('('),
+                closeBracketPos = sentence.indexOf(')'),
+                bracketContent  = '';
+
+            // Extract content in a bracket, remove the bracket if either the open
+            // or close symbol is missing.
+            if (openBracketPos != -1 && closeBracketPos != -1) {
+                if (openBracketPos < closeBracketPos) {
+                    bracketContent = sentence.substring(openBracketPos + 1, closeBracketPos);
+                    sentence       = sentence.substring(0, openBracketPos) + ' ' + sentence.substring(closeBracketPos + 1);
+                } else if (openBracketPos > closeBracketPos) {
+                    bracketContent = INVALID_BRACKET;
+                    sentence       = sentence.replace(/[)(]/, '');
+                }
+            } else if (openBracketPos == -1) {
+                sentence = sentence.replace(/\)/, '');
+            } else if (closeBracketPos == -1) {
+                sentence = sentence.replace(/\(/, '');
+            }
+
+            return {
+                sentence: sentence,
+                bracketContent: bracketContent
+            };
+        };
+
+        /**
+         * Remove noise of the word 'Baca:' in a text as sometimes it's
+         * not in a complete form (library failure).
+         *
+         * @param  {string} sentence Text sentence
+         * @return {string}          Text sentence after noise removal
+         */
+        var removeBracketNoise = function (sentence, noise) {
+            var noiseOpenPos = sentence.indexOf(noise);
+
+            if (noiseOpenPos != -1) {
+                var noiseOtherOpenPos  = -1,
+                    noiseOtherClosePos = -1,
+                    noiseLastClosePos;
+
+                var totalOpenPos  = 1,  // noise counts as 1.
+                    totalClosePos = 0;
+
+                // Find total open bracket.
+                while ((noiseOtherOpenPos = sentence.indexOf('(', noiseOtherOpenPos + 1)) != -1) {
+                    totalOpenPos++;
+                }
+
+                // Find total close bracket.
+                while ((noiseOtherClosePos = sentence.indexOf('(', noiseOtherClosePos + 1)) != -1) {
+                    if (noiseOtherClosePos != -1) {
+                        totalClosePos++;
+                        noiseLastClosePos = noiseOtherClosePos;
+                    }
+                }
+
+                // When bracket total doesn't match, simply replace the 'noise',
+                // else get the substring content of the noise.
+                if (totalOpenPos != totalClosePos) {
+                    sentence = sentence.replace(noise, '');
+                } else if (noiseOpenPos == 0) {
+                    sentence = sentence.substring(noiseOpenPos + noise.length + 1, noiseLastClosePos);
+                } else {
+                    var front  = sentence.substring(0, noiseOpenPos),
+                        middle = sentence.substring(noiseOpenPos + noise.length, noiseLastClosePos),
+                        end    = sentence.substring(noiseLastClosePos + 1);
+
+                    sentence = `${front} ${middle} ${end}`;
+                }
+            }
+
+            return sentence;
+        };
+
         sentences.forEach(function (sentence) {
-            sentence = helper.cleanExtra(sentence);
-            var parts = sentence.split(',');
+            // Remove dot at the end tabof sentence.
+            sentence = sentence.replace(/\.$/, '');
+
+            sentence = removeBracketNoise(sentence, '(baca,');
+            sentence = removeBracketNoise(sentence, '(baca juga,');
+            sentence = removeBracketNoise(sentence, '(');
+
+            var bracketContent,
+                bracketResult;
+
+            var bracketParts = new Array(),
+                parts        = new Array();
+
+            do {
+                bracketResult  = extractBracketContents(sentence);
+                sentence       = helper.cleanExtra(bracketResult.sentence);
+                bracketContent = helper.cleanExtra(bracketResult.bracketContent);
+
+                if (bracketContent != '' && bracketContent != INVALID_BRACKET) {
+                    bracketParts = bracketParts.concat(bracketContent.split(','));
+                }
+            } while (bracketContent != '');
+
+            parts = parts.concat(sentence.split(','));
+            // Merge content if bracket content is not empty.
+            if (bracketParts.length > 0) {
+                parts = parts.concat(bracketParts);
+            }
 
             parts.forEach(function (part) {
                 // Remove spaces at the start / end of text.
                 part = part.replace(/^\s+|\s+$/g, '');
 
-                var containsAlphabets = (part.search(/[a-z]{2,}/g) != -1),
-                    isNotEmpty        = (part != '');
+                // var containsAlphabets = (part.search(/[a-z]{2,}/g) != -1),
+                var isNotEmpty = (part != '');
 
                 // Filtering content.
-                if (isNotEmpty && containsAlphabets) {
+                // if (isNotEmpty && containsAlphabets) {
+                if (isNotEmpty) {
                     var newGrams = ngramUtil.tripleNSplit(part);
 
                     for (var gram in newGrams) {
@@ -88,16 +201,16 @@ Indexer.prototype = {
                                 //      and bypass them, except for word repeat such as 'kata-kata',
                                 //      but the solution below is considered a 'hack', as it might
                                 //      fail in a 2/3-gram words couple, such as 'kata-kata u-'.
-                                var containsWordRepeat = word.match(/[a-z]+-[a-z]+/),
-                                    containsDash       = word.match(/-/);
+                                // var containsWordRepeat = word.match(/[a-z]+-[a-z]+/),
+                                    // containsDash       = word.match(/-/);
 
-                                if ((containsDash && containsWordRepeat) || !containsDash) {
+                                // if ((containsDash && containsWordRepeat) || !containsDash) {
                                     if (!ngrams[gram][word]) {
                                         ngrams[gram][word] = 1;
                                     } else {
                                         ++ngrams[gram][word];
                                     }
-                                }
+                                // }
                             });
                         }
                     }
@@ -293,27 +406,19 @@ Indexer.prototype = {
         var similarityIndex = 0;
 
         for (var sourceWord in this.data.unigrams) {
-            this.similars[sourceWord] = new Array();
+            var similar = new Object();
 
             for (var targetWord in this.data.unigrams) {
                 if (sourceWord != targetWord) {
                     var distance = levenshtein.distance(sourceWord, targetWord);
 
                     if (distance <= this.distanceLimit) {
-                        var similarWord = [targetWord, distance];
-                        this.similars[sourceWord].push(similarWord);
+                        similar[targetWord] = distance;
                     }
                 }
             }
 
-            if (this.similars[sourceWord].length > 1) {
-                // Sort list in an ascending manner of distance's value.
-                // @see: http://stackoverflow.com/a/1069840/3190026
-                this.similars[sourceWord].sort(function (a, b) {
-                    return a[1] - b[1];
-                });
-            }
-
+            this.similars[sourceWord] = similar;
             console.log('Similarity index count: ' + (++similarityIndex));
         }
 

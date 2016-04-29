@@ -13,8 +13,27 @@ var mongoClient   = require('mongodb').MongoClient,
  */
 function cleanInitial(content) {
     content = content.toLowerCase();
-    content = content.replace(/([:;()!?<>\%\$\/\\"'\*\d{}\^=\|\~&\[\]]|\s\-\s)/g, ',');
-    content = content.replace(/[@\+’]/g, '');
+
+    // content = content.replace(/([:;()!?<>\%\$\/\\"“”‘’'\*\d{}\^=\|\~&]|\s\-\s)/g, ',');
+    // content = content.replace(/[@\+’]/g, '');
+
+    content = content.replace(/[‘’]/g, '\'');
+    content = content.replace(/[“”]/g, '"');
+    content = content.replace(/'+/g, '\'');
+    content = content.replace(/"+/g, '"');
+    content = content.replace(/\[/g, '(');
+    content = content.replace(/\]/g, ')');
+
+    // NOTE: Code below is to be run twice, in case a double 'single'
+    //      apostrophe occurred but had a space in between.
+    content = content.replace(/(\s'|'\s|")/g, ' ');
+    content = content.replace(/(\s'|'\s|")/g, ' ');
+
+    // NOTE: Code below is only needed to avoid error when splitting
+    //      sentence.
+    content = content.replace(/\\/g, '');
+
+    content = content.replace(/[;!?|]|\s-\s|\.\.\.|:\s/g, ',');
     content = content.replace(/,+/g, ', ');
     content = content.replace(/\s+/g, ' ');
     return content;
@@ -27,7 +46,7 @@ function cleanInitial(content) {
  * @return {string}         Cleaned content
  */
 function cleanExtra(content) {
-    content = content.replace(/\./g, ' ');
+    // content = content.replace(/\./g, ' ');
     content = content.replace(/\s+/g, ' ');
     return content;
 }
