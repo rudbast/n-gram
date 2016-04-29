@@ -14,8 +14,9 @@ var levenshtein = require(__dirname + '/../util/Levenshtein.js'),
  * @property {integer} distanceLimit Words distance limit
  * @constructor
  */
-var Setiadi = function (ngrams, distanceLimit) {
+var Setiadi = function (ngrams, similars, distanceLimit) {
     this.data          = ngrams;
+    this.similars      = similars;
     this.distanceLimit = distanceLimit !== undefined ? distanceLimit : 1;
 };
 
@@ -57,7 +58,14 @@ Setiadi.prototype = {
                 var wordLength = dictWord.length;
                 // Pruning words distance calculation.
                 if (wordLength >= checkedLength - 1 || wordLength <= checkedLength + 1) {
-                    var distance = levenshtein.damerauDistance(inputWord, dictWord);
+                    var distance;
+                    // Alternate between the two damerau distance if any error occurred.
+                    try {
+                        distance = levenshtein.damerauDistance(inputWord, dictWord);
+                    } catch (err) {
+                        // console.error('err: ' + inputWord + ' - ' + dictWord);
+                        distance = levenshtein.optimalDamerauDistance(inputWord, dictWord);
+                    }
 
                     if (distance <= this.distanceLimit) {
                         // Bayes theorem implementation.
@@ -118,7 +126,7 @@ Setiadi.prototype = {
             }
         });
 
-        var suggestions = helper.createCombination(corrections, 'plus');
+        var suggestions = helper.createUnigramCombination(corrections, 'plus');
         return suggestions;
     }
 };
