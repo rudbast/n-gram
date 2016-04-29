@@ -1,6 +1,6 @@
 'use strict';
 
-var levenshtein = require(__dirname + '/../util/Levenshtein.js'),
+var levenshtein = require(__dirname + '/../util/levenshtein.js'),
     helper      = require(__dirname + '/../util/helper.js'),
     ngramUtil   = require(__dirname + '/../util/ngram.js');
 

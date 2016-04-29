@@ -6,7 +6,7 @@ var fs     = require('fs'),
 
 var ngramUtil   = require(__dirname + '/../util/ngram.js'),
     helper      = require(__dirname + '/../util/helper.js'),
-    levenshtein = require(__dirname + '/../util/Levenshtein.js');
+    levenshtein = require(__dirname + '/../util/levenshtein.js');
 
 /**
  * Index builder class.
