@@ -67,16 +67,6 @@ function splitToSentence(text) {
 }
 
 /**
- * Sort object by property name.
- *
- * @param  {object} o Object to be sorted
- * @return {object}   Sorted object
- */
-function sortObject(o) {
-    return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
-}
-
-/**
  * Connect to database.
  *
  * @param  {function} callback Callback function
@@ -100,7 +90,7 @@ function connectDatabase(hostname, port, database, callback) {
  * @param  {string} rankOperation Type of operation to deal with ranks
  * @return {object}               Sentence made from words combination with it's probability
  */
-function createCombination(corrections, rankOperation) {
+function createUnigramCombination(corrections, rankOperation) {
     var combination = new Object();
 
     corrections.forEach(function (correction) {
@@ -136,11 +126,85 @@ function createCombination(corrections, rankOperation) {
     return combination;
 }
 
+/**
+ * Create a combination of words (as sentences) given a list of
+ * words' with probability values in the corrections list.
+ *
+ * @param  {array}  corrections   Multiple words' parts container
+ * @param  {string} rankOperation Type of operation to deal with ranks
+ * @return {object}               Sentence made from words combination with it's probability
+ */
+function createTrigramCombination(corrections, rankOperation) {
+    var combination = new Object();
+
+    corrections.forEach(function (correction) {
+        var newCombination    = new Object(),
+            combinationLength = Object.keys(combination).length;
+
+        for (var trigram in correction) {
+            if (combinationLength == 0) {
+                newCombination[trigram] = correction[trigram];
+            } else {
+                for (var sentence in combination) {
+                    var newRank, extraWord,
+                        trigramSubsetPos = subsetTrigramOf(sentence, trigram);
+
+                    // FIXME: Data in the correction might not always be in a
+                    //      trigram form, need extra check to make sure it's
+                    //      trigram.
+                    if (trigramSubsetPos != -1) {
+                        console.log(sentence);
+                        extraWord = trigram.substring(trigramSubsetPos);
+
+                        switch (rankOperation) {
+                            case 'plus':
+                                newRank = combination[sentence] + correction[trigram];
+                                break;
+
+                            case 'multiply':
+                                newRank = combination[sentence] * correction[trigram];
+                                break;
+
+                            default:
+                                newRank = combination[sentence] + correction[trigram];
+                        }
+                        newCombination[`${sentence} ${extraWord}`] = newRank;
+                    }
+                }
+            }
+        }
+
+        combination = newCombination;
+    });
+
+    return combination;
+}
+
+/**
+ * Check if trigram is a subset of the given sentence, returns the
+ * position of the third word if subset confirmed, returns -1 otherwise.
+ *
+ * @param  {string}  sentence Sentence to be checked on
+ * @param  {string}  trigram  Trigram to be checked with
+ * @return {integer}          Position of the third word (trigram)
+ */
+function subsetTrigramOf(sentence, trigram) {
+    var firstSpacePos  = trigram.indexOf(' '),
+        secondSpacePos = trigram.indexOf(' ', firstSpacePos + 1);
+
+    var subsetTrigram     = trigram.substring(0, secondSpacePos),
+        sentenceSubsetPos = sentence.indexOf(subsetTrigram, sentence.length - subsetTrigram.length),
+        isSubsetTrigram   = (sentenceSubsetPos != -1);
+
+    return (isSubsetTrigram ? secondSpacePos + 1 : -1);
+}
+
 module.exports = {
     cleanExtra,
     cleanInitial,
     connectDatabase,
-    createCombination,
-    sortObject,
+    createUnigramCombination,
+    createTrigramCombination,
+    subsetTrigramOf,
     splitToSentence
 };
