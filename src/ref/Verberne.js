@@ -77,16 +77,17 @@ Verberne.prototype = {
             parts       = ngramUtil.triSplit(sentence);
 
         parts.forEach(function (part) {
-            var words          = ngramUtil.uniSplit(part),
-                errorIndexes   = self.detectNonWord(words),
-                isValidTrigram = self.detectRealWord(part),
-                alternatives   = new Object();
+            var words            = ngramUtil.uniSplit(part),
+                errorIndexes     = self.detectNonWord(words),
+                errorIndexLength = Object.keys(errorIndexes).length,
+                isValidTrigram   = self.detectRealWord(part),
+                alternatives     = new Object();
 
-            if (errorIndexes.length == 0 && isValidTrigram) {
+            if (errorIndexLength == 0 && isValidTrigram) {
                 alternatives[part] = self.data.trigrams[part];
             } else if (!isValidTrigram) {
                 alternatives = self.createAlternatives(words);
-            } else if (errorIndexes.length != 0) {
+            } else if (errorIndexLength != 0) {
                 // Since verberne's spelling corrector only correct real word error,
                 // we'll push the original ones in if it contains non-word error.
                 alternatives[part] = 0;
