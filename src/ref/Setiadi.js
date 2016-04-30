@@ -32,13 +32,10 @@ Setiadi.prototype = {
      */
     isValid: function (inputWord) {
         for (var word in this.data.unigrams) {
-            if (this.data.unigrams.hasOwnProperty(word)) {
-                if (word == inputWord) {
-                    return true;
-                }
+            if (word == inputWord) {
+                return true;
             }
         }
-
         return false;
     },
 
