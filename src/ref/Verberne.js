@@ -95,7 +95,7 @@ Verberne.prototype = {
             corrections.push(alternatives);
         });
 
-        var suggestions = helper.createTrigramCombination(corrections, 'plus');
+        var suggestions = helper.createNgramCombination(corrections, 'plus');
         return suggestions;
     },
 
@@ -163,9 +163,9 @@ Verberne.prototype = {
         ];
 
         var collections = [
-            helper.createUnigramCombination([this.getSuggestions(words[0]), wordAlts[1], wordAlts[2]]),
-            helper.createUnigramCombination([wordAlts[0], this.getSuggestions(words[1]), wordAlts[2]]),
-            helper.createUnigramCombination([wordAlts[0], wordAlts[1], this.getSuggestions(words[2])])
+            helper.createNgramCombination([this.getSuggestions(words[0]), wordAlts[1], wordAlts[2]]),
+            helper.createNgramCombination([wordAlts[0], this.getSuggestions(words[1]), wordAlts[2]]),
+            helper.createNgramCombination([wordAlts[0], wordAlts[1], this.getSuggestions(words[2])])
         ];
 
         collections.forEach(function (collection) {

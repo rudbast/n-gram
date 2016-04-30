@@ -5,6 +5,8 @@ var assert = require('assert');
 var mongoClient   = require('mongodb').MongoClient,
     mongoObjectId = require('mongodb').ObjectId;
 
+var ngramUtil = require(__dirname + '/ngram.js');
+
 /**
  * Clean article content.
  *
@@ -90,83 +92,35 @@ function connectDatabase(hostname, port, database, callback) {
  * @param  {string} rankOperation Type of operation to deal with ranks
  * @return {object}               Sentence made from words combination with it's probability
  */
-function createUnigramCombination(corrections, rankOperation) {
+function createNgramCombination(corrections, rankOperation) {
     var combination = new Object();
 
     corrections.forEach(function (correction) {
         var newCombination    = new Object(),
             combinationLength = Object.keys(combination).length;
 
-        for (var word in correction) {
+        for (var gram in correction) {
             if (combinationLength == 0) {
-                newCombination[word] = correction[word];
+                newCombination[gram] = correction[gram];
             } else {
                 for (var sentence in combination) {
-                    var newRank;
-                    switch (rankOperation) {
-                        case 'plus':
-                            newRank = combination[sentence] + correction[word];
-                            break;
+                    var gramSubsetPos = subsetNgramOf(sentence, gram),
+                        newRank, extraWord;
 
-                        case 'multiply':
-                            newRank = combination[sentence] * correction[word];
-                            break;
-
-                        default:
-                            newRank = combination[sentence] + correction[word];
-                    }
-                    newCombination[`${sentence} ${word}`] = newRank;
-                }
-            }
-        }
-
-        combination = newCombination;
-    });
-
-    return combination;
-}
-
-/**
- * Create a combination of words (as sentences) given a list of
- * words' with probability values in the corrections list.
- *
- * @param  {array}  corrections   Multiple words' parts container
- * @param  {string} rankOperation Type of operation to deal with ranks
- * @return {object}               Sentence made from words combination with it's probability
- */
-function createTrigramCombination(corrections, rankOperation) {
-    var combination = new Object();
-
-    corrections.forEach(function (correction) {
-        var newCombination    = new Object(),
-            combinationLength = Object.keys(combination).length;
-
-        for (var trigram in correction) {
-            if (combinationLength == 0) {
-                newCombination[trigram] = correction[trigram];
-            } else {
-                for (var sentence in combination) {
-                    var newRank, extraWord,
-                        trigramSubsetPos = subsetTrigramOf(sentence, trigram);
-
-                    // FIXME: Data in the correction might not always be in a
-                    //      trigram form, need extra check to make sure it's
-                    //      trigram.
-                    if (trigramSubsetPos != -1) {
-                        console.log(sentence);
-                        extraWord = trigram.substring(trigramSubsetPos);
+                    if (gramSubsetPos != -1) {
+                        extraWord = gram.substring(gramSubsetPos);
 
                         switch (rankOperation) {
                             case 'plus':
-                                newRank = combination[sentence] + correction[trigram];
+                                newRank = combination[sentence] + correction[gram];
                                 break;
 
                             case 'multiply':
-                                newRank = combination[sentence] * correction[trigram];
+                                newRank = combination[sentence] * correction[gram];
                                 break;
 
                             default:
-                                newRank = combination[sentence] + correction[trigram];
+                                newRank = combination[sentence] + correction[gram];
                         }
                         newCombination[`${sentence} ${extraWord}`] = newRank;
                     }
@@ -181,30 +135,33 @@ function createTrigramCombination(corrections, rankOperation) {
 }
 
 /**
- * Check if trigram is a subset of the given sentence, returns the
- * position of the third word if subset confirmed, returns -1 otherwise.
+ * Check if given gram is a subset of given sentence, returns the
+ * position of the last word if subset confirmed, returns -1 otherwise.
  *
  * @param  {string}  sentence Sentence to be checked on
- * @param  {string}  trigram  Trigram to be checked with
- * @return {integer}          Position of the third word (trigram)
+ * @param  {string}  gram     Gram to be checked with
+ * @return {integer}          Position of the last word
  */
-function subsetTrigramOf(sentence, trigram) {
-    var firstSpacePos  = trigram.indexOf(' '),
-        secondSpacePos = trigram.indexOf(' ', firstSpacePos + 1);
+function subsetNgramOf(sentence, gram) {
+    var gramLength   = ngramUtil.uniSplit(gram).length,
+        lastSpacePos = -1;
 
-    var subsetTrigram     = trigram.substring(0, secondSpacePos),
-        sentenceSubsetPos = sentence.indexOf(subsetTrigram, sentence.length - subsetTrigram.length),
-        isSubsetTrigram   = (sentenceSubsetPos != -1);
+    while ((--gramLength) != 0) {
+        lastSpacePos = gram.indexOf(' ', lastSpacePos + 1);
+    }
 
-    return (isSubsetTrigram ? secondSpacePos + 1 : -1);
+    var subsetGram        = gram.substring(0, lastSpacePos),
+        sentenceSubsetPos = sentence.indexOf(subsetGram, sentence.length - subsetGram.length),
+        isSubsetGram      = (sentenceSubsetPos != -1);
+
+    return (isSubsetGram ? lastSpacePos + 1 : -1);
 }
 
 module.exports = {
     cleanExtra,
     cleanInitial,
     connectDatabase,
-    createUnigramCombination,
-    createTrigramCombination,
-    subsetTrigramOf,
+    createNgramCombination,
+    subsetNgramOf,
     splitToSentence
 };
