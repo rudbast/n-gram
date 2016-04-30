@@ -11,9 +11,9 @@ var app     = express();
 
 var helper    = require(__dirname + '/../util/helper.js'),
     Indexer   = require(__dirname + '/../main/Indexer.js'),
-    // Corrector = require(__dirname + '/../main/Corrector.js');
+    Corrector = require(__dirname + '/../main/Corrector.js');
     // Corrector = require(__dirname + '/../ref/Setiadi.js');
-    Corrector = require(__dirname + '/../ref/Verberne.js');
+    // Corrector = require(__dirname + '/../ref/Verberne.js');
 
 const DB_HOST  = 'localhost',
       DB_PORT  = '27017',
@@ -24,10 +24,12 @@ var connection,
     indexer,
     corrector;
 
-const DISTANCE_LIMIT = 2;
+const DISTANCE_LIMIT      = 2,
+      DEFAULT_OUTPUT_DIR  = __dirname + '/../../out/ngrams',
+      DEFAULT_OUTPUT_FILE = __dirname + '/../../out/similars.json';
 
-var outputDir  = process.argv.length > 2 ? process.argv[2] : __dirname + '/../../out/ngrams',
-    outputFile = process.argv.length > 3 ? process.argv[3] : __dirname + '/../../out/similars.json';
+var outputDir  = process.argv.length > 2 ? process.argv[2] : DEFAULT_OUTPUT_DIR,
+    outputFile = process.argv.length > 3 ? process.argv[3] : DEFAULT_OUTPUT_FILE;
 
 /** Index page. */
 app.get('/', function (request, response) {
