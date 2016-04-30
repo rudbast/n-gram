@@ -1,7 +1,8 @@
 'use strict';
 
 var levenshtein = require(__dirname + '/../util/levenshtein.js'),
-    helper      = require(__dirname + '/../util/helper.js');
+    helper      = require(__dirname + '/../util/helper.js'),
+    ngramUtil   = require(__dirname + '/../util/ngram.js');
 
 /**
  * Spelling correction main class (as implemented by Iskandar Setiadi).
@@ -101,15 +102,16 @@ Setiadi.prototype = {
         var self = this;
 
         var corrections = new Array(),
-            parts       = sentence.split(/\s+/);
+            parts       = ngramUtil.uniSplit(sentence);
 
         parts.forEach(function (part) {
-            var containsInvalidChars = part.match(/[\W\d_]/),
-                word                 = part.replace(/[\W\d_]/g, '');
+            // var containsInvalidChars = part.match(/[\W\d_]/),
+            //     word                 = part.replace(/[\W\d_]/g, '');
 
-            word = word.toLowerCase();
+            var word = part.toLowerCase();
 
-            if (containsInvalidChars || (!containsInvalidChars && self.isValid(word))) {
+            // if (containsInvalidChars || (!containsInvalidChars && self.isValid(word))) {
+            if (self.isValid(word)) {
                 corrections.push({
                     [`${part}`]: self.data.unigrams[word]
                 });
