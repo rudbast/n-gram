@@ -84,12 +84,14 @@ Verberne.prototype = {
                 alternatives     = new Object();
 
             if (errorIndexLength == 0 && isValidTrigram) {
+                // Contains no error.
                 alternatives[part] = self.data.trigrams[part];
             } else if (errorIndexLength != 0) {
                 // Since verberne's spelling corrector only correct real word error,
                 // we'll push the original ones in if it contains non-word error.
                 alternatives[part] = 0;
             } else if (!isValidTrigram) {
+                // Contains real word error.
                 alternatives = self.createAlternatives(words);
             }
 
