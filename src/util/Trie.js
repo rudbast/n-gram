@@ -1,6 +1,7 @@
 'use strict';
 
-var jsFile = require('jsonfile');
+var jsFile = require('jsonfile'),
+    Queue  = require(__dirname + '/../../lib/Queue.js');
 
 /*
 Illustration for a trie structure using javascript object.
@@ -93,6 +94,101 @@ Trie.prototype.print = function (file) {
         if (err) console.error(err);
         console.log('Output file succeeded.');
     });
+}
+
+/**
+ * Find all words in the dictionary whose distance is within the
+ * distance limit of the given word.
+ *
+ * @param  {string}  word  The given word
+ * @param  {integer} limit Distance limit
+ * @return {object}        List of words within the distance limit
+ */
+Trie.prototype.findWordsWithinLimit = function (word, limit) {
+    /**
+     * Compute the sub distance of a given string against current
+     * node (character).
+     *
+     * @param  {string} currentChar Currently processed char/node
+     * @param  {array}  prevDist    Previous/upper distance values
+     * @param  {array}  currDist    Current/middle distance values
+     * @return {array}              Computed current distance values
+     */
+    var computeSubDistance = function (currentChar, prevDist, currDist) {
+        for (var i = 1; i <= word.length; ++i) {
+            var substCost = currentChar == word.charAt(i-1) ? 0 : 1;
+            currDist[i] = Math.min(prevDist[i] + 1,
+                                   currDist[i-1] + 1,
+                                   prevDist[i-1] + substCost);
+        }
+        return currDist;
+    };
+
+    var trailer     = Trie.prototype.data,
+        startDist   = new Array(),
+        suggestions = new Object(),
+        queue       = new Queue();
+
+    // Initialize default distance values.
+    for (var i = 0; i <= word.length; ++i) startDist[i] = i;
+
+    // Start searching for candidate words using breadth-first search
+    // to search the trie data structure.
+    for (var node in trailer) {
+        var accumulatedWord = node;
+
+        // Push initial value to queue.
+        queue.enqueue([
+            node,
+            startDist,
+            accumulatedWord,
+            trailer[node]
+        ]);
+
+        while (!queue.isEmpty()) {
+            // Retrieve values from queues.
+            var current             = queue.dequeue(),
+                currNode            = current[0],
+                currDistance        = current[1],
+                currAccumulatedWord = current[2],
+                currTrailer         = current[3],
+                newDistance         = computeSubDistance(currNode, currDistance, [currDistance[0] + 1]),
+                continuePushingNode = true;
+
+            // Check if the new node is a valid word, and we need to add the
+            // accumulated word + new node (char) to the suggestions IF the
+            // distance limit is not exceeded.
+            if (currTrailer.end) {
+                // If current accumulated word + new node (char) distance value
+                // is over the limit, we'll not enqueue the child node since it's
+                // certain that the child node will NOT have distance value lower
+                // than the current node.
+                if (newDistance[word.length] <= limit) {
+                    // Assign property with default rank value = 0.
+                    suggestions[currAccumulatedWord] = 0;
+                } else {
+                    continuePushingNode = false;
+                }
+            }
+
+            if (continuePushingNode) {
+                // Search each child node, add them into queue where possible.
+                for (var newNode in currTrailer) {
+                    // Enqueue all child node except for the 'end' property identifier.
+                    if (newNode != 'end') {
+                        queue.enqueue([
+                            newNode,
+                            newDistance,
+                            currAccumulatedWord + newNode,
+                            currTrailer[newNode]
+                        ]);
+                    }
+                }
+            }
+        }
+    }
+
+    return suggestions;
 }
 
 module.exports = Trie;

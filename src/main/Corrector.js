@@ -84,23 +84,26 @@ Corrector.prototype = {
             return this.similars[inputWord];
         }
 
-        var suggestions = new Object();
+        // Get suggestions by incorporating Levenshtein with Trie.
+        return this.vocabularies.findWordsWithinLimit(inputWord, this.distanceLimit);
 
-        // NOTE: remember to change the current distance calculation method
-        //      by incorporating it with the trie data structure.
-        for (var dictWord in this.data.unigrams) {
-            if (this.data.unigrams.hasOwnProperty(dictWord)) {
-                // var distance = levenshtein.distanceOnThreshold(inputWord, dictWord, this.distanceLimit);
-                var distance = levenshtein.distance(inputWord, dictWord);
+        // NOTE: Might need to consider whether to remove the code below a little later.
+        // Get suggestions by computing Levenshtein naively.
+        // var suggestions = new Object();
 
-                if (distance <= this.distanceLimit ) {
-                    var rank = this.data.unigrams[dictWord];
-                    suggestions[dictWord] = rank;
-                }
-            }
-        }
+        // for (var dictWord in this.data.unigrams) {
+        //     if (this.data.unigrams.hasOwnProperty(dictWord)) {
+        //         // var distance = levenshtein.distanceOnThreshold(inputWord, dictWord, this.distanceLimit);
+        //         var distance = levenshtein.distance(inputWord, dictWord);
 
-        return suggestions;
+        //         if (distance <= this.distanceLimit ) {
+        //             var rank = this.data.unigrams[dictWord];
+        //             suggestions[dictWord] = rank;
+        //         }
+        //     }
+        // }
+
+        // return suggestions;
     },
 
     /**
