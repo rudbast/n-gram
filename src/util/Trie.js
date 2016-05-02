@@ -152,26 +152,25 @@ Trie.prototype.findWordsWithinLimit = function (word, limit) {
                 currDistance        = current[1],
                 currAccumulatedWord = current[2],
                 currTrailer         = current[3],
-                newDistance         = computeSubDistance(currNode, currDistance, [currDistance[0] + 1]),
-                continuePushingNode = true;
+                newDistance         = computeSubDistance(currNode, currDistance, [currDistance[0] + 1]);
 
             // Check if the new node is a valid word, and we need to add the
             // accumulated word + new node (char) to the suggestions IF the
             // distance limit is not exceeded.
             if (currTrailer.end) {
-                // If current accumulated word + new node (char) distance value
-                // is over the limit, we'll not enqueue the child node since it's
-                // certain that the child node will NOT have distance value lower
-                // than the current node.
+                // Check if current accumulated word (including new node (char))
+                // is over the limit, we'll add them to result list if NOT over
+                // the limit.
                 if (newDistance[word.length] <= limit) {
                     // Assign property with default rank value = 0.
                     suggestions[currAccumulatedWord] = 0;
-                } else {
-                    continuePushingNode = false;
                 }
             }
 
-            if (continuePushingNode) {
+            // If current distance's smallest value is over the limit, we'll
+            // not enqueue the child node since it's certain that the child
+            // node will NOT have distance value lower than the current node.
+            if (Math.min.apply(null, newDistance) <= limit) {
                 // Search each child node, add them into queue where possible.
                 for (var newNode in currTrailer) {
                     // Enqueue all child node except for the 'end' property identifier.
