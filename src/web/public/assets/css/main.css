@@ -8,18 +8,14 @@ main {
     flex: 1 0 auto;
 }
 
-.main-wrapper {
+#form-corrector {
     margin-top: 5em;
-    padding-bottom: 2em;
-}
-
-.custom-fixed-footer {
-    position: fixed;
-    bottom: 0;
-    line-height: 2em;
-    width: 100%;
 }
 
 #correction-result {
     font-style: bold italic;
+}
+
+.correction-item {
+    cursor: pointer;
 }
