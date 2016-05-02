@@ -1,7 +1,6 @@
 'use strict';
 
-var Trie        = require(__dirname + '/../util/Trie.js'),
-    levenshtein = require(__dirname + '/../util/levenshtein.js'),
+var levenshtein = require(__dirname + '/../util/levenshtein.js'),
     helper      = require(__dirname + '/../util/helper.js'),
     ngramUtil   = require(__dirname + '/../util/ngram.js');
 
@@ -11,6 +10,7 @@ var Trie        = require(__dirname + '/../util/Trie.js'),
  * @param {object}  ngrams        Word index
  * @param {object}  similars      Words with it's similars pairs
  * @param {integer} distanceLimit Words distance limit
+ * @param {object}  vocabularies  Trie's structured vocabularies
  *
  * @property {object}  data          N-grams words index container
  * @property {object}  similars      Words with it's similars pairs
@@ -21,17 +21,15 @@ var Trie        = require(__dirname + '/../util/Trie.js'),
  * @property {string}  NGRAM_TRIGRAM String representation for trigram
  * @constructor
  */
-var Corrector = function (ngrams, similars, distanceLimit) {
+var Corrector = function (ngrams, similars, distanceLimit, vocabularies) {
     this.data          = ngrams;
     this.similars      = similars;
     this.distanceLimit = distanceLimit !== undefined ? distanceLimit : 2;
-    this.vocabularies  = new Trie();
+    this.vocabularies  = vocabularies;
 
     this.NGRAM_UNIGRAM = 'unigrams';
     this.NGRAM_BIGRAM  = 'bigrams';
     this.NGRAM_TRIGRAM = 'trigrams';
-
-    this.buildVocabularies();
 };
 
 Corrector.prototype = {
@@ -42,17 +40,6 @@ Corrector.prototype = {
      */
     setDistanceLimit: function (distanceLimit) {
         this.distanceLimit = distanceLimit;
-    },
-
-    /**
-     * Build vocabularies information from words index.
-     *
-     * @return {void}
-     */
-    buildVocabularies: function () {
-        for (var word in this.data.unigrams) {
-            this.vocabularies.insert(word);
-        }
     },
 
     /**

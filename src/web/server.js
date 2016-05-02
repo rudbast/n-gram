@@ -59,17 +59,19 @@ app.get('/data/:action/:target', function (request, response) {
         }
     }
 
+    var finished = function () {
+        corrector = new Corrector(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies());
+        response.send('finished loading/saving informations from/to file.');
+    }
+
     var taskCount = 0;
     switch (action) {
         case 'load':
             if (target == 'file') {
-                var finished = function () {
-                    corrector = new Corrector(indexer.getData(), indexer.getSimilars());
-                    response.send('finished loading informations from file.');
-                }
-
                 // Load informations.
                 indexer.loadIndexFromFile(outputDir, function () {
+                    // Fill trie data structure.
+                    indexer.buildVocabularies();
                     check(++taskCount, finished);
                 });
                 indexer.loadSimilaritiesFromFile(outputFile, function () {
@@ -80,16 +82,14 @@ app.get('/data/:action/:target', function (request, response) {
 
         case 'build':
             if (target == 'file') {
-                var finished = function () {
-                    corrector = new Corrector(indexer.getData(), indexer.getSimilars());
-                    response.send('saved index to file.');
-                }
-
                 console.time('constructIndex');
 
                 // Construct informations.
                 indexer.constructIndex(function () {
                     console.timeEnd('constructIndex');
+
+                    // Fill trie data structure.
+                    indexer.buildVocabularies();
 
                     // Save informations.
                     indexer.saveIndexToFile(outputDir, function () {
