@@ -161,7 +161,7 @@ Trie.prototype.findWordsWithinLimit = function (word, limit) {
                 // Check if current accumulated word (including new node (char))
                 // is over the limit, we'll add them to result list if NOT over
                 // the limit.
-                if (newDistance[word.length] <= limit) {
+                if (newDistance[word.length] <= limit && currAccumulatedWord != word) {
                     // Add current word with it's distance value to result list.
                     suggestions[currAccumulatedWord] = newDistance[word.length];
                 }
