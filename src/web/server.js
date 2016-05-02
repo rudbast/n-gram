@@ -150,7 +150,7 @@ app.post('/correct', function (request, response) {
         return;
     }
 
-    response.send(corrector.tryCorrect(sentence));
+    response.send({corrections: corrector.tryCorrect(sentence)});
 });
 
 // Connect to database and create new instance of 'Corrector'.

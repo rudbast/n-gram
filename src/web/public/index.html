@@ -97,10 +97,36 @@
                             // Clean result before adding new ones.
                             resultListContainer.empty();
 
-                            for (var correction in response) {
-                                correction = `<p class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Probability: ${response[correction]}">${correction}</p>`;
-                                resultListContainer.append(`<li>${correction}</li>`);
-                            }
+                            var corrections = $.map(response.corrections, function (probability, sentence) {
+                                return [{
+                                    sentence: sentence,
+                                    probability: probability
+                                }];
+                            });
+
+                            // Sort customly.
+                            corrections.sort(function (a, b) {
+                                // Sort probability descendingly.
+                                if (a.probability > b.probability) {
+                                    return -1;
+                                } else if (a.probability < b.probability) {
+                                    return 1;
+                                } else {
+                                    // Sort sentence ascendingly.
+                                    if (a.sentence < b.sentence) {
+                                        return -1;
+                                    } else if (a.sentence > b.sentence) {
+                                        return 1;
+                                    } else {
+                                        return 0;
+                                    }
+                                }
+                            });
+
+                            corrections.forEach(function (correction) {
+                                var childNode = `<p class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Probability: ${correction.probability}">${correction.sentence}</p>`;
+                                resultListContainer.append(`<li>${childNode}</li>`);
+                            });
 
                             // Initialize tooltip.
                             $('.tooltipped').tooltip({delay: 50});
