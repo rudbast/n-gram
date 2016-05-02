@@ -26,7 +26,7 @@ Run server by running the command `$ npm start`. Server will be listening in loc
 
 ### Client page
 
-![client page](https://github.com/rudbast/n-gram/blob/gh-pages/screenshot/client-page.png)
+![client page](https://github.com/rudbast/n-gram/blob/gh-pages/screenshot/client-page.gif)
 
 ## License
 
