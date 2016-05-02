@@ -6,8 +6,9 @@
  * @param {string} directory Directory path which contains the ngrams index file (to be loaded upon demand)
  */
 
-var express = require('express');
-var app     = express();
+var express    = require('express'),
+    app        = express(),
+    bodyParser = require('body-parser');
 
 var helper    = require(__dirname + '/../util/helper.js'),
     Indexer   = require(__dirname + '/../main/Indexer.js'),
@@ -26,14 +27,23 @@ var connection,
 
 const DISTANCE_LIMIT      = 2,
       DEFAULT_OUTPUT_DIR  = __dirname + '/../../out/ngrams',
-      DEFAULT_OUTPUT_FILE = __dirname + '/../../out/similars.json';
+      DEFAULT_OUTPUT_FILE = __dirname + '/../../out/similars.json',
+      PUBLIC_PATH         = __dirname + '/public';
 
 var outputDir  = process.argv.length > 2 ? process.argv[2] : DEFAULT_OUTPUT_DIR,
     outputFile = process.argv.length > 3 ? process.argv[3] : DEFAULT_OUTPUT_FILE;
 
+// Register url path for static files.
+app.use('/assets', express.static(PUBLIC_PATH + '/assets'));
+// Register post data parser.
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+
 /** Index page. */
 app.get('/', function (request, response) {
-    response.send('home');
+    response.sendFile(PUBLIC_PATH + '/index.html');
 });
 
 /** Words informations manipulation. */
@@ -121,14 +131,26 @@ app.get('/check/:word/:limit', function (request, response) {
 
 /** Route: try correcting a sentence. */
 app.get('/correct/:sentence', function (request, response) {
-    var inputSentence = request.params.sentence;
+    var sentence = request.params.sentence;
 
     if (!indexer || !corrector) {
         response.send('Indexer / Corrector object is not constructed yet.');
         return;
     }
 
-    response.send(JSON.stringify(corrector.tryCorrect(inputSentence)));
+    response.send(corrector.tryCorrect(sentence));
+});
+
+/** Route: try correcting a sentence. (POST version) */
+app.post('/correct', function (request, response) {
+    var sentence = request.body.sentence;
+
+    if (!indexer || !corrector) {
+        response.send('Indexer / Corrector object is not constructed yet.');
+        return;
+    }
+
+    response.send(corrector.tryCorrect(sentence));
 });
 
 // Connect to database and create new instance of 'Corrector'.
@@ -146,8 +168,7 @@ helper.connectDatabase(DB_HOST, DB_PORT, DB_NAME, function (db) {
 
 /** Start listening for request. */
 var server = app.listen(WEB_PORT, function () {
-    var host = server.address().address;
     var port = server.address().port;
 
-    console.log('App listening at http://%s:%s', host, port);
+    console.log('App listening at http://localhost:%s', port);
 });
