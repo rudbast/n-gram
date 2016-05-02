@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+        <title>CSC - Custom Spelling Corrector</title>
+
+        <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+
+        <link rel="stylesheet" type="text/css" href="assets/css/libs.css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+        <link rel="stylesheet" type="text/css" href="assets/css/main.css">
+    </head>
+
+    <body class="grey lighten-4">
+        <nav class="cyan lighten-3">
+            <div class="nav-wrapper">
+                <img src="assets/img/logo.png" class="brand-logo center" width="63px">
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li><a href="#">About</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="row">
+                <div class="col s12 offset-m2 m8">
+                    <div class="main-wrapper">
+                        <div class="row">
+                            <form id="form-corrector" class="col s12" action="http://localhost:3000/correct" method="post">
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <i class="material-icons prefix">comment</i>
+                                        <input id="sentence" class="validate" type="text" name="sentence" value="">
+                                        <label for="sentence">Sentence</label>
+                                    </div>
+
+                                    <div class="col s12 center-align">
+                                        <button id="btn-submit" class="btn waves-effect waves-light purple lighten-1" type="submit" name="action">
+                                            Try Correct
+                                            <i class="material-icons right">send</i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="row">
+                            <div id="correction-result" class="col s12 hide bold italic">
+                                <i class="material-icons left">info_outline</i>
+                                <strong>
+                                    <em>Did you mean:</em>
+                                </strong>
+
+                                <blockquote>
+                                    <ul id="result-list" class="orange-text darken-4"></ul>
+                                </blockquote>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="page-footer custom-fixed-footer cyan darken-2">
+            <div class="footer-copyright">
+                <div class="container">
+                    &copy; 2016 Rudolf. All Rights Reserved.
+                </div>
+            </div>
+        </footer>
+
+        <script src="assets/js/libs.js" type="text/javascript" charset="utf-8"></script>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                // Submit form using ajax.
+                $('#btn-submit').click(function (e) {
+                    e.preventDefault();
+
+                    if ($('#sentence').val() == '') {
+                        Materialize.toast('Sentence is empty, rejected', 4000, 'rounded');
+                        return;
+                    }
+
+                    $.ajax({
+                        type: $('#form-corrector').attr('method'),
+                        url: $('#form-corrector').attr('action'),
+                        data: $('#form-corrector').serialize(),
+                        success: function (response) {
+                            $('#correction-result').removeClass('hide');
+                            var resultListContainer = $('#result-list');
+
+                            // Clean result before adding new ones.
+                            resultListContainer.empty();
+
+                            for (var correction in response) {
+                                correction = `<p class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Probability: ${response[correction]}">${correction}</p>`;
+                                resultListContainer.append(`<li>${correction}</li>`);
+                            }
+
+                            // Initialize tooltip.
+                            $('.tooltipped').tooltip({delay: 50});
+                        }
+                    });
+
+                    // Show toast on submit.
+                    Materialize.toast('Sentence checked', 2000, 'rounded');
+                });
+
+                // Listen for input change, hide correction result if current input
+                // is empty.
+                $('#sentence').on('input', function () {
+                    var content = $(this).val();
+
+                    if (content.length == 0) {
+                        $('#correction-result').addClass('hide');
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
