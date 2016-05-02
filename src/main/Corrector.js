@@ -118,6 +118,17 @@ Corrector.prototype = {
         var corrections = new Array(),
             parts       = ngramUtil.triSplit(sentence);
 
+        // If parts is empty, it means the word is lower than three.
+        if (parts.length == 0) {
+            var tempWords = ngramUtil.uniSplit(sentence);
+
+            if (tempWords.length == 2) {
+                parts.push(tempWords[0] + ' ' + tempWords[1]);
+            } else {
+                parts.push(tempWords[0]);
+            }
+        }
+
         parts.forEach(function (part) {
             var words            = ngramUtil.uniSplit(part),
                 gramClass        = self.getGramClass(words.length),
