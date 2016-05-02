@@ -1,0 +1,33 @@
+{
+  "name": "essay",
+  "description": "my essay",
+  "main": "index.js",
+  "authors": [
+    "rudolf"
+  ],
+  "license": "WTFPL",
+  "keywords": [
+    "ngram",
+    "levenshtein",
+    "spelling",
+    "correction",
+    "autocorrect"
+  ],
+  "homepage": "https://github.com/rudbast/n-gram",
+  "moduleType": [
+    "es6",
+    "node"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-css": "~3.3.6",
+    "jquery": "~2.2.3",
+    "Materialize": "materialize#~0.97.6"
+  }
+}

@@ -4,7 +4,10 @@
   "description": "my essay",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "mini-test": "node src/test/test.js",
+    "crawler": "node src/crawl/crawler.js",
+    "start": "node src/web/server.js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +20,7 @@
   },
   "homepage": "https://github.com/rudbast/n-gram#readme",
   "dependencies": {
+    "body-parser": "^1.15.0",
     "cookie-parser": "^1.4.1",
     "express": "^4.13.4",
     "indonesian-news-scraper": "^2.7.7",
@@ -26,5 +30,13 @@
     "multer": "^1.1.0",
     "prompt": "^1.0.0",
     "shelljs": "^0.6.0"
+  },
+  "devDependencies": {
+    "del": "^2.2.0",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-cssnano": "^2.1.2",
+    "gulp-minify": "0.0.11",
+    "gulp-notify": "^2.2.0"
   }
 }
