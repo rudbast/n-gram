@@ -6,7 +6,8 @@ var fs     = require('fs'),
 
 var ngramUtil   = require(__dirname + '/../util/ngram.js'),
     helper      = require(__dirname + '/../util/helper.js'),
-    levenshtein = require(__dirname + '/../util/levenshtein.js');
+    levenshtein = require(__dirname + '/../util/levenshtein.js'),
+    Trie        = require(__dirname + '/../util/Trie.js');
 
 /**
  * Index builder class.
@@ -26,8 +27,9 @@ var Indexer = function (db, distanceLimit) {
         bigrams: new Object(),
         trigrams: new Object()
     };
-    this.similars = new Object();
-    this.distanceLimit = distanceLimit;
+    this.similars      = new Object();
+    this.distanceLimit = distanceLimit !== undefined ? distanceLimit : 2;
+    this.vocabularies;
 };
 
 Indexer.prototype = {
@@ -41,12 +43,34 @@ Indexer.prototype = {
     },
 
     /**
-     * Retrive the words similarities data.
+     * Retrieve the words similarities data.
      *
      * @return {object} Words similarities
      */
     getSimilars: function () {
         return this.similars;
+    },
+
+    /**
+     * Retrieve the vocabularies represented by a Trie's data.
+     *
+     * @return {object} Vocabularies
+     */
+    getVocabularies: function () {
+        return this.vocabularies;
+    },
+
+    /**
+     * Build vocabularies information from words index.
+     *
+     * @return {void}
+     */
+    buildVocabularies: function () {
+        this.vocabularies = new Trie();
+
+        for (var word in this.data.unigrams) {
+            this.vocabularies.insert(word);
+        }
     },
 
     /**
@@ -260,14 +284,7 @@ Indexer.prototype = {
 
                         // Finished processing all articles.
                         if (extractCount == articlesSize) {
-                            var unigramSize = Object.keys(self.data.unigrams).length;
-                            var bigramSize = Object.keys(self.data.bigrams).length;
-                            var trigramSize = Object.keys(self.data.trigrams).length;
-
-                            console.log(`unigram: ${unigramSize}`);
-                            console.log(`bigram: ${bigramSize}`);
-                            console.log(`trigram: ${trigramSize}`);
-
+                            self.printDataInformation();
                             if (callback && typeof callback == "function") callback();
                         }
                     });
@@ -299,19 +316,23 @@ Indexer.prototype = {
                     self.data[gramFileName] = data;
 
                     if ((++loadCount) == files.length) {
-                        var unigramSize = Object.keys(self.data.unigrams).length;
-                        var bigramSize = Object.keys(self.data.bigrams).length;
-                        var trigramSize = Object.keys(self.data.trigrams).length;
-
-                        console.log(`unigram: ${unigramSize}`);
-                        console.log(`bigram: ${bigramSize}`);
-                        console.log(`trigram: ${trigramSize}`);
-
+                        self.printDataInformation();
                         if (callback && typeof callback == "function") callback();
                     }
                 });
             });
         });
+    },
+
+    /**
+     * Print current data's informations.
+     *
+     * @return {void}
+     */
+    printDataInformation: function () {
+        for (var gram in this.data) {
+            console.log(`${gram}: ${Object.keys(this.data[gram]).length}`);
+        }
     },
 
     /**
@@ -395,7 +416,6 @@ Indexer.prototype = {
         }
     },
 
-
     /**
      * Construct words similarity information.
      *
@@ -405,20 +425,8 @@ Indexer.prototype = {
     constructSimilarities: function (callback) {
         var similarityIndex = 0;
 
-        for (var sourceWord in this.data.unigrams) {
-            var similar = new Object();
-
-            for (var targetWord in this.data.unigrams) {
-                if (sourceWord != targetWord) {
-                    var distance = levenshtein.distance(sourceWord, targetWord);
-
-                    if (distance <= this.distanceLimit) {
-                        similar[targetWord] = distance;
-                    }
-                }
-            }
-
-            this.similars[sourceWord] = similar;
+        for (var word in this.data.unigrams) {
+            this.similars[word] = this.vocabularies.findWordsWithinLimit(word, this.distanceLimit);
             console.log('Similarity index count: ' + (++similarityIndex));
         }
 
