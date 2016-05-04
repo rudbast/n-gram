@@ -12,16 +12,14 @@ var ngramUtil   = require(__dirname + '/../util/ngram.js'),
 /**
  * Index builder class.
  *
- * @param {object} db Database connection object
+ * @param {integer} distanceLimit Words similarity distance limit
  *
- * @property {object}  db            Database connection object
  * @property {object}  data          N-grams words index container
  * @property {object}  similars      Words similarity pair container
  * @property {integer} distanceLimit Words similarity distance limit
  * @constructor
  */
-var Indexer = function (db, distanceLimit) {
-    this.db   = db;
+var Indexer = function (distanceLimit) {
     this.data = {
         unigrams: new Object(),
         bigrams: new Object(),
@@ -219,24 +217,22 @@ Indexer.prototype = {
                     var newGrams = ngramUtil.tripleNSplit(part);
 
                     for (var gram in newGrams) {
-                        if (newGrams.hasOwnProperty(gram)) {
-                            newGrams[gram].forEach(function (word) {
-                                // NOTE: the 'if' below checks if the word contains a '-' character,
-                                //      and bypass them, except for word repeat such as 'kata-kata',
-                                //      but the solution below is considered a 'hack', as it might
-                                //      fail in a 2/3-gram words couple, such as 'kata-kata u-'.
-                                // var containsWordRepeat = word.match(/[a-z]+-[a-z]+/),
-                                    // containsDash       = word.match(/-/);
+                        newGrams[gram].forEach(function (word) {
+                            // NOTE: the 'if' below checks if the word contains a '-' character,
+                            //      and bypass them, except for word repeat such as 'kata-kata',
+                            //      but the solution below is considered a 'hack', as it might
+                            //      fail in a 2/3-gram words couple, such as 'kata-kata u-'.
+                            // var containsWordRepeat = word.match(/[a-z]+-[a-z]+/),
+                                // containsDash       = word.match(/-/);
 
-                                // if ((containsDash && containsWordRepeat) || !containsDash) {
-                                    if (!ngrams[gram][word]) {
-                                        ngrams[gram][word] = 1;
-                                    } else {
-                                        ++ngrams[gram][word];
-                                    }
-                                // }
-                            });
-                        }
+                            // if ((containsDash && containsWordRepeat) || !containsDash) {
+                                if (!ngrams[gram][word]) {
+                                    ngrams[gram][word] = 1;
+                                } else {
+                                    ++ngrams[gram][word];
+                                }
+                            // }
+                        });
                     }
                 }
             });
@@ -246,50 +242,43 @@ Indexer.prototype = {
     },
 
     /**
-     * Construct words index from articles content (text) in database.
+     * Construct words index from articles content (text) of the given file.
      *
+     * @param  {string}   file     File name (complete path)
      * @param  {function} callback Callback function
      * @return {void}
      */
-    constructIndex: function (callback) {
+    constructIndex: function (file, callback) {
         var self = this;
 
-        this.db.collection('articles').find({}).toArray(function (err, articles) {
+        jsFile.readFile(file, function (err, data) {
             assert.equal(err, null);
 
-            var articlesSize = Object.keys(articles).length,
+            var articlesSize = Object.keys(data.articles).length,
                 extractCount = 0;
 
-            for (var index in articles) {
-                if (articles.hasOwnProperty(index)) {
-                    var article = articles[index];
+            data.articles.forEach(function (article) {
+                self.extractIndex(article, function (indexResultData) {
+                    console.log('Extract index count: ' + (++extractCount));
 
-                    self.extractIndex(article, function (indexResultData) {
-                        console.log('Extract index count: ' + (++extractCount));
-
-                        // Update n-gram information from newly acquired data.
-                        for (var gram in indexResultData) {
-                            if (indexResultData.hasOwnProperty(gram)) {
-                                for (var word in indexResultData[gram]) {
-                                    if (indexResultData[gram].hasOwnProperty(word)) {
-                                        if (!self.data[gram][word]) {
-                                            self.data[gram][word] = 1;
-                                        } else {
-                                            ++self.data[gram][word];
-                                        }
-                                    }
-                                }
+                    // Update n-gram information from newly acquired data.
+                    for (var gram in indexResultData) {
+                        for (var word in indexResultData[gram]) {
+                            if (!self.data[gram][word]) {
+                                self.data[gram][word] = 1;
+                            } else {
+                                ++self.data[gram][word];
                             }
                         }
+                    }
 
-                        // Finished processing all articles.
-                        if (extractCount == articlesSize) {
-                            self.printDataInformation();
-                            if (callback && typeof callback == "function") callback();
-                        }
-                    });
-                }
-            }
+                    // Finished processing all articles.
+                    if (extractCount == articlesSize) {
+                        self.printDataInformation();
+                        if (callback && typeof callback == "function") callback();
+                    }
+                });
+            });
         });
     },
 
@@ -300,7 +289,7 @@ Indexer.prototype = {
      * @param  {function} callback  Callback function
      * @return {void}
      */
-    loadIndexFromFile: function (directory, callback) {
+    loadIndex: function (directory, callback) {
         var self = this;
 
         fs.readdir(directory, function (err, files) {
@@ -336,83 +325,24 @@ Indexer.prototype = {
     },
 
     /**
-     * Migrate articles data from file to database.
-     *
-     * @param  {string}   file       File path
-     * @param  {string}   collection Collection's name (to be migrated to)
-     * @param  {function} callback   Callback function
-     * @return {void}
-     */
-    migrateArticlesFileToDatabase: function (file, collection, callback) {
-        var self = this;
-
-        jsFile.readFile(file, function (err, data) {
-            assert.equal(err, null);
-
-            self.db.collection(collection).insert(data.articles, function (err, result) {
-                assert.equal(err, null);
-                console.log('Documents migrated.');
-
-                if (callback && typeof callback == "function") callback();
-            });
-        });
-    },
-
-     /**
-      * Save words index to dabatase.
-      *
-      * @param  {function} callback Callback function
-      * @return {void}
-      */
-    saveIndexToDatabase: function (callback) {
-        var insertCount = Object.keys(this.data).length;
-
-        for (var ngram in this.data) {
-            if (this.data.hasOwnProperty(ngram)) {
-                var grams = this.data[ngram];
-                var databaseGrams = new Array();
-
-                for (var word in grams) {
-                    if (grams.hasOwnProperty(word)) {
-                        databaseGrams.push({
-                            word: word,
-                            freq: grams[word]
-                        });
-                    }
-                }
-
-                this.db.collection(ngram).insert(databaseGrams, function (err, result) {
-                    assert.equal(err, null);
-
-                    if ((--insertCount) == 0) {
-                        if (callback && typeof callback == "function") callback();
-                    }
-                });
-            }
-        }
-    },
-
-    /**
      * Save words index to file system.
      *
      * @param  {string}   directory Directory path (to be saved to)
      * @param  {function} callback  Callback function
      * @return {void}
      */
-    saveIndexToFile: function (directory, callback) {
+    saveIndex: function (directory, callback) {
         var insertCount = Object.keys(this.data).length;
 
         for (var ngram in this.data) {
-            if (this.data.hasOwnProperty(ngram)) {
-                // Save to file system.
-                jsFile.writeFile(`${directory}/${ngram}.json`, this.data[ngram], {spaces: 4}, function (err) {
-                    assert.equal(err, null);
+            // Save to file system.
+            jsFile.writeFile(`${directory}/${ngram}.json`, this.data[ngram], {spaces: 4}, function (err) {
+                assert.equal(err, null);
 
-                    if ((--insertCount) == 0) {
-                        if (callback && typeof callback == "function") callback();
-                    }
-                });
-            }
+                if ((--insertCount) == 0) {
+                    if (callback && typeof callback == "function") callback();
+                }
+            });
         }
     },
 
@@ -440,7 +370,7 @@ Indexer.prototype = {
      * @param  {function} callback Callback function
      * @return {void}
      */
-    loadSimilaritiesFromFile: function (file, callback) {
+    loadSimilarities: function (file, callback) {
         var self = this;
 
         jsFile.readFile(`${file}`, function (err, data) {
@@ -457,7 +387,7 @@ Indexer.prototype = {
      * @param  {function} callback Callback function
      * @return {void}
      */
-    saveSimilaritiesToFile: function (file, callback) {
+    saveSimilarities: function (file, callback) {
         jsFile.writeFile(`${file}`, this.similars, {spaces: 4}, function (err) {
             assert.equal(err, null);
             if (callback && typeof callback == "function") callback();

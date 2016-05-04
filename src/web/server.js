@@ -16,22 +16,21 @@ var helper    = require(__dirname + '/../util/helper.js'),
     // Corrector = require(__dirname + '/../ref/Setiadi.js');
     // Corrector = require(__dirname + '/../ref/Verberne.js');
 
-const DB_HOST  = 'localhost',
-      DB_PORT  = '27017',
-      DB_NAME  = 'autocorrect',
-      WEB_PORT = '3000';
+const WEB_PORT = '3000';
 
 var connection,
     indexer,
     corrector;
 
 const DISTANCE_LIMIT      = 2,
+      DEFAULT_DATA_FILE   = __dirname + '/../../out/articles/data.json',
       DEFAULT_OUTPUT_DIR  = __dirname + '/../../out/ngrams',
       DEFAULT_OUTPUT_FILE = __dirname + '/../../out/similars.json',
       PUBLIC_PATH         = __dirname + '/public';
 
-var outputDir  = process.argv.length > 2 ? process.argv[2] : DEFAULT_OUTPUT_DIR,
-    outputFile = process.argv.length > 3 ? process.argv[3] : DEFAULT_OUTPUT_FILE;
+var dataFile   = process.argv.length > 2 ? process.argv[2] : DEFAULT_DATA_FILE,
+    outputDir  = process.argv.length > 3 ? process.argv[3] : DEFAULT_OUTPUT_DIR,
+    outputFile = process.argv.length > 4 ? process.argv[4] : DEFAULT_OUTPUT_FILE;
 
 // Register url path for static files.
 app.use('/assets', express.static(PUBLIC_PATH + '/assets'));
@@ -47,7 +46,7 @@ app.get('/', function (request, response) {
 });
 
 /** Words informations manipulation. */
-app.get('/data/:action/:target', function (request, response) {
+app.get('/data/:action', function (request, response) {
     var action = request.params.action,
         target = request.params.target;
 
@@ -67,45 +66,41 @@ app.get('/data/:action/:target', function (request, response) {
     var taskCount = 0;
     switch (action) {
         case 'load':
-            if (target == 'file') {
                 // Load informations.
-                indexer.loadIndexFromFile(outputDir, function () {
+                indexer.loadIndex(outputDir, function () {
                     // Fill trie data structure.
                     indexer.buildVocabularies();
                     check(++taskCount, finished);
                 });
-                indexer.loadSimilaritiesFromFile(outputFile, function () {
+                indexer.loadSimilarities(outputFile, function () {
                     check(++taskCount, finished);
                 });
-            } else {}
             break;
 
         case 'build':
-            if (target == 'file') {
-                console.time('constructIndex');
+            console.time('constructIndex');
 
-                // Construct informations.
-                indexer.constructIndex(function () {
-                    console.timeEnd('constructIndex');
+            // Construct informations.
+            indexer.constructIndex(dataFile, function () {
+                console.timeEnd('constructIndex');
 
-                    // Fill trie data structure.
-                    indexer.buildVocabularies();
+                // Fill trie data structure.
+                indexer.buildVocabularies();
 
-                    // Save informations.
-                    indexer.saveIndexToFile(outputDir, function () {
-                        check(++taskCount, finished);
+                // Save informations.
+                indexer.saveIndex(outputDir, function () {
+                    check(++taskCount, finished);
 
-                        console.time('constructSimilarities');
-                        indexer.constructSimilarities(function () {
-                            console.timeEnd('constructSimilarities');
+                    console.time('constructSimilarities');
+                    indexer.constructSimilarities(function () {
+                        console.timeEnd('constructSimilarities');
 
-                            indexer.saveSimilaritiesToFile(outputFile, function () {
-                                check(++taskCount, finished);
-                            });
+                        indexer.saveSimilarities(outputFile, function () {
+                            check(++taskCount, finished);
                         });
                     });
                 });
-            } else {}
+            });
             break;
     }
 });
@@ -133,7 +128,7 @@ app.get('/check/:word/:limit', function (request, response) {
 app.get('/correct/:sentence', function (request, response) {
     var sentence = request.params.sentence;
 
-    if (!indexer || !corrector) {
+    if (!corrector) {
         response.send('Indexer / Corrector object is not constructed yet.');
         return;
     }
@@ -145,7 +140,7 @@ app.get('/correct/:sentence', function (request, response) {
 app.post('/correct', function (request, response) {
     var sentence = request.body.sentence;
 
-    if (!indexer || !corrector) {
+    if (!corrector) {
         response.send('Indexer / Corrector object is not constructed yet.');
         return;
     }
@@ -153,22 +148,8 @@ app.post('/correct', function (request, response) {
     response.send({corrections: corrector.tryCorrect(sentence)});
 });
 
-// Connect to database and create new instance of 'Corrector'.
-helper.connectDatabase(DB_HOST, DB_PORT, DB_NAME, function (db) {
-    console.log('Connected to database.');
-
-    connection = db;
-    indexer    = new Indexer(db, DISTANCE_LIMIT);
-
-    process.on('exit', function () {
-        connection.close();
-        console.log('Database connection closed.')
-    });
-});
-
 /** Start listening for request. */
 var server = app.listen(WEB_PORT, function () {
-    var port = server.address().port;
-
-    console.log('App listening at http://localhost:%s', port);
+    console.log('App listening at http://localhost:%s', WEB_PORT);
+    indexer = new Indexer(DISTANCE_LIMIT);
 });
