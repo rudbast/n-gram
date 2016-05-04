@@ -267,7 +267,7 @@ Indexer.prototype = {
                             if (!self.data[gram][word]) {
                                 self.data[gram][word] = 1;
                             } else {
-                                ++self.data[gram][word];
+                                self.data[gram][word] += indexResultData[gram][word];
                             }
                         }
                     }
