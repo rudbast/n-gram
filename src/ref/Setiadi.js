@@ -113,7 +113,7 @@ Setiadi.prototype = {
                     [`${part}`]: self.data.unigrams[word]
                 });
             } else {
-                var useWordAssumption   = false,
+                var useWordAssumption   = true,
                     wordSuggestions     = self.getSuggestions(word, useWordAssumption),
                     wordSuggestionsSize = Object.keys(wordSuggestions).length;
 
