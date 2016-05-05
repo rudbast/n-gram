@@ -1,10 +1,5 @@
 'use strict';
 
-var assert = require('assert');
-
-var mongoClient   = require('mongodb').MongoClient,
-    mongoObjectId = require('mongodb').ObjectId;
-
 var ngramUtil = require(__dirname + '/ngram.js');
 
 /**
@@ -66,22 +61,6 @@ function splitToSentence(text) {
     var scriptProcess  = exec('php ' + scriptFullPath + ' "' + text + '"', {silent: true});
     var sentences      = Array.from(JSON.parse(scriptProcess.stdout));
     return sentences;
-}
-
-/**
- * Connect to database.
- *
- * @param  {function} callback Callback function
- * @return {void}
- */
-function connectDatabase(hostname, port, database, callback) {
-    var url = `mongodb://${hostname}:${port}/${database}`;
-    mongoClient.connect(url, function (err, db) {
-        assert.equal(null, err);
-
-        if (callback) callback(db);
-        else db.close();
-    });
 }
 
 /**
@@ -160,7 +139,6 @@ function subsetNgramOf(sentence, gram) {
 module.exports = {
     cleanExtra,
     cleanInitial,
-    connectDatabase,
     createNgramCombination,
     subsetNgramOf,
     splitToSentence
