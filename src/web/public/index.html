@@ -5,7 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-        <title>CSC - Custom Spelling Corrector</title>
+        <title>SPE - Sistem Pengoreksian Ejaan</title>
 
         <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
 
@@ -23,11 +23,13 @@
                     <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
 
                     <ul id="nav-mobile" class="right hide-on-med-and-down">
-                        <li><a href="#">About</a></li>
+                        <li><a href="#">Perbandingan</a></li>
+                        <li><a href="#">Tentang Kami</a></li>
                     </ul>
 
                     <ul class="side-nav" id="mobile-demo">
-                        <li><a href="#">About</a></li>
+                        <li><a href="#">Perbandingan</a></li>
+                        <li><a href="#">Tentang Kami</a></li>
                     </ul>
                 </div>
             </nav>
@@ -39,17 +41,42 @@
                     <div class="row">
                         <form id="form-corrector" class="col s12" action="http://localhost:3000/correct" method="post">
                             <div class="row">
-                                <div class="input-field col s12">
-                                    <i class="material-icons prefix">comment</i>
-                                    <input id="sentence" class="validate" type="text" name="sentence" value="">
-                                    <label for="sentence">Sentence</label>
-                                </div>
+                                <div class="col s12">
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <i class="material-icons prefix">comment</i>
+                                            <input id="sentence" class="validate" type="text" name="sentence" value="">
+                                            <label for="sentence">Kalimat</label>
+                                        </div>
+                                    </div>
 
-                                <div class="col s12 center-align">
-                                    <button id="btn-submit" class="btn waves-effect waves-light purple lighten-1" type="submit" name="action">
-                                        Try Correct
-                                        <i class="material-icons right">send</i>
-                                    </button>
+                                    <div class="row">
+                                        <div class="col s12 center-align">
+                                            <span>Versi Sistem:</span>
+
+                                            <input type="radio" name="type" id="custom" checked value="custom">
+                                            <label for="custom">Rudy</label>
+
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                                            <input type="radio" name="type" id="setiadi" value="setiadi">
+                                            <label for="setiadi">Setiadi</label>
+
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                                            <input type="radio" name="type" id="verberne" value="verberne">
+                                            <label for="verberne">Verberne</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col s12 center-align">
+                                            <button id="btn-submit" class="btn waves-effect waves-light purple lighten-1" type="submit" name="action">
+                                                Periksa Ejaan
+                                                <i class="material-icons right">send</i>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -67,7 +94,7 @@
                         <div id="correction-result" class="col s12 hide bold italic">
                             <i class="material-icons left">info_outline</i>
                             <strong>
-                                <em>Did you mean:</em>
+                                <em>Apakah maksud anda:</em>
                             </strong>
 
                             <blockquote>
@@ -146,10 +173,12 @@
                             });
 
                             corrections.forEach(function (correction) {
-                                var childNode = `
-                                    <div class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Probability: ${correction.probability}">
-                                        <span class="correction-item">${correction.sentence}</span>
-                                    </div>`;
+                                var sentence    = correction.sentence,
+                                    probability = correction.probability,
+                                    childNode   =
+                                        `<div class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Probability: ${probability}">
+                                            <span class="correction-item">${sentence}</span>
+                                        </div>`;
                                 resultListContainer.append(`<li class="collection-item">${childNode}</li>`);
                             });
 
