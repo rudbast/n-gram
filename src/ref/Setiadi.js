@@ -127,7 +127,7 @@ Setiadi.prototype = {
             }
         });
 
-        var suggestions = helper.createUnigramCombination(corrections, 'plus');
+        var suggestions = helper.createNgramCombination(corrections, 'plus');
         return suggestions;
     }
 };
