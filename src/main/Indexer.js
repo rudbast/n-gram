@@ -274,7 +274,6 @@ Indexer.prototype = {
 
                     // Finished processing all articles.
                     if (extractCount == articlesSize) {
-                        self.printDataInformation();
                         if (callback && typeof callback == "function") callback();
                     }
                 });
@@ -305,8 +304,10 @@ Indexer.prototype = {
                     self.data[gramFileName] = data;
 
                     if ((++loadCount) == files.length) {
-                        self.printDataInformation();
-                        if (callback && typeof callback == "function") callback();
+                        if (callback && typeof callback == "function") {
+                            var dataLength = Object.keys(self.data.unigrams).length;
+                            callback(dataLength);
+                        }
                     }
                 });
             });
