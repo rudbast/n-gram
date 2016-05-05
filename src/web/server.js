@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Program arguments: <directory>
+ * Program arguments: <1: data file> <2: output directory (ngrams)> <3: output file (words similars)>
  *
  * @param {string} directory Directory path which contains the ngrams index file (to be loaded upon demand)
  */
@@ -12,11 +12,11 @@ var express    = require('express'),
 
 var helper    = require(__dirname + '/../util/helper.js'),
     Indexer   = require(__dirname + '/../main/Indexer.js'),
-    Corrector = require(__dirname + '/../main/Corrector.js');
-    // Corrector = require(__dirname + '/../ref/Setiadi.js');
-    // Corrector = require(__dirname + '/../ref/Verberne.js');
+    Corrector = require(__dirname + '/../main/Corrector.js'),
+    Setiadi   = require(__dirname + '/../ref/Setiadi.js'),
+    Verberne  = require(__dirname + '/../ref/Verberne.js');
 
-const WEB_PORT = '3000';
+const WEB_PORT = 3000;
 
 var connection,
     indexer,
@@ -45,111 +45,73 @@ app.get('/', function (request, response) {
     response.sendFile(PUBLIC_PATH + '/index.html');
 });
 
-/** Words informations manipulation. */
-app.get('/data/:action', function (request, response) {
-    var action = request.params.action,
-        target = request.params.target;
-
-    const totalTask = 2;
-
-    var check = function (finishedTask, callback) {
-        if (finishedTask == totalTask) {
-            callback();
-        }
-    }
-
-    var finished = function () {
-        corrector = new Corrector(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies());
-        response.send('finished loading/saving informations from/to file.');
-    }
-
-    var taskCount = 0;
-    switch (action) {
-        case 'load':
-                // Load informations.
-                indexer.loadIndex(outputDir, function () {
-                    // Fill trie data structure.
-                    indexer.buildVocabularies();
-                    check(++taskCount, finished);
-                });
-                indexer.loadSimilarities(outputFile, function () {
-                    check(++taskCount, finished);
-                });
-            break;
-
-        case 'build':
-            console.time('constructIndex');
-
-            // Construct informations.
-            indexer.constructIndex(dataFile, function () {
-                console.timeEnd('constructIndex');
-
-                // Fill trie data structure.
-                indexer.buildVocabularies();
-
-                // Save informations.
-                indexer.saveIndex(outputDir, function () {
-                    check(++taskCount, finished);
-
-                    console.time('constructSimilarities');
-                    indexer.constructSimilarities(function () {
-                        console.timeEnd('constructSimilarities');
-
-                        indexer.saveSimilarities(outputFile, function () {
-                            check(++taskCount, finished);
-                        });
-                    });
-                });
-            });
-            break;
-    }
-});
-
-/** Route: check word validity. */
-app.get('/check/:word/:limit', function (request, response) {
-    var inputWord     = request.params.word,
-        distanceLimit = request.params.limit;
-
-    if (!indexer || !corrector) {
-        response.send('Corrector object is not constructed yet.');
-        return;
-    }
-
-    if (corrector.isValid(inputWord)) {
-        var responseMessage = `${inputWord} is a valid word.<br/>`;
-        response.send(responseMessage + JSON.stringify(corrector.getSuggestions(inputWord)));
-    } else {
-        var responseMessage = `${inputWord} is not a valid word. Here is a list of similar words:<br/>`;
-        response.send(responseMessage + JSON.stringify(corrector.getSuggestions(inputWord)));
-    }
-});
-
 /** Route: try correcting a sentence. */
-app.get('/correct/:sentence', function (request, response) {
-    var sentence = request.params.sentence;
-
-    if (!corrector) {
-        response.send('Indexer / Corrector object is not constructed yet.');
-        return;
-    }
-
-    response.send(corrector.tryCorrect(sentence));
-});
-
-/** Route: try correcting a sentence. (POST version) */
 app.post('/correct', function (request, response) {
-    var sentence = request.body.sentence;
+    var sentence = request.body.sentence,
+        type     = request.body.type;
 
-    if (!corrector) {
-        response.send('Indexer / Corrector object is not constructed yet.');
-        return;
+    switch (type) {
+        case 'custom':
+            corrector = new Corrector(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies());
+            break;
+
+        case 'setiadi':
+            corrector = new Setiadi(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies());
+            break;
+
+        case 'verberne':
+            corrector = new Verberne(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies());
+            break;
     }
 
     response.send({corrections: corrector.tryCorrect(sentence)});
 });
 
+/**
+ * Load / build informations needed by the spelling corrector.
+ *
+ * @return {void}
+ */
+function initInformation() {
+    // Try load index information.
+    indexer.loadIndex(outputDir, function (dataLength) {
+        // If index is empty, we'll build them.
+        if (dataLength == 0) {
+            // Construct index informations.
+            indexer.constructIndex(dataFile, function () {
+                console.log('Finished building index informations.');
+                indexer.buildVocabularies();
+
+                // Save informations.
+                indexer.saveIndex(outputDir, function () {
+                    console.log('Finished saving index informations.');
+                });
+
+                // Construct words similarity information.
+                indexer.constructSimilarities(function () {
+                    console.log('Finished building words similarity informations.');
+
+                    // Save the other informations.
+                    indexer.saveSimilarities(outputFile, function () {
+                        console.log('Finished saving words similarity informations.');
+                        indexer.printDataInformation();
+                    });
+                });
+            });
+        } else {
+            indexer.buildVocabularies();
+            indexer.loadSimilarities(outputFile, function () {
+                console.log('Finished loading all informations.');
+                indexer.printDataInformation();
+            });
+        }
+    });
+}
+
 /** Start listening for request. */
 var server = app.listen(WEB_PORT, function () {
     console.log('App listening at http://localhost:%s', WEB_PORT);
     indexer = new Indexer(DISTANCE_LIMIT);
+
+    initInformation();
 });
