@@ -2,7 +2,8 @@
 
 var fs     = require('fs'),
     jsFile = require('jsonfile'),
-    assert = require('assert');
+    assert = require('assert'),
+    _      = require('lodash');
 
 var ngramUtil   = require(__dirname + '/../util/ngram.js'),
     helper      = require(__dirname + '/../util/helper.js'),
@@ -26,7 +27,7 @@ var Indexer = function (distanceLimit) {
         trigrams: new Object()
     };
     this.similars      = new Object();
-    this.distanceLimit = distanceLimit !== undefined ? distanceLimit : 2;
+    this.distanceLimit = !_.isUndefined(distanceLimit) ? distanceLimit : 2;
     this.vocabularies;
 };
 
@@ -238,7 +239,7 @@ Indexer.prototype = {
             });
         });
 
-        if (callback && typeof callback == "function") callback(ngrams);
+        if (_.isFunction(callback)) callback(ngrams);
     },
 
     /**
@@ -274,7 +275,7 @@ Indexer.prototype = {
 
                     // Finished processing all articles.
                     if (extractCount == articlesSize) {
-                        if (callback && typeof callback == "function") callback();
+                        if (_.isFunction(callback)) callback();
                     }
                 });
             });
@@ -304,7 +305,7 @@ Indexer.prototype = {
                     self.data[gramFileName] = data;
 
                     if ((++loadCount) == files.length) {
-                        if (callback && typeof callback == "function") {
+                        if (_.isFunction(callback)) {
                             var dataLength = Object.keys(self.data.unigrams).length;
                             callback(dataLength);
                         }
@@ -341,7 +342,7 @@ Indexer.prototype = {
                 assert.equal(err, null);
 
                 if ((--insertCount) == 0) {
-                    if (callback && typeof callback == "function") callback();
+                    if (_.isFunction(callback)) callback();
                 }
             });
         }
@@ -361,7 +362,7 @@ Indexer.prototype = {
             console.log('Similarity index count: ' + (++similarityIndex));
         }
 
-        if (callback && typeof callback == "function") callback();
+        if (_.isFunction(callback)) callback();
     },
 
     /**
@@ -377,7 +378,7 @@ Indexer.prototype = {
         jsFile.readFile(`${file}`, function (err, data) {
             assert.equal(err, null);
             self.similars = data;
-            if (callback && typeof callback == "function") callback();
+            if (_.isFunction(callback)) callback();
         });
     },
 
@@ -391,7 +392,7 @@ Indexer.prototype = {
     saveSimilarities: function (file, callback) {
         jsFile.writeFile(`${file}`, this.similars, {spaces: 4}, function (err) {
             assert.equal(err, null);
-            if (callback && typeof callback == "function") callback();
+            if (_.isFunction(callback)) callback();
         });
     }
 };

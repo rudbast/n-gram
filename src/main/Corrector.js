@@ -1,5 +1,7 @@
 'use strict';
 
+var _ = require('lodash');
+
 var levenshtein = require(__dirname + '/../util/levenshtein.js'),
     helper      = require(__dirname + '/../util/helper.js'),
     ngramUtil   = require(__dirname + '/../util/ngram.js');
@@ -24,7 +26,7 @@ var levenshtein = require(__dirname + '/../util/levenshtein.js'),
 var Corrector = function (ngrams, similars, distanceLimit, vocabularies) {
     this.data          = ngrams;
     this.similars      = similars;
-    this.distanceLimit = distanceLimit !== undefined ? distanceLimit : 2;
+    this.distanceLimit = !_.isUndefined(distanceLimit) ? distanceLimit : 2;
     this.vocabularies  = vocabularies;
 
     this.NGRAM_UNIGRAM = 'unigrams';
