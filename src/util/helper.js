@@ -136,9 +136,20 @@ function subsetNgramOf(sentence, gram) {
     return (isSubsetGram ? lastSpacePos + 1 : -1);
 }
 
+/**
+ * Clear screen.
+ *
+ * @return {void}
+ */
+function clearScreen() {
+    var i = 0;
+    while (i++ < 60) { console.log() };
+}
+
 module.exports = {
     cleanExtra,
     cleanInitial,
+    clearScreen,
     createNgramCombination,
     subsetNgramOf,
     splitToSentence
