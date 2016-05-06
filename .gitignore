@@ -51,3 +51,4 @@ out/test.dat
 out/articles/test.json
 out/ngrams
 out/similars.json
+public/
