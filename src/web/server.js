@@ -10,7 +10,8 @@ var _          = require('lodash'),
     express    = require('express'),
     app        = express(),
     bodyParser = require('body-parser'),
-    prompt     = require('prompt');
+    prompt     = require('prompt'),
+    path       = require('path');
 
 var helper    = require(__dirname + '/../util/helper.js'),
     Indexer   = require(__dirname + '/../main/Indexer.js'),
@@ -40,7 +41,7 @@ app.use(bodyParser.urlencoded({
 
 /** Index page. */
 app.get('/', function (request, response) {
-    response.sendFile(PUBLIC_PATH + '/index.html');
+    response.sendFile(path.resolve(PUBLIC_PATH + '/index.html'));
 });
 
 /** Route: try correcting a sentence. */
