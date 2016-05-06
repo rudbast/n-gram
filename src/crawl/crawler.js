@@ -8,9 +8,11 @@
 
 var fs     = require('fs'),
     prompt = require('prompt'),
-    jsfile = require('jsonfile');
+    jsfile = require('jsonfile'),
+    assert = require('assert');
 // var kompas = require('indonesian-news-scraper').Kompas;
-var kompas = require(__dirname + '/CustomKompas.js');
+var kompas = require(__dirname + '/CustomKompas.js')
+    helper = require(__dirname + '/../util/helper.js');
 
 var currDate = new Date();
 kompas.setDesiredDate(currDate.getDate(), currDate.getMonth(), currDate.getFullYear());
@@ -36,7 +38,11 @@ function waitForCommandInput(callback) {
      */
     function getCommandInput() {
         prompt.get(['command'], function (err, input) {
-            if (err) { return onErr(err); }
+            if (err) {
+                console.log(err);
+                return 1;
+            }
+
             console.log();
             processCmd(input.command);
         });
@@ -61,7 +67,7 @@ function waitForCommandInput(callback) {
                 break;
 
             case 'clear':
-                clearScreen();
+                helper.clearScreen();
                 break;
 
             case 'date':
@@ -95,7 +101,7 @@ function waitForCommandInput(callback) {
                     console.log('Scrapping finished.');
 
                     jsfile.writeFile(docFile, data, {spaces: 4}, function (err) {
-                        if (err) onErr(err);
+                        assert.equal(err, null);
                     });
                 });
                 break;
@@ -110,18 +116,6 @@ function waitForCommandInput(callback) {
 
     console.log('Type \'h\' to show full command list.');
     getCommandInput();
-}
-
-
-/**
- * Log error and exit.
- *
- * @param  {string}  err Error message
- * @return {integer}     Exit type
- */
-function onErr(err) {
-    console.error(err);
-    return 1;
 }
 
 /**
@@ -140,16 +134,6 @@ function printMenu() {
         menu += 'exit                       - exit program';
 
     console.log(menu);
-}
-
-/**
- * Clear screen.
- *
- * @return {void}
- */
-function clearScreen() {
-    var i = 0;
-    while (i++ < 60) { console.log() };
 }
 
 /**

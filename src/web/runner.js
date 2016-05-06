@@ -6,7 +6,7 @@
  * @param {string} file Full path of the file used as program output (articles data).
  */
 
-var _      = require('lodash');
+var _ = require('lodash');
 
 var helper = require(__dirname + '/../util/helper.js');
 
