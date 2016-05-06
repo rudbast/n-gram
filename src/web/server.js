@@ -26,7 +26,7 @@ var connection,
     corrector;
 
 const DISTANCE_LIMIT = 2,
-      PUBLIC_PATH    = __dirname + '/public';
+      PUBLIC_PATH    = __dirname + '/../../public';
 
 var shouldLoadInformation = _.isUndefined(process.argv[2]) ? false : (process.argv[2] == 'load' ? true : false);
 

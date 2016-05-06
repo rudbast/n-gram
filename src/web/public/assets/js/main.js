@@ -57,10 +57,10 @@ $(document).ready(function () {
                     var sentence    = correction.sentence,
                         probability = correction.probability,
                         childNode   =
-                            `<div class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Probability: ${probability}">
-                                <span class="correction-item">${sentence}</span>
-                            </div>`;
-                    resultListContainer.append(`<li class="collection-item">${childNode}</li>`);
+                            '<div class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Probability: ' + probability + '">\
+                                <span class="correction-item">' + sentence + '</span>\
+                            </div>';
+                    resultListContainer.append('<li class="collection-item">' + childNode + '</li>');
                 });
 
                 // Initialize tooltip.
