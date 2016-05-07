@@ -11,7 +11,8 @@ var _          = require('lodash'),
     app        = express(),
     bodyParser = require('body-parser'),
     prompt     = require('prompt'),
-    path       = require('path');
+    path       = require('path'),
+    now        = require('performance-now');
 
 var helper    = require(__dirname + '/../util/helper.js'),
     Indexer   = require(__dirname + '/../main/Indexer.js'),
@@ -44,6 +45,11 @@ app.get('/', function (request, response) {
     response.sendFile(path.resolve(PUBLIC_PATH + '/index.html'));
 });
 
+/** Compare page. */
+app.get('/compare', function (request, response) {
+    response.sendFile(path.resolve(PUBLIC_PATH + '/compare.html'));
+});
+
 /** Route: try correcting a sentence. */
 app.post('/correct', function (request, response) {
     var sentence = request.body.sentence,
@@ -64,6 +70,30 @@ app.post('/correct', function (request, response) {
     }
 
     response.send({corrections: corrector.tryCorrect(sentence)});
+});
+
+app.post('/compare', function (request, response) {
+    var sentence = request.body.sentence;
+
+    var correctors = [
+        new Corrector(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies()),
+        new Setiadi(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies()),
+        new Verberne(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies())
+    ];
+
+    var result = new Array();
+    correctors.forEach(function (corrector) {
+        var subResult = new Object();
+
+        var startTime = now();
+        subResult.corrections = corrector.tryCorrect(sentence);
+        var endTime = now();
+
+        subResult.time = endTime - startTime;
+        result.push(subResult);
+    });
+
+    response.send({comparison: result});
 });
 
 /** Start listening for request. */

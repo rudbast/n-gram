@@ -90,24 +90,26 @@ gulp.task('libs', function () {
 });
 
 gulp.task('publichtml', function () {
-    return gulp.src(PUBLIC_SRC_DIR + '/index.html')
+    return gulp.src(PUBLIC_SRC_DIR + '/*.html')
         .pipe(htmlmin({collapseWhitespace: true}))
         .pipe(gulp.dest(PUBLIC_DIST_DIR));
 });
 
 gulp.task('publiccss', function () {
-    return gulp.src(ASSETS_SRC_DIR + '/css/main.css')
+    return gulp.src(ASSETS_SRC_DIR + '/css/*.css')
         .pipe(cssnano())
         .pipe(gulp.dest(ASSETS_DIST_DIR + '/css'));
 });
 
 gulp.task('publicjs', function () {
-    return gulp.src(ASSETS_SRC_DIR + '/js/main.js')
+    return gulp.src(ASSETS_SRC_DIR + '/js/*.js')
         .pipe(jsnano({
             ext: {
                 src: '-debug.js',
                 min: '.js'
-            }
+            },
+            noSource: true,
+            exclude: ['libs.js']
         }))
         .pipe(gulp.dest(ASSETS_DIST_DIR + '/js'));
 });

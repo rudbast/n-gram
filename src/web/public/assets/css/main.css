@@ -12,7 +12,7 @@ main {
     margin-top: 5em;
 }
 
-#correction-result {
+.result-wrapper {
     font-style: bold italic;
 }
 

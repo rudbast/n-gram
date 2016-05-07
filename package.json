@@ -29,6 +29,7 @@
     "lodash": "^4.11.2",
     "mongodb": "^2.1.16",
     "multer": "^1.1.0",
+    "performance-now": "^0.2.0",
     "prompt": "^1.0.0",
     "shelljs": "^0.6.0"
   },
