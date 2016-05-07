@@ -6,7 +6,7 @@ $('#btn-submit').click(function (e) {
     e.preventDefault();
 
     if ($('#sentence').val() == '') {
-        Materialize.toast('Sentence is empty, rejected', 4000, 'rounded');
+        Materialize.toast('Kalimat tidak boleh kosong', 4000, 'rounded');
         return;
     }
 
@@ -36,7 +36,7 @@ $('#btn-submit').click(function (e) {
     });
 
     // Show toast on submit.
-    Materialize.toast('Sentence checked', 2000, 'rounded');
+    Materialize.toast('Ejaan telah diperiksa', 2000, 'rounded');
 });
 
 // Listen for input change, hide correction result if current input
