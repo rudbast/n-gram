@@ -9,7 +9,7 @@ function formSubmitSuccess(response) {
     var childNode = '';
     for (var identifier in tableRowsId) {
         childNode += '<tr>';
-        childNode += '<td>' + tableRowsId[identifier] + '</td>';
+        childNode += '<td><strong>' + tableRowsId[identifier] + '<strong></td>';
 
         if (identifier == 'time') {
             response.comparison.forEach(function (corrector) {

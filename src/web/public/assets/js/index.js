@@ -32,7 +32,7 @@ function formSubmitSuccess(response) {
                 '<div class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Probability: ' + probability + '">\
                     <span class="correction-item">' + sentence + '</span>\
                 </div>';
-        resultListContainer.append('<li class="collection-item">' + childNode + '</li>');
+        $('#result-list').append('<li class="collection-item">' + childNode + '</li>');
     });
 
     // Initialize tooltip.

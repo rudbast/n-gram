@@ -21,10 +21,8 @@ $('#btn-submit').click(function (e) {
         data: $('#form-corrector').serialize(),
         success: function (response) {
             $('#result-wrapper').removeClass('hide');
-            var resultListContainer = $('#result-list');
-
             // Clean result before adding new ones.
-            resultListContainer.empty();
+            $('#result-list').empty();
             formSubmitSuccess(response);
         },
         complete: function () {
