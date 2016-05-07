@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+        <title>SPE - Sistem Pengoreksian Ejaan | Perbandingan</title>
+
+        <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+
+        <link rel="stylesheet" type="text/css" href="assets/css/libs.css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+        <link rel="stylesheet" type="text/css" href="assets/css/main.css">
+    </head>
+
+    <body class="grey lighten-5">
+        <header class="navbar-fixed">
+            <nav class="cyan lighten-3">
+                <div class="nav-wrapper">
+                    <img src="assets/img/logo.png" class="brand-logo center" width="63px">
+                    <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+
+                    <ul id="nav-mobile" class="right hide-on-med-and-down">
+                        <li><a href="/">Indeks</a></li>
+                    </ul>
+
+                    <ul class="side-nav" id="mobile-demo">
+                        <li><a href="/">Indeks</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <main class="container">
+            <div class="row">
+                <div class="col s12 offset-m1 m10 offset-l2 l8">
+                    <div class="row">
+                        <form id="form-corrector" class="col s12" action="http://localhost:3000/compare" method="post">
+                            <div class="row">
+                                <div class="col s12">
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <i class="material-icons prefix">comment</i>
+                                            <input id="sentence" class="validate" type="text" name="sentence" value="">
+                                            <label for="sentence">Kalimat</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col s12 center-align">
+                                            <button id="btn-submit" class="btn waves-effect waves-light purple lighten-1" type="submit" name="action">
+                                                Periksa Ejaan &amp; Bandingkan
+                                                <i class="material-icons right">send</i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="corrector-progress" class="row hide">
+                        <div class="col s12">
+                            <div class="progress">
+                                <div class="indeterminate"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div id="result-wrapper" class="col s12 hide bold italic">
+                    <table id="table-compare" class="bordered striped highlight centered">
+                        <thead>
+                            <tr>
+                                <th>&nbsp;</th>
+                                <th>Rudy</th>
+                                <th>Setiadi</th>
+                                <th>Verberne</th>
+                            </tr>
+                        </thead>
+                        <tbody id="result-list">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <footer class="page-footer cyan darken-2">
+            <div class="footer-copyright">
+                <div class="container">
+                    &copy; 2016 Rudolf. All Rights Reserved.
+                </div>
+            </div>
+        </footer>
+
+        <script src="assets/js/libs.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="assets/js/main.js" type="text/javascript" charset="utf-8"></script>
+        <script src="assets/js/compare.js" type="text/javascript" charset="utf-8"></script>
+    </body>
+</html>
