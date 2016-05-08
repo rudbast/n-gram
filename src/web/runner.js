@@ -72,7 +72,7 @@ function waitForCommandInput(prompt, indexer) {
                         });
                         break;
 
-                    case 'similarity':
+                    case 'similar':
                         indexer.constructSimilarities(function () {
                             notifyAndPrintConsole('Word similarities built');
                         });
