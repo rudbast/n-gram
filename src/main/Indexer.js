@@ -4,6 +4,7 @@ var _              = require('lodash'),
     fs             = require('fs'),
     jsFile         = require('jsonfile'),
     assert         = require('assert'),
+    now            = require('performance-now'),
     LanguageDetect = require('languagedetect');
 
 var ngramUtil   = require(__dirname + '/../util/ngram.js'),
@@ -268,7 +269,8 @@ Indexer.prototype = {
             assert.equal(err, null);
 
             var articlesSize = Object.keys(data.articles).length,
-                extractCount = 0;
+                extractCount = 0,
+                start        = now();
 
             data.articles.forEach(function (article) {
                 self.extractIndex(article, function (indexResultData) {
@@ -287,6 +289,9 @@ Indexer.prototype = {
 
                     // Finished processing all articles.
                     if (extractCount == articlesSize) {
+                        var end = now();
+                        console.log('Construct index elapsed time: ' + (end - start).toFixed(3) + 'ms');
+
                         if (_.isFunction(callback)) callback();
                     }
                 });
@@ -367,12 +372,16 @@ Indexer.prototype = {
      * @return {void}
      */
     constructSimilarities: function (callback) {
-        var similarityIndex = 0;
+        var similarityIndex = 0,
+            start           = now();
 
         for (var word in this.data.unigrams) {
             this.similars[word] = this.vocabularies.findWordsWithinLimit(word, this.distanceLimit);
-            console.log('Similarity index count: ' + (++similarityIndex));
+            console.log('Similarity word count: ' + (++similarityIndex));
         }
+
+        var end = now();
+        console.log('Construct word similarity elapsed time: ' + (end - start).toFixed(3) + 'ms');
 
         if (_.isFunction(callback)) callback();
     },
