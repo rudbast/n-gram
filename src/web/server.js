@@ -57,7 +57,7 @@ app.post('/correct', function (request, response) {
 
     switch (type) {
         case 'custom':
-            corrector = new Corrector(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies());
+            corrector = new Corrector(indexer.getData(), indexer.getProbability(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies());
             break;
 
         case 'setiadi':
@@ -76,7 +76,7 @@ app.post('/compare', function (request, response) {
     var sentence = request.body.sentence;
 
     var correctors = [
-        new Corrector(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies()),
+        new Corrector(indexer.getData(), indexer.getProbability(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies()),
         new Setiadi(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies()),
         new Verberne(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies())
     ];
@@ -98,7 +98,10 @@ app.post('/compare', function (request, response) {
 
 /** Start listening for request. */
 var server = app.listen(WEB_PORT, function () {
-    console.log('App listening at http://localhost:%s', WEB_PORT);
+    var message = 'App listening at http://localhost:' + WEB_PORT;
+    helper.notify('Spelling Corrector Server', message);
+    console.log(message);
+
     indexer = new Indexer(DISTANCE_LIMIT);
 
     /**
