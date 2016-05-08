@@ -1,14 +1,17 @@
 'use strict';
 
-var fs     = require('fs'),
-    jsFile = require('jsonfile'),
-    assert = require('assert'),
-    _      = require('lodash');
+var _              = require('lodash'),
+    fs             = require('fs'),
+    jsFile         = require('jsonfile'),
+    assert         = require('assert'),
+    LanguageDetect = require('languagedetect');
 
 var ngramUtil   = require(__dirname + '/../util/ngram.js'),
     helper      = require(__dirname + '/../util/helper.js'),
     levenshtein = require(__dirname + '/../util/levenshtein.js'),
     Trie        = require(__dirname + '/../util/Trie.js');
+
+var languageDetector = new LanguageDetect();
 
 /**
  * Index builder class.
@@ -206,6 +209,15 @@ Indexer.prototype = {
             }
 
             parts.forEach(function (part) {
+                // NOTE: The use of language detector is still in debatable, use it on
+                //      sentence level ? or on word level ? or 'part' level ?
+                // Detect current sentence's part's language.
+                var language = languageDetector.detect(part, 1);
+                // If it's not indonesian, we'll exempt it from being indexed.
+                if (!_.isUndefined(language[0])) {
+                    if (language[0][0] != 'indonesian') return;
+                }
+
                 // Remove spaces at the start / end of text.
                 part = part.replace(/^\s+|\s+$/g, '');
 
