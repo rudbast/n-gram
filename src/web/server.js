@@ -57,7 +57,7 @@ app.post('/correct', function (request, response) {
 
     switch (type) {
         case 'custom':
-            corrector = new Corrector(indexer.getData(), indexer.getProbability(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies());
+            corrector = new Corrector(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies());
             break;
 
         case 'setiadi':
@@ -76,7 +76,7 @@ app.post('/compare', function (request, response) {
     var sentence = request.body.sentence;
 
     var correctors = [
-        new Corrector(indexer.getData(), indexer.getProbability(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies()),
+        new Corrector(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies()),
         new Setiadi(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies()),
         new Verberne(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies())
     ];
