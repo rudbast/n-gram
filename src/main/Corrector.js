@@ -18,6 +18,7 @@ var levenshtein = require(__dirname + '/../util/levenshtein.js'),
  * @property {object}  similars      Words with it's similars pairs
  * @property {integer} distanceLimit Words distance limit
  * @property {object}  vocabularies  Trie's structured vocabularies
+ * @property {integer} unigramSize   Size of the unigrams' object
  * @property {string}  NGRAM_UNIGRAM String representation for unigram
  * @property {string}  NGRAM_BIGRAM  String representation for bigram
  * @property {string}  NGRAM_TRIGRAM String representation for trigram
@@ -32,6 +33,8 @@ var Corrector = function (ngrams, similars, distanceLimit, vocabularies) {
     this.NGRAM_UNIGRAM = 'unigrams';
     this.NGRAM_BIGRAM  = 'bigrams';
     this.NGRAM_TRIGRAM = 'trigrams';
+
+    this.unigramSize   = Object.keys(this.data[this.NGRAM_UNIGRAM]).length;
 };
 
 Corrector.prototype = {
@@ -330,25 +333,25 @@ Corrector.prototype = {
      * Compute the probability of a n-gram.
      * @see https://en.wikipedia.org/wiki/Bigram
      *
-     * @param  {sentence} ngram Text in a form of n-gram
-     * @return {float}          Probability of the n-gram (range 0-1)
+     * @param  {sentence} gram Text in a form of n-gram
+     * @return {float}         Probability of the n-gram (range 0-1)
      */
-    ngramProbability: function (ngram) {
-        var words       = ngramUtil.uniSplit(ngram),
+    ngramProbability: function (gram) {
+        var words       = ngramUtil.uniSplit(gram),
             probability = 0,
             precedenceGram;
 
         switch (words.length) {
             case 1: // Unigram.
-                probability = this.data.unigrams[ngram] / Object.keys(this.data.unigrams).length;
+                probability = this.data.unigrams[gram] / this.unigramSize;
                 break;
             case 2: // Bigram.
                 precedenceGram = `${words[0]}`;
-                probability    = this.data.bigrams[ngram] / this.data.unigrams[precedenceGram];
+                probability    = this.data.bigrams[gram] / this.data.unigrams[precedenceGram];
                 break;
             case 3: // Trigram.
                 precedenceGram = `${words[0]} ${words[1]}`;
-                probability    = this.data.trigrams[ngram] / this.data.bigrams[precedenceGram];
+                probability    = this.data.trigrams[gram] / this.data.bigrams[precedenceGram];
                 break;
         }
 
