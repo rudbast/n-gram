@@ -1,5 +1,7 @@
 'use strict';
 
+var notifier = require('node-notifier');
+
 var ngramUtil = require(__dirname + '/ngram.js');
 
 /**
@@ -137,6 +139,22 @@ function subsetNgramOf(sentence, gram) {
 }
 
 /**
+ * Notify user.
+ *
+ * @param  {string} title   Notification's title
+ * @param  {string} message Notification's message
+ * @return {void}
+ */
+function notify(title, message) {
+    notifier.notify({
+        title: title,
+        message: message,
+        sound: true,
+        wait: false
+    });
+}
+
+/**
  * Clear screen.
  *
  * @return {void}
@@ -151,6 +169,7 @@ module.exports = {
     cleanInitial,
     clearScreen,
     createNgramCombination,
+    notify,
     subsetNgramOf,
     splitToSentence
 };
