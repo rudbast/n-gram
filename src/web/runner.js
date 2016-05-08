@@ -12,11 +12,13 @@ var helper = require(__dirname + '/../util/helper.js');
 
 const DEFAULT_ARTICLE_FILE    = __dirname + '/../../out/articles/data.json',
       DEFAULT_INDEX_DIR       = __dirname + '/../../out/ngrams',
-      DEFAULT_SIMILARITY_FILE = __dirname + '/../../out/similars.json';
+      DEFAULT_SIMILARITY_FILE = __dirname + '/../../out/similars.json',
+      NOTIFICATION_TITLE      = 'Spelling Corrector Web Runner';
 
 var articleFile    = DEFAULT_ARTICLE_FILE,
     indexDir       = DEFAULT_INDEX_DIR,
-    similarityFile = DEFAULT_SIMILARITY_FILE;
+    similarityFile = DEFAULT_SIMILARITY_FILE,
+    message        = '';
 
 /**
  * Recursively wait for program command input.
@@ -65,14 +67,14 @@ function waitForCommandInput(prompt, indexer) {
                 switch (cmd[1]) {
                     case 'index':
                         indexer.constructIndex(articleFile, function () {
-                            console.log('Index built');
+                            notifyAndPrintConsole('Index built');
                             indexer.buildVocabularies();
                         });
                         break;
 
                     case 'similarity':
                         indexer.constructSimilarities(function () {
-                            console.log('Word similarities built');
+                            notifyAndPrintConsole('Word similarities built');
                         });
                         break;
 
@@ -80,7 +82,7 @@ function waitForCommandInput(prompt, indexer) {
                         indexer.constructIndex(articleFile, function () {
                             indexer.buildVocabularies();
                             indexer.constructSimilarities(function () {
-                                console.log('All informations built');
+                                notifyAndPrintConsole('All informations built');
                             });
                         });
                         break;
@@ -95,14 +97,14 @@ function waitForCommandInput(prompt, indexer) {
                 switch (cmd[1]) {
                     case 'index':
                         indexer.loadIndex(indexDir, function () {
-                            console.log('Index loaded');
+                            notifyAndPrintConsole('Index loaded');
                             indexer.buildVocabularies();
                         });
                         break;
 
-                    case 'similarity':
+                    case 'similar':
                         indexer.loadSimilarities(similarityFile, function () {
-                            console.log('Word similarities loaded');
+                            notifyAndPrintConsole('Word similarities loaded');
                         });
                         break;
 
@@ -110,7 +112,7 @@ function waitForCommandInput(prompt, indexer) {
                         indexer.loadIndex(indexDir, function () {
                             indexer.buildVocabularies();
                             indexer.loadSimilarities(similarityFile, function () {
-                                console.log('All informations loaded');
+                                notifyAndPrintConsole('All informations loaded');
                             });
                         });
                         break;
@@ -121,20 +123,20 @@ function waitForCommandInput(prompt, indexer) {
                 switch (cmd[1]) {
                     case 'index':
                         indexer.saveIndex(indexDir, function () {
-                            console.log('Index saved');
+                            notifyAndPrintConsole('Index saved');
                         });
                         break;
 
-                    case 'similarity':
+                    case 'similar':
                         indexer.saveSimilarities(similarityFile, function () {
-                            console.log('Word similarities saved');
+                            notifyAndPrintConsole('Word similarities saved');
                         });
                         break;
 
                     case 'all':
                         indexer.saveIndex(indexDir, function () {
                             indexer.saveSimilarities(similarityFile, function () {
-                                console.log('All informations saved');
+                                notifyAndPrintConsole('All informations saved');
                             });
                         });
                         break;
@@ -186,6 +188,17 @@ function printMenu() {
         menu += 'exit                               - exit program';
 
     console.log(menu);
+}
+
+/**
+ * Notify system of given message and print message to console too.
+ *
+ * @param  {string} message Message
+ * @return {void}
+ */
+function notifyAndPrintConsole(message) {
+    helper.notify(NOTIFICATION_TITLE, message);
+    console.log(message);
 }
 
 /**
