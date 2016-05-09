@@ -199,8 +199,8 @@ Corrector.prototype = {
     },
 
     /**
-     * Create valid trigram alternatives from a list of words' similarity,
-     * only allows 1 different word from the original trigram.
+     * Create valid n-gram alternatives from a list of words' similarity,
+     * only allows 1 different word from the original n-gram.
      *
      * @param  {array}  words     List of words (ordered) from a sentence
      * @param  {string} gramClass String representation of the n-gram
@@ -210,7 +210,7 @@ Corrector.prototype = {
         var self = this;
 
         var alternatives = new Object(),
-            wordAlts    = new Array(),
+            wordAlts     = new Array(),
             collections  = new Array();
 
         words.forEach(function (word) {
@@ -248,8 +248,8 @@ Corrector.prototype = {
     },
 
     /**
-     * Create valid trigram alternatives from a list of words' similarity,
-     * only allows 1 different word from the original trigram excluding the
+     * Create valid n-gram alternatives from a list of words' similarity,
+     * only allows 1 different word from the original n-gram excluding the
      * word which is categorized as non-word error.
      *
      * @param  {array}  words        List of words (ordered) from a sentence
