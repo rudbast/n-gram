@@ -143,6 +143,12 @@ Corrector.prototype = {
                 //      and not the other, so the correction will fail. Might need to
                 //      reconsider this problem.
                 alternatives = self.createAlternativesRealWord(words, gramClass);
+
+                // In case of no alternative trigram available, we're going to create them by
+                // combining bigrams, or even unigrams.
+                if (Object.keys(alternatives).length == 0 && gramClass != self.NGRAM_UNIGRAM) {
+                    alternatives = self.createAlternateGramOfTrigram(words, gramClass);
+                }
             }
 
             corrections.push(alternatives);
@@ -199,6 +205,41 @@ Corrector.prototype = {
     },
 
     /**
+     * Create new combination of trigram by combining bigrams or unigrams.
+     *
+     * @param  {array}  words     List of words (ordered)
+     * @param  {string} gramClass Current dealt gram's class
+     * @return {object}           New combination of trigram
+     */
+    createAlternateGramOfTrigram: function (words, gramClass) {
+        var self = this;
+
+        var alternatives   = new Object(),
+            collections    = new Array();
+
+        if (gramClass == this.NGRAM_TRIGRAM) {
+            collections.push(this.createAlternativesRealWord(words.slice(0, 2), this.NGRAM_BIGRAM));
+            collections.push(this.createAlternativesRealWord(words.slice(1), this.NGRAM_BIGRAM));
+        } else if (gramClass == this.NGRAM_BIGRAM) {
+            words.forEach(function (word) {
+                collections.push(self.createAlternativesRealWord([word], self.NGRAM_UNIGRAM));
+            });
+        }
+
+        alternatives = helper.createNgramCombination(collections);
+        var alternativeSize = Object.keys(alternatives).length;
+
+        // NOTE: May need to consider another way of computing trigram probabilities.
+        //      'compute trigram probabilities, given only known bigram'
+        //      @see http://stackoverflow.com/a/20587491/3190026
+        if (alternativeSize == 0 && gramClass == this.NGRAM_TRIGRAM) {
+            alternatives = this.createAlternateGramOfTrigram(words, this.NGRAM_BIGRAM);
+        }
+
+        return alternatives;
+    },
+
+    /**
      * Create valid n-gram alternatives from a list of words' similarity,
      * only allows 1 different word from the original n-gram.
      *
@@ -224,7 +265,12 @@ Corrector.prototype = {
 
             for (var j = 0; j < words.length; ++j) {
                 if (i == j) {
-                    subAlternatives.push(self.getSuggestions(words[j]));
+                    var suggestions = self.getSuggestions(words[j]);
+                    // Include the original word into the 'words similarity' list, as it
+                    // might be a solution too.
+                    suggestions[words[j]] = 0;
+
+                    subAlternatives.push(suggestions);
                 } else {
                     subAlternatives.push(wordAlts[j]);
                 }
