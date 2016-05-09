@@ -131,7 +131,7 @@ Corrector.prototype = {
 
             if (errorIndexLength == 0 && isValidGram) {
                 // Contains no error.
-                alternatives[part] = self.ngramProbability(part);
+                alternatives[part] = self.ngramProbability(words);
             } else if (errorIndexLength != 0) {
                 // Contains non-word error.
                 alternatives = self.createAlternativesNonWord(words, gramClass, errorIndexes);
@@ -238,7 +238,7 @@ Corrector.prototype = {
                 if (self.isValid(combination, gramClass)) {
                     // Check if alternatives already exists.
                     if (!alternatives.hasOwnProperty(combination)) {
-                        alternatives[combination] = self.ngramProbability(combination);
+                        alternatives[combination] = self.ngramProbability(ngramUtil.uniSplit(combination));
                     }
                 }
             }
@@ -320,7 +320,7 @@ Corrector.prototype = {
                 if (self.isValid(combination, gramClass)) {
                     // Check if alternatives already exists.
                     if (!alternatives.hasOwnProperty(combination)) {
-                        alternatives[combination] = self.ngramProbability(combination);
+                        alternatives[combination] = self.ngramProbability(ngramUtil.uniSplit(combination));
                     }
                 }
             }
@@ -333,23 +333,26 @@ Corrector.prototype = {
      * Compute the probability of a n-gram.
      * @see https://en.wikipedia.org/wiki/Bigram
      *
-     * @param  {sentence} gram Text in a form of n-gram
-     * @return {float}         Probability of the n-gram (range 0-1)
+     * @param  {array} words Collection of words (ordered)
+     * @return {float}       Probability of the n-gram (range 0-1)
      */
-    ngramProbability: function (gram) {
-        var words       = ngramUtil.uniSplit(gram),
-            probability = 0,
-            precedenceGram;
+    ngramProbability: function (words) {
+        var gram, probability, precedenceGram;
 
-        switch (words.length) {
-            case 1: // Unigram.
+        switch (this.getGramClass(words.length)) {
+            case this.NGRAM_UNIGRAM:
+                gram        = `${words[0]}`;
                 probability = this.data.unigrams[gram] / this.unigramSize;
                 break;
-            case 2: // Bigram.
+
+            case this.NGRAM_BIGRAM:
+                gram           = `${words[0]} ${words[1]}`;
                 precedenceGram = `${words[0]}`;
                 probability    = this.data.bigrams[gram] / this.data.unigrams[precedenceGram];
                 break;
-            case 3: // Trigram.
+
+            case this.NGRAM_TRIGRAM:
+                gram           = `${words[0]} ${words[1]} ${words[2]}`;
                 precedenceGram = `${words[0]} ${words[1]}`;
                 probability    = this.data.trigrams[gram] / this.data.bigrams[precedenceGram];
                 break;
