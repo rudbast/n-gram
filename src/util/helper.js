@@ -1,6 +1,7 @@
 'use strict';
 
-var notifier = require('node-notifier');
+var _        = require('lodash'),
+    notifier = require('node-notifier');
 
 var ngramUtil = require(__dirname + '/ngram.js');
 
@@ -155,6 +156,30 @@ function notify(title, message) {
 }
 
 /**
+ * Convert object into a sorted array.
+ *
+ * @param  {object}  obj           Object to be converted
+ * @param  {boolean} parseAsNumber Indicates whether to parse object's property as number
+ * @return {array}                 Converted object
+ */
+function convertSimpleObjToSortedArray(obj, parseAsNumber) {
+    parseAsNumber = _.isUndefined(parseAsNumber) ? false : true;
+
+    var arr = new Array(),
+        newVal;
+
+    for (var key in obj) {
+        if (parseAsNumber) newVal = parseInt(key);
+        else newVal = key;
+
+        arr.push(newVal);
+    }
+    arr.sort(function (a, b) { return a - b });
+
+    return arr;
+}
+
+/**
  * Clear screen.
  *
  * @return {void}
@@ -168,6 +193,7 @@ module.exports = {
     cleanExtra,
     cleanInitial,
     clearScreen,
+    convertSimpleObjToSortedArray,
     createNgramCombination,
     notify,
     subsetNgramOf,
