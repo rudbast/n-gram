@@ -271,7 +271,7 @@ Corrector.prototype = {
         //      'compute trigram probabilities, given only known bigram'
         //      @see http://stackoverflow.com/a/20587491/3190026
         if (alternativeSize == 0 && gramClass == this.NGRAM_TRIGRAM) {
-            alternatives = this.createAlternateGramOfTrigram(words, this.NGRAM_BIGRAM);
+            alternatives = this.createAlternateRealWordGramOfTrigram(words, this.NGRAM_BIGRAM);
         }
 
         return alternatives;
