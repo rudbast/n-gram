@@ -31,6 +31,7 @@
     "multer": "^1.1.0",
     "node-notifier": "^4.5.0",
     "performance-now": "^0.2.0",
+    "progress": "^1.1.8",
     "prompt": "^1.0.0",
     "shelljs": "^0.6.0"
   },

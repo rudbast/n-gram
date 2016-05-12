@@ -4,8 +4,8 @@ var _              = require('lodash'),
     fs             = require('fs'),
     jsFile         = require('jsonfile'),
     assert         = require('assert'),
-    now            = require('performance-now'),
-    LanguageDetect = require('languagedetect');
+    LanguageDetect = require('languagedetect'),
+    ProgressBar    = require('progress');
 
 var ngramUtil   = require(__dirname + '/../util/ngram.js'),
     helper      = require(__dirname + '/../util/helper.js'),
@@ -269,12 +269,15 @@ Indexer.prototype = {
             assert.equal(err, null);
 
             var articlesSize = Object.keys(data.articles).length,
-                extractCount = 0,
-                start        = now();
+                progressBar  = new ProgressBar('    Constructing words index: [:bar] :percent :elapseds', {
+                    complete: '=',
+                    incomplete: ' ',
+                    total: articlesSize
+                });
 
             data.articles.forEach(function (article) {
                 self.extractIndex(article, function (indexResultData) {
-                    console.log('Extract index count: ' + (++extractCount));
+                    progressBar.tick();
 
                     // Update n-gram information from newly acquired data.
                     for (var gram in indexResultData) {
@@ -288,10 +291,7 @@ Indexer.prototype = {
                     }
 
                     // Finished processing all articles.
-                    if (extractCount == articlesSize) {
-                        var end = now();
-                        console.log('Construct index elapsed time: ' + (end - start).toFixed(3) + 'ms');
-
+                    if (progressBar.complete) {
                         if (_.isFunction(callback)) callback();
                     }
                 });
@@ -373,15 +373,16 @@ Indexer.prototype = {
      */
     constructSimilarities: function (callback) {
         var similarityIndex = 0,
-            start           = now();
+            progressBar     = new ProgressBar('    Constructing similar words: [:bar] :percent :elapseds', {
+                complete: '=',
+                incomplete: ' ',
+                total: Object.keys(this.data.unigrams).length
+            });
 
         for (var word in this.data.unigrams) {
             this.similars[word] = this.vocabularies.findWordsWithinLimit(word, this.distanceLimit);
-            console.log('Similarity word count: ' + (++similarityIndex));
+            progressBar.tick();
         }
-
-        var end = now();
-        console.log('Construct word similarity elapsed time: ' + (end - start).toFixed(3) + 'ms');
 
         if (_.isFunction(callback)) callback();
     },
