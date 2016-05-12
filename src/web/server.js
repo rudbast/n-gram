@@ -50,6 +50,11 @@ app.get('/compare', function (request, response) {
     response.sendFile(path.resolve(PUBLIC_PATH + '/compare.html'));
 });
 
+/** About page. */
+app.get('/about', function (request, response) {
+    response.sendFile(path.resolve(PUBLIC_PATH + '/about.html'));
+});
+
 /** Route: try correcting a sentence. */
 app.post('/correct', function (request, response) {
     var sentence = request.body.sentence,

@@ -8,8 +8,8 @@ main {
     flex: 1 0 auto;
 }
 
-#form-corrector {
-    margin-top: 5em;
+.top-wrapper {
+    margin-top: 3em;
 }
 
 .result-wrapper {
