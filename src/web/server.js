@@ -1,11 +1,5 @@
 'use strict';
 
-/**
- * Program arguments: <1: data file> <2: output directory (ngrams)> <3: output file (words similars)>
- *
- * @param {string} directory Directory path which contains the ngrams index file (to be loaded upon demand)
- */
-
 var _          = require('lodash'),
     express    = require('express'),
     app        = express(),
