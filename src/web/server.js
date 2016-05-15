@@ -13,7 +13,7 @@ var helper    = require(__dirname + '/../util/helper.js'),
     Corrector = require(__dirname + '/../main/Corrector.js'),
     Setiadi   = require(__dirname + '/../ref/Setiadi.js'),
     Verberne  = require(__dirname + '/../ref/Verberne.js'),
-    runner    = require(__dirname + '/runner.js');
+    runner    = require(__dirname + '/../main/runner.js');
 
 const WEB_PORT = 3000;
 
