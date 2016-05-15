@@ -77,13 +77,13 @@ Corrector.prototype = {
         // Get suggestions by computing Levenshtein naively.
         // var suggestions = new Object();
 
-        // for (var dictWord in this.data.unigrams) {
-        //     if (this.data.unigrams.hasOwnProperty(dictWord)) {
+        // for (var dictWord in this.data[ngramConst.UNIGRAM]) {
+        //     if (this.data[ngramConst.UNIGRAM].hasOwnProperty(dictWord)) {
         //         // var distance = levenshtein.distanceOnThreshold(inputWord, dictWord, this.distanceLimit);
         //         var distance = levenshtein.distance(inputWord, dictWord);
 
         //         if (distance <= this.distanceLimit ) {
-        //             var rank = this.data.unigrams[dictWord];
+        //             var rank = this.data[ngramConst.UNIGRAM][dictWord];
         //             suggestions[dictWord] = rank;
         //         }
         //     }
@@ -454,19 +454,19 @@ Corrector.prototype = {
         switch (ngramUtil.getGramClass(words.length)) {
             case ngramConst.UNIGRAM:
                 gram        = `${words[0]}`;
-                probability = this.data.unigrams[gram] / this.unigramSize;
+                probability = this.data[ngramConst.UNIGRAM][gram] / this.unigramSize;
                 break;
 
             case ngramConst.BIGRAM:
                 gram           = `${words[0]} ${words[1]}`;
                 precedenceGram = `${words[0]}`;
-                probability    = this.data.bigrams[gram] / this.data.unigrams[precedenceGram];
+                probability    = this.data[ngramConst.BIGRAM][gram] / this.data[ngramConst.UNIGRAM][precedenceGram];
                 break;
 
             case ngramConst.TRIGRAM:
                 gram           = `${words[0]} ${words[1]} ${words[2]}`;
                 precedenceGram = `${words[0]} ${words[1]}`;
-                probability    = this.data.trigrams[gram] / this.data.bigrams[precedenceGram];
+                probability    = this.data[ngramConst.TRIGRAM][gram] / this.data[ngramConst.BIGRAM][precedenceGram];
                 break;
         }
 

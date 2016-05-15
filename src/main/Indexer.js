@@ -12,7 +12,8 @@ var ngramUtil   = require(__dirname + '/../util/ngram.js'),
     levenshtein = require(__dirname + '/../util/levenshtein.js'),
     Trie        = require(__dirname + '/../util/Trie.js');
 
-var languageDetector = new LanguageDetect();
+var languageDetector = new LanguageDetect(),
+    ngramConst       = new ngramUtil.NgramConstant();
 
 /**
  * Index builder class.
@@ -26,9 +27,9 @@ var languageDetector = new LanguageDetect();
  */
 var Indexer = function (distanceLimit) {
     this.data = {
-        unigrams: new Object(),
-        bigrams: new Object(),
-        trigrams: new Object()
+        [`${ngramConst.UNIGRAM}`]: new Object(),
+        [`${ngramConst.BIGRAM}`]: new Object(),
+        [`${ngramConst.TRIGRAM}`]: new Object()
     };
     this.similars      = new Object();
     this.distanceLimit = !_.isUndefined(distanceLimit) ? distanceLimit : 2;
@@ -71,7 +72,7 @@ Indexer.prototype = {
     buildVocabularies: function () {
         this.vocabularies = new Trie();
 
-        for (var word in this.data.unigrams) {
+        for (var word in this.data[ngramConst.UNIGRAM]) {
             this.vocabularies.insert(word);
         }
     },
@@ -87,9 +88,9 @@ Indexer.prototype = {
         var self = this;
 
         var ngrams = {
-            unigrams: new Object(),
-            bigrams: new Object(),
-            trigrams: new Object()
+            [`${ngramConst.UNIGRAM}`]: new Object(),
+            [`${ngramConst.BIGRAM}`]: new Object(),
+            [`${ngramConst.TRIGRAM}`]: new Object()
         };
 
         var content   = helper.cleanInitial(`${article.title}, ${article.content}`),
@@ -323,7 +324,7 @@ Indexer.prototype = {
 
                     if ((++loadCount) == files.length) {
                         if (_.isFunction(callback)) {
-                            var dataLength = Object.keys(self.data.unigrams).length;
+                            var dataLength = Object.keys(self.data[ngramConst.UNIGRAM]).length;
                             callback(dataLength);
                         }
                     }
@@ -376,10 +377,10 @@ Indexer.prototype = {
             progressBar     = new ProgressBar('    Constructing similar words: [:bar] :percent :elapseds', {
                 complete: '=',
                 incomplete: ' ',
-                total: Object.keys(this.data.unigrams).length
+                total: Object.keys(this.data[ngramConst.UNIGRAM]).length
             });
 
-        for (var word in this.data.unigrams) {
+        for (var word in this.data[ngramConst.UNIGRAM]) {
             this.similars[word] = this.vocabularies.findWordsWithinLimit(word, this.distanceLimit);
             progressBar.tick();
         }

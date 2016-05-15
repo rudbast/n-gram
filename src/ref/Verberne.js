@@ -141,9 +141,9 @@ Verberne.prototype = {
         var alternatives = new Object();
 
         var wordAlts = [
-            {[`${words[0]}`]: this.data.unigrams[words[0]]},
-            {[`${words[1]}`]: this.data.unigrams[words[1]]},
-            {[`${words[2]}`]: this.data.unigrams[words[2]]}
+            {[`${words[0]}`]: this.data[ngramConst.UNIGRAM][words[0]]},
+            {[`${words[1]}`]: this.data[ngramConst.UNIGRAM][words[1]]},
+            {[`${words[2]}`]: this.data[ngramConst.UNIGRAM][words[2]]}
         ];
 
         var collections = [
