@@ -6,6 +6,8 @@ var levenshtein = require(__dirname + '/../util/levenshtein.js'),
     helper      = require(__dirname + '/../util/helper.js'),
     ngramUtil   = require(__dirname + '/../util/ngram.js');
 
+var ngramConst  = new ngramUtil.NgramConstant();
+
 /**
  * Spelling correction main class (custom).
  *
@@ -19,9 +21,6 @@ var levenshtein = require(__dirname + '/../util/levenshtein.js'),
  * @property {integer} distanceLimit Words distance limit
  * @property {object}  vocabularies  Trie's structured vocabularies
  * @property {integer} unigramSize   Size of the unigrams' object
- * @property {string}  NGRAM_UNIGRAM String representation for unigram
- * @property {string}  NGRAM_BIGRAM  String representation for bigram
- * @property {string}  NGRAM_TRIGRAM String representation for trigram
  * @constructor
  */
 var Corrector = function (ngrams, similars, distanceLimit, vocabularies) {
@@ -29,12 +28,7 @@ var Corrector = function (ngrams, similars, distanceLimit, vocabularies) {
     this.similars      = similars;
     this.distanceLimit = !_.isUndefined(distanceLimit) ? distanceLimit : 2;
     this.vocabularies  = vocabularies;
-
-    this.NGRAM_UNIGRAM = 'unigrams';
-    this.NGRAM_BIGRAM  = 'bigrams';
-    this.NGRAM_TRIGRAM = 'trigrams';
-
-    this.unigramSize   = Object.keys(this.data[this.NGRAM_UNIGRAM]).length;
+    this.unigramSize   = Object.keys(this.data[ngramConst.UNIGRAM]).length;
 };
 
 Corrector.prototype = {
@@ -56,10 +50,10 @@ Corrector.prototype = {
      */
     isValid: function (gram, gramClass) {
         if (gramClass === undefined) {
-            gramClass = this.getGramClass(ngramUtil.uniSplit(gram).length);
+            gramClass = ngramUtil.getGramClass(ngramUtil.uniSplit(gram).length);
         }
 
-        if (gramClass == this.NGRAM_UNIGRAM) {
+        if (gramClass == ngramConst.UNIGRAM) {
             return this.vocabularies.has(gram);
         }
         return this.data[gramClass].hasOwnProperty(gram);
@@ -72,7 +66,7 @@ Corrector.prototype = {
      * @return {object}           Suggestion list of similar words
      */
     getSuggestions: function (inputWord) {
-        if (this.isValid(inputWord, this.NGRAM_UNIGRAM)) {
+        if (this.isValid(inputWord, ngramConst.UNIGRAM)) {
             return this.similars[inputWord];
         }
 
@@ -127,7 +121,7 @@ Corrector.prototype = {
 
         parts.forEach(function (part, partIndex) {
             var words        = ngramUtil.uniSplit(part),
-                gramClass    = self.getGramClass(words.length),
+                gramClass    = ngramUtil.getGramClass(words.length),
                 alternatives = new Object();
 
             // Skip checking current trigram and just combine result from previous correction
@@ -184,7 +178,7 @@ Corrector.prototype = {
 
                 // In case of no alternative trigram available, we're going to create them by
                 // combining bigrams, or even unigrams.
-                if (Object.keys(alternatives).length == 0 && gramClass != self.NGRAM_UNIGRAM) {
+                if (Object.keys(alternatives).length == 0 && gramClass != ngramConst.UNIGRAM) {
                     alternatives = self.createAlternateRealWordGramOfTrigram(words, gramClass);
                 }
             }
@@ -194,22 +188,6 @@ Corrector.prototype = {
 
         var suggestions = helper.createNgramCombination(corrections, 'multiply');
         return suggestions;
-    },
-
-    /**
-     * Find out what n-gram class of the given word count, represented
-     * by a string.
-     *
-     * @param  {integer} wordCount Word count
-     * @return {string}            String representation of the n-gram
-     */
-    getGramClass: function (wordCount) {
-        switch (wordCount) {
-            case 1: return this.NGRAM_UNIGRAM;
-            case 2: return this.NGRAM_BIGRAM;
-            case 3: return this.NGRAM_TRIGRAM;
-            default: return 'invalid';
-        }
     },
 
     /**
@@ -223,7 +201,7 @@ Corrector.prototype = {
         var errorIndexes = new Object();
 
         words.forEach(function (word, index) {
-            if (!self.isValid(word, self.NGRAM_UNIGRAM)) {
+            if (!self.isValid(word, ngramConst.UNIGRAM)) {
                 errorIndexes[index] = true;
             }
         });
@@ -255,12 +233,12 @@ Corrector.prototype = {
         var alternatives   = new Object(),
             collections    = new Array();
 
-        if (gramClass == this.NGRAM_TRIGRAM) {
-            collections.push(this.createAlternativesRealWord(words.slice(0, 2), this.NGRAM_BIGRAM));
-            collections.push(this.createAlternativesRealWord(words.slice(1), this.NGRAM_BIGRAM));
-        } else if (gramClass == this.NGRAM_BIGRAM) {
+        if (gramClass == ngramConst.TRIGRAM) {
+            collections.push(this.createAlternativesRealWord(words.slice(0, 2), ngramConst.BIGRAM));
+            collections.push(this.createAlternativesRealWord(words.slice(1), ngramConst.BIGRAM));
+        } else if (gramClass == ngramConst.BIGRAM) {
             words.forEach(function (word) {
-                collections.push(self.createAlternativesRealWord([word], self.NGRAM_UNIGRAM));
+                collections.push(self.createAlternativesRealWord([word], ngramConst.UNIGRAM));
             });
         }
 
@@ -270,8 +248,8 @@ Corrector.prototype = {
         // NOTE: May need to consider another way of computing trigram probabilities.
         //      'compute trigram probabilities, given only known bigram'
         //      @see http://stackoverflow.com/a/20587491/3190026
-        if (alternativeSize == 0 && gramClass == this.NGRAM_TRIGRAM) {
-            alternatives = this.createAlternateRealWordGramOfTrigram(words, this.NGRAM_BIGRAM);
+        if (alternativeSize == 0 && gramClass == ngramConst.TRIGRAM) {
+            alternatives = this.createAlternateRealWordGramOfTrigram(words, ngramConst.BIGRAM);
         }
 
         return alternatives;
@@ -473,19 +451,19 @@ Corrector.prototype = {
     ngramProbability: function (words) {
         var gram, probability, precedenceGram;
 
-        switch (this.getGramClass(words.length)) {
-            case this.NGRAM_UNIGRAM:
+        switch (ngramUtil.getGramClass(words.length)) {
+            case ngramConst.UNIGRAM:
                 gram        = `${words[0]}`;
                 probability = this.data.unigrams[gram] / this.unigramSize;
                 break;
 
-            case this.NGRAM_BIGRAM:
+            case ngramConst.BIGRAM:
                 gram           = `${words[0]} ${words[1]}`;
                 precedenceGram = `${words[0]}`;
                 probability    = this.data.bigrams[gram] / this.data.unigrams[precedenceGram];
                 break;
 
-            case this.NGRAM_TRIGRAM:
+            case ngramConst.TRIGRAM:
                 gram           = `${words[0]} ${words[1]} ${words[2]}`;
                 precedenceGram = `${words[0]} ${words[1]}`;
                 probability    = this.data.trigrams[gram] / this.data.bigrams[precedenceGram];

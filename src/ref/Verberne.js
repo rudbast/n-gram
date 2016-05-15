@@ -6,6 +6,8 @@ var levenshtein = require(__dirname + '/../util/levenshtein.js'),
     helper      = require(__dirname + '/../util/helper.js'),
     ngramUtil   = require(__dirname + '/../util/ngram.js');
 
+var ngramConst  = new ngramUtil.NgramConstant();
+
 /**
  * Spelling correction main class (as implemented by Suzan Verberne).
  * @see http://sverberne.ruhosting.nl/papers/verberne2002.pdf
@@ -17,19 +19,12 @@ var levenshtein = require(__dirname + '/../util/levenshtein.js'),
  * @property {object}  data          N-grams words index container
  * @property {object}  similars      Words with it's similars pairs
  * @property {integer} distanceLimit Words distance limit
- * @property {string}  NGRAM_UNIGRAM String representation for unigram
- * @property {string}  NGRAM_BIGRAM  String representation for bigram
- * @property {string}  NGRAM_TRIGRAM String representation for trigram
  * @constructor
  */
 var Verberne = function (ngrams, similars, distanceLimit) {
     this.data          = ngrams;
     this.similars      = similars;
     this.distanceLimit = !_.isUndefined(distanceLimit) ? distanceLimit : 2;
-
-    this.NGRAM_UNIGRAM = 'unigrams';
-    this.NGRAM_BIGRAM  = 'bigrams';
-    this.NGRAM_TRIGRAM = 'trigrams';
 };
 
 Verberne.prototype = {
@@ -42,10 +37,10 @@ Verberne.prototype = {
      */
     isValid: function (gram, gramClass) {
         if (gramClass === undefined) {
-            gramClass = this.getGramClass(ngramUtil.uniSplit(gram).length);
+            gramClass = ngramUtil.getGramClass(ngramUtil.uniSplit(gram).length);
         }
 
-        if (gramClass == this.NGRAM_UNIGRAM) {
+        if (gramClass == ngramConst.UNIGRAM) {
             for (var dictGram in this.data[gramClass]) {
                 if (dictGram == gram) {
                     return true;
@@ -105,22 +100,6 @@ Verberne.prototype = {
     },
 
     /**
-     * Find out what n-gram class of the given word count, represented
-     * by a string.
-     *
-     * @param  {integer} wordCount Word count
-     * @return {string}            String representation of the n-gram
-     */
-    getGramClass: function (wordCount) {
-        switch (wordCount) {
-            case 1: return this.NGRAM_UNIGRAM;
-            case 2: return this.NGRAM_BIGRAM;
-            case 3: return this.NGRAM_TRIGRAM;
-            default: return 'invalid';
-        }
-    },
-
-    /**
      * Detect non word error if exists.
      *
      * @param  {array} words List of words (ordered) from a sentence
@@ -131,7 +110,7 @@ Verberne.prototype = {
 
         var errorIndexes = new Array();
         words.forEach(function (word, index) {
-            if (!self.isValid(word, self.NGRAM_UNIGRAM)) {
+            if (!self.isValid(word, ngramConst.UNIGRAM)) {
                 errorIndexes.push(index);
             }
         });
@@ -146,7 +125,7 @@ Verberne.prototype = {
      * @return {boolean}         Indicates if the trigram is valid.
      */
     detectRealWord: function (trigram) {
-        return this.isValid(trigram, this.NGRAM_TRIGRAM);
+        return this.isValid(trigram, ngramConst.TRIGRAM);
     },
 
     /**
@@ -176,7 +155,7 @@ Verberne.prototype = {
         collections.forEach(function (collection) {
             for (var combination in collection) {
                 // Only accept valid word combination (exists in n-gram knowledge).
-                if (self.isValid(combination, self.NGRAM_TRIGRAM)) {
+                if (self.isValid(combination, ngramConst.TRIGRAM)) {
                     // Check if alternatives already exists.
                     if (!alternatives.hasOwnProperty(combination)) {
                         alternatives[combination] = self.data.trigrams[combination];

@@ -1,6 +1,44 @@
 'use strict';
 
 /**
+ * N-gram's constants, used in spelling corrector to represent
+ * ngram.
+ *
+ * @property {string} UNIGRAM Unigram's string repsenentation
+ * @property {string} BIGRAM  Bigram's string repsenentation
+ * @property {string} TRIGRAM Trigram's string repsenentation
+ * @constructor
+ */
+var NgramConstant = function () {
+    this.UNIGRAM = 'unigrams';
+    this.BIGRAM  = 'bigrams';
+    this.TRIGRAM = 'trigrams';
+};
+
+/**
+ * Instantiated object of constants for ngram.
+ *
+ * @type {NgramConstant}
+ */
+var ngramConst = new NgramConstant();
+
+/**
+ * Find out what n-gram class of the given word count, represented
+ * by a string.
+ *
+ * @param  {integer} wordCount Word count
+ * @return {string}            String representation of the n-gram
+ */
+function getGramClass(wordCount) {
+    switch (wordCount) {
+        case 1: return ngramConst.UNIGRAM;
+        case 2: return ngramConst.BIGRAM;
+        case 3: return ngramConst.TRIGRAM;
+        default: return 'invalid';
+    }
+}
+
+/**
  * Split a text into unigram (1-gram) collection of words.
  *
  * @param  {string} text Text to be split
@@ -112,6 +150,8 @@ function tripleNSplit(text) {
 }
 
 module.exports = {
+    NgramConstant,
+    getGramClass,
     uniSplit,
     biSplit,
     triSplit,
