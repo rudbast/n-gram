@@ -1,6 +1,7 @@
 'use strict';
 
-var _ = require('lodash');
+var _      = require('lodash'),
+    prompt = require('prompt');
 
 var helper = require(__dirname + '/../util/helper.js');
 
@@ -17,11 +18,10 @@ var articleFile    = DEFAULT_ARTICLE_FILE,
 /**
  * Recursively wait for program command input.
  *
- * @param  {object} prompt  Prompt library object
  * @param  {object} indexer Indexer's object instance
  * @return {void}
  */
-function waitForCommandInput(prompt, indexer) {
+function waitForCommandInput(indexer) {
     /**
      * Print menu & request input.
      *
@@ -196,12 +196,23 @@ function notifyAndPrintConsole(message) {
 }
 
 /**
+ * Start runner.
+ *
+ * @param {object} indexer Indexer's object instance
+ * @return {void}
+ */
+function start(indexer) {
+    prompt.start();
+    waitForCommandInput(indexer);
+}
+
+/**
  * Load informations needed by the spelling corrector.
  *
  * @param {object} indexer Indexer's object instance
  * @return {void}
  */
-function initInformation(indexer, callback) {
+function initAndStart(indexer) {
     // Try load index information.
     indexer.loadIndex(indexDir, function () {
         indexer.buildVocabularies();
@@ -210,12 +221,12 @@ function initInformation(indexer, callback) {
             indexer.printDataInformation();
 
             console.log();
-            if (_.isFunction(callback)) callback();
+            start(indexer);
         });
     });
 }
 
 module.exports = {
-    waitForCommandInput,
-    initInformation
+    initAndStart,
+    start
 };

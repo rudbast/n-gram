@@ -4,7 +4,6 @@ var _          = require('lodash'),
     express    = require('express'),
     app        = express(),
     bodyParser = require('body-parser'),
-    prompt     = require('prompt'),
     path       = require('path'),
     now        = require('performance-now');
 
@@ -99,24 +98,13 @@ app.post('/compare', function (request, response) {
 var server = app.listen(WEB_PORT, function () {
     var message = 'App listening at http://localhost:' + WEB_PORT;
     helper.notify('Spelling Corrector Server', message);
-    console.log(message);
+    console.log(message + '\n');
 
     indexer = new Indexer(DISTANCE_LIMIT);
 
-    /**
-     * Start runner.
-     *
-     * @return {void}
-     */
-    function startRunner() {
-        prompt.start();
-        runner.waitForCommandInput(prompt, indexer);
-    }
-
-    console.log();
     if (shouldLoadInformation) {
-        runner.initInformation(indexer, startRunner);
+        runner.initAndStart(indexer);
     } else {
-        startRunner();
+        runner.start(indexer);
     }
 });
