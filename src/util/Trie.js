@@ -34,7 +34,7 @@ Trie.prototype.data = new Object();
 /**
  * Insert word into existing data.
  *
- * @param  {String} word Word to be inserted
+ * @param {String} word Word to be inserted
  */
 Trie.prototype.insert = function (word) {
     var currTrie = Trie.prototype.data;
@@ -98,9 +98,9 @@ Trie.prototype.print = function (file) {
  * Find all words in the dictionary whose distance is within the
  * distance limit of the given word.
  *
- * @param  {String}  word  The given word
- * @param  {Integer} limit Distance limit
- * @return {Object}        List of words within the distance limit
+ * @param  {String} word  The given word
+ * @param  {Number} limit Distance limit
+ * @return {Object}       List of words within the distance limit
  */
 Trie.prototype.findWordsWithinLimit = function (word, limit) {
     /**

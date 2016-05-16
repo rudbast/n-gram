@@ -26,8 +26,8 @@ var ngramConst = new NgramConstant();
  * Find out what n-gram class of the given word count, represented
  * by a string.
  *
- * @param  {Integer} wordCount Word count
- * @return {String}            String representation of the n-gram
+ * @param  {Number} wordCount Word count
+ * @return {String}           String representation of the n-gram
  */
 function getGramClass(wordCount) {
     switch (wordCount) {

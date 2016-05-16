@@ -12,13 +12,13 @@ var ngramConst  = new ngramUtil.NgramConstant();
  * Spelling correction main class (as implemented by Suzan Verberne).
  * @see http://sverberne.ruhosting.nl/papers/verberne2002.pdf
  *
- * @param {Object}  ngrams        Word index
- * @param {Object}  similars      Words with it's similars pairs
- * @param {Integer} distanceLimit Words distance limit
+ * @param {Object} ngrams        Word index
+ * @param {Object} similars      Words with it's similars pairs
+ * @param {Number} distanceLimit Words distance limit
  *
- * @property {Object}  data          N-grams words index container
- * @property {Object}  similars      Words with it's similars pairs
- * @property {Integer} distanceLimit Words distance limit
+ * @property {Object} data          N-grams words index container
+ * @property {Object} similars      Words with it's similars pairs
+ * @property {Number} distanceLimit Words distance limit
  * @constructor
  */
 var Verberne = function (ngrams, similars, distanceLimit) {

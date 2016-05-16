@@ -11,16 +11,16 @@ var ngramConst  = new ngramUtil.NgramConstant();
 /**
  * Spelling correction main class (custom).
  *
- * @param {Object}  ngrams        Word index
- * @param {Object}  similars      Words with it's similars pairs
- * @param {Integer} distanceLimit Words distance limit
- * @param {Trie}    vocabularies  Trie's structured vocabularies
+ * @param {Object} ngrams        Word index
+ * @param {Object} similars      Words with it's similars pairs
+ * @param {Number} distanceLimit Words distance limit
+ * @param {Trie}   vocabularies  Trie's structured vocabularies
  *
- * @property {Object}  data          N-grams words index container
- * @property {Object}  similars      Words with it's similars pairs
- * @property {Integer} distanceLimit Words distance limit
- * @property {Trie}    vocabularies  Trie's structured vocabularies
- * @property {Integer} unigramSize   Size of the unigrams' object
+ * @property {Object} data          N-grams words index container
+ * @property {Object} similars      Words with it's similars pairs
+ * @property {Number} distanceLimit Words distance limit
+ * @property {Trie}   vocabularies  Trie's structured vocabularies
+ * @property {Number} unigramSize   Size of the unigrams' object
  * @constructor
  */
 var Corrector = function (ngrams, similars, distanceLimit, vocabularies) {
@@ -35,7 +35,7 @@ Corrector.prototype = {
     /**
      * Re-set the words distance limit.
      *
-     * @param {Integer} distanceLimit Words distance limit
+     * @param {Number} distanceLimit Words distance limit
      */
     setDistanceLimit: function (distanceLimit) {
         this.distanceLimit = distanceLimit;
@@ -313,12 +313,12 @@ Corrector.prototype = {
      * Create new combination of trigram, given that previous trigram contains a non
      * word error that is also in the current trigram.
      *
-     * @param  {Array}   words        List of words (ordered)
-     * @param  {String}  gramClass    String representation of the n-gram
-     * @param  {Array}   errorIndexes Indexes of previous word list that indicates an error
-     * @param  {Array}   prevAltWords Unique words of resulted trigram of previous correction
-     * @param  {Integer} skipCount    Current skip count
-     * @return {Object}               Alternatives gain by combining previous alternatives
+     * @param  {Array}  words        List of words (ordered)
+     * @param  {String} gramClass    String representation of the n-gram
+     * @param  {Array}  errorIndexes Indexes of previous word list that indicates an error
+     * @param  {Array}  prevAltWords Unique words of resulted trigram of previous correction
+     * @param  {Number} skipCount    Current skip count
+     * @return {Object}              Alternatives gain by combining previous alternatives
      */
     createAlternateNonWordGramOfTrigram: function (words, gramClass, errorIndexes, prevAltWords, currentSkipCount) {
         var self = this;
@@ -445,8 +445,8 @@ Corrector.prototype = {
      * Compute the probability of a n-gram.
      * @see https://en.wikipedia.org/wiki/Bigram
      *
-     * @param  {Array} words Collection of words (ordered)
-     * @return {Float}       Probability of the n-gram (range 0-1)
+     * @param  {Array}  words Collection of words (ordered)
+     * @return {Number}       Probability of the n-gram (range 0-1)
      */
     ngramProbability: function (words) {
         var gram, probability, precedenceGram;

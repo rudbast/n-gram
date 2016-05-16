@@ -18,12 +18,12 @@ var languageDetector = new LanguageDetect(),
 /**
  * Index builder class.
  *
- * @param {Integer} distanceLimit Words similarity distance limit
+ * @param {Number} distanceLimit Words similarity distance limit
  *
- * @property {Object}  data          N-grams words index container
- * @property {Object}  similars      Words similarity pair container
- * @property {Integer} distanceLimit Words similarity distance limit
- * @property {Trie}    vocabularies  Trie's structured vocabularies
+ * @property {Object} data          N-grams words index container
+ * @property {Object} similars      Words similarity pair container
+ * @property {Number} distanceLimit Words similarity distance limit
+ * @property {Trie}   vocabularies  Trie's structured vocabularies
  * @constructor
  */
 var Indexer = function (distanceLimit) {

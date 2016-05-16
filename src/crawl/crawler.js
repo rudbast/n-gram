@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Program arguments: <file>
+ * Script for crawling articles from a news site (specificly: Kompas).
  *
  * @param {string} file Full path of the file used as program output (articles data).
  */
@@ -28,13 +28,10 @@ waitForCommandInput();
  * Recursively wait for program command input.
  *
  * @param  {Function} callback Callback function.
- * @return {void}
  */
 function waitForCommandInput(callback) {
     /**
      * Print menu & request input.
-     *
-     * @return {void}
      */
     function getCommandInput() {
         prompt.get(['command'], function (err, input) {
@@ -51,8 +48,7 @@ function waitForCommandInput(callback) {
     /**
      * Process command.
      *
-     * @param  {string} command Command string
-     * @return {void}
+     * @param {String} command Command string
      */
     function processCmd(command) {
         var cmd = command.split(' ');
@@ -120,8 +116,6 @@ function waitForCommandInput(callback) {
 
 /**
  * Print command list menu.
- *
- * @return {void}
  */
 function printMenu() {
     var menu = 'check                      - check program\'s variables\n';
@@ -139,15 +133,12 @@ function printMenu() {
 /**
  * Start scrap process.
  *
- * @param  {integer}  scrapLimit Article's scrap limit
- * @param  {Function} callback   Callback function
- * @return {void}
+ * @param {Number}   scrapLimit Article's scrap limit
+ * @param {Function} callback   Callback function
  */
 function startScrapper(scrapLimit, callback) {
     /**
      * The scrap process logic.
-     *
-     * @return {void}
      */
     function doScrap() {
         console.log('Article Count  : ' + articleCount);

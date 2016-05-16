@@ -120,9 +120,9 @@ function createNgramCombination(corrections, rankOperation) {
  * Check if given gram is a subset of given sentence, returns the
  * position of the last word if subset confirmed, returns -1 otherwise.
  *
- * @param  {String}  sentence Sentence to be checked on
- * @param  {String}  gram     Gram to be checked with
- * @return {Integer}          Position of the last word
+ * @param  {String} sentence Sentence to be checked on
+ * @param  {String} gram     Gram to be checked with
+ * @return {Number}          Position of the last word
  */
 function subsetNgramOf(sentence, gram) {
     var gramLength   = ngramUtil.uniSplit(gram).length,
