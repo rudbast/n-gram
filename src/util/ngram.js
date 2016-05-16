@@ -113,13 +113,13 @@ function triSplit(text) {
 function tripleNSplit(text) {
     var words  = uniSplit(text),
         ngrams = {
-            unigrams: [],
-            bigrams: [],
-            trigrams: []
+            [`${ngramConst.UNIGRAM}`]: [],
+            [`${ngramConst.BIGRAM}`]: [],
+            [`${ngramConst.TRIGRAM}`]: []
         };
 
     if (words.length < 2) {
-        ngrams.unigrams = words;
+        ngrams[ngramConst.UNIGRAM] = words;
         return ngrams;
     }
 
@@ -127,8 +127,8 @@ function tripleNSplit(text) {
         next     = words.shift(),
         last;
 
-    ngrams.unigrams.push(current);
-    ngrams.unigrams.push(next);
+    ngrams[ngramConst.UNIGRAM].push(current);
+    ngrams[ngramConst.UNIGRAM].push(next);
 
     while (words.length > 0) {
         last = words.shift();
@@ -137,9 +137,9 @@ function tripleNSplit(text) {
             bigram  = `${current} ${next}`,
             trigram = `${current} ${next} ${last}`;
 
-        ngrams.unigrams.push(unigram);
-        ngrams.bigrams.push(bigram);
-        ngrams.trigrams.push(trigram);
+        ngrams[ngramConst.UNIGRAM].push(unigram);
+        ngrams[ngramConst.BIGRAM].push(bigram);
+        ngrams[ngramConst.TRIGRAM].push(trigram);
 
         current = next;
         next    = last;
