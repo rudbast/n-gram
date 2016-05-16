@@ -28,7 +28,7 @@ main(process.argv.slice(2));
 /**
  * Main logic container.
  *
- * @param  {Array} args List of program's arguments
+ * @param {Array} args List of program's arguments
  */
 function main(args) {
     var indexDir  = _.isUndefined(args[0]) ? DEFAULT_INDEX_DIR : args[0],

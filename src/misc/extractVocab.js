@@ -33,7 +33,7 @@ function main(args) {
     /**
      * Recursively scrap till empty data found.
      *
-     * @param  {Function} callback Callback function
+     * @param {Function} callback Callback function
      */
     function doScrap(callback) {
         scrap(++pageIndex).then(function (words) {
