@@ -21,7 +21,9 @@
   },
   "homepage": "https://github.com/rudbast/n-gram#readme",
   "dependencies": {
+    "bluebird": "^3.3.5",
     "body-parser": "^1.15.0",
+    "cheerio": "^0.20.0",
     "cookie-parser": "^1.4.1",
     "express": "^4.13.4",
     "indonesian-news-scraper": "^2.7.7",
@@ -34,6 +36,7 @@
     "performance-now": "^0.2.0",
     "progress": "^1.1.8",
     "prompt": "^1.0.0",
+    "request-promise": "^3.0.0",
     "shelljs": "^0.6.0"
   },
   "devDependencies": {
