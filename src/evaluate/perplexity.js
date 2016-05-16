@@ -11,6 +11,9 @@ var Indexer   = require(__dirname + '/../main/Indexer.js'),
 
 var ngramConst = new ngramUtil.NgramConstant();
 
+const DEFAULT_INDEX_DIR    = __dirname + '/../../out/ngrams',
+      DEFAULT_ARTICLE_FILE = __dirname + '/../../res/eval-article.json';
+
 /**
  * Compute the average perplexity of uni/bi/tri-gram language model,
  * given sentences in an article.
@@ -28,8 +31,8 @@ main(process.argv.slice(2));
  * @param  {Array} args List of program's arguments
  */
 function main(args) {
-    var indexDir  = args[0],
-        inputFile = args[1],
+    var indexDir  = _.isUndefined(args[0]) ? DEFAULT_INDEX_DIR : args[0],
+        inputFile = _.isUndefined(args[1]) ? DEFAULT_ARTICLE_FILE : args[1],
         indexer   = new Indexer();
 
     indexer.loadIndex(indexDir, function () {
