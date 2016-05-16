@@ -18,11 +18,12 @@ var languageDetector = new LanguageDetect(),
 /**
  * Index builder class.
  *
- * @param {integer} distanceLimit Words similarity distance limit
+ * @param {Integer} distanceLimit Words similarity distance limit
  *
- * @property {object}  data          N-grams words index container
- * @property {object}  similars      Words similarity pair container
- * @property {integer} distanceLimit Words similarity distance limit
+ * @property {Object}  data          N-grams words index container
+ * @property {Object}  similars      Words similarity pair container
+ * @property {Integer} distanceLimit Words similarity distance limit
+ * @property {Trie}    vocabularies  Trie's structured vocabularies
  * @constructor
  */
 var Indexer = function (distanceLimit) {
@@ -40,7 +41,7 @@ Indexer.prototype = {
     /**
      * Retrieve the words index data.
      *
-     * @return {object} Words index
+     * @return {Object} Words index
      */
     getData: function () {
         return this.data;
@@ -49,7 +50,7 @@ Indexer.prototype = {
     /**
      * Retrieve the words similarities data.
      *
-     * @return {object} Words similarities
+     * @return {Object} Words similarities
      */
     getSimilars: function () {
         return this.similars;
@@ -58,7 +59,7 @@ Indexer.prototype = {
     /**
      * Retrieve the vocabularies represented by a Trie's data.
      *
-     * @return {object} Vocabularies
+     * @return {Object} Vocabularies
      */
     getVocabularies: function () {
         return this.vocabularies;
@@ -66,8 +67,6 @@ Indexer.prototype = {
 
     /**
      * Build vocabularies information from words index.
-     *
-     * @return {void}
      */
     buildVocabularies: function () {
         this.vocabularies = new Trie();
@@ -80,9 +79,8 @@ Indexer.prototype = {
     /**
      * Extract words index (words' couples, frequency) from article's content.
      *
-     * @param  {object}   article  Word's index to be extracted from
-     * @param  {function} callback Callback function
-     * @return {void}
+     * @param {Object}   article  Word's index to be extracted from
+     * @param {Function} callback Callback function
      */
     extractIndex: function (article, callback) {
         var self = this;
@@ -101,8 +99,8 @@ Indexer.prototype = {
         /**
          * Extract content inside a bracket.
          *
-         * @param  {string} sentence Text sentence
-         * @return {object}          Extracted text and the resulting sentence
+         * @param  {String} sentence Text sentence
+         * @return {Object}          Extracted text and the resulting sentence
          */
         var extractBracketContents = function (sentence) {
             var openBracketPos  = sentence.indexOf('('),
@@ -135,8 +133,8 @@ Indexer.prototype = {
          * Remove noise of the word 'Baca:' in a text as sometimes it's
          * not in a complete form (library failure).
          *
-         * @param  {string} sentence Text sentence
-         * @return {string}          Text sentence after noise removal
+         * @param  {String} sentence Text sentence
+         * @return {String}          Text sentence after noise removal
          */
         var removeBracketNoise = function (sentence, noise) {
             var noiseOpenPos = sentence.indexOf(noise);
@@ -259,9 +257,8 @@ Indexer.prototype = {
     /**
      * Construct words index from articles content (text) of the given file.
      *
-     * @param  {string}   file     File name (complete path)
-     * @param  {function} callback Callback function
-     * @return {void}
+     * @param {String}   file     File name (complete path)
+     * @param {Function} callback Callback function
      */
     constructIndex: function (file, callback) {
         var self = this;
@@ -303,9 +300,8 @@ Indexer.prototype = {
     /**
      * Load words index information from a file.
      *
-     * @param  {string}   directory Directory path containing ngram files
-     * @param  {function} callback  Callback function
-     * @return {void}
+     * @param {String}   directory Directory path containing ngram files
+     * @param {Function} callback  Callback function
      */
     loadIndex: function (directory, callback) {
         var self = this;
@@ -323,10 +319,7 @@ Indexer.prototype = {
                     self.data[gramFileName] = data;
 
                     if ((++loadCount) == files.length) {
-                        if (_.isFunction(callback)) {
-                            var dataLength = Object.keys(self.data[ngramConst.UNIGRAM]).length;
-                            callback(dataLength);
-                        }
+                        if (_.isFunction(callback)) callback();
                     }
                 });
             });
@@ -335,8 +328,6 @@ Indexer.prototype = {
 
     /**
      * Print current data's informations.
-     *
-     * @return {void}
      */
     printDataInformation: function () {
         for (var gram in this.data) {
@@ -347,9 +338,8 @@ Indexer.prototype = {
     /**
      * Save words index to file system.
      *
-     * @param  {string}   directory Directory path (to be saved to)
-     * @param  {function} callback  Callback function
-     * @return {void}
+     * @param {String}   directory Directory path (to be saved to)
+     * @param {Function} callback  Callback function
      */
     saveIndex: function (directory, callback) {
         var insertCount = Object.keys(this.data).length;
@@ -369,8 +359,7 @@ Indexer.prototype = {
     /**
      * Construct words similarity information.
      *
-     * @param  {function} callback Callback function
-     * @return {void}
+     * @param {Function} callback Callback function
      */
     constructSimilarities: function (callback) {
         var similarityIndex = 0,
@@ -391,9 +380,8 @@ Indexer.prototype = {
     /**
      * Load words similarities information from file.
      *
-     * @param  {string}   file     Complete file path to be loaded from
-     * @param  {function} callback Callback function
-     * @return {void}
+     * @param {String}   file     Complete file path to be loaded from
+     * @param {Function} callback Callback function
      */
     loadSimilarities: function (file, callback) {
         var self = this;
@@ -408,9 +396,8 @@ Indexer.prototype = {
     /**
      * Save words similarities information to file.
      *
-     * @param  {string}   file     Complete file path to be saved to
-     * @param  {function} callback Callback function
-     * @return {void}
+     * @param {String}   file     Complete file path to be saved to
+     * @param {Function} callback Callback function
      */
     saveSimilarities: function (file, callback) {
         jsFile.writeFile(`${file}`, this.similars, {spaces: 4}, function (err) {

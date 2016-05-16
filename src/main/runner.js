@@ -18,14 +18,11 @@ var articleFile    = DEFAULT_ARTICLE_FILE,
 /**
  * Recursively wait for program command input.
  *
- * @param  {object} indexer Indexer's object instance
- * @return {void}
+ * @param {Object} indexer Indexer's object instance
  */
 function waitForCommandInput(indexer) {
     /**
      * Print menu & request input.
-     *
-     * @return {void}
      */
     function getCommandInput() {
         prompt.get(['command'], function (err, input) {
@@ -42,8 +39,7 @@ function waitForCommandInput(indexer) {
     /**
      * Process command.
      *
-     * @param  {string} command Command string
-     * @return {void}
+     * @param {String} command Command string
      */
     function processCmd(command) {
         var cmd = command.split(' ');
@@ -169,8 +165,6 @@ function waitForCommandInput(indexer) {
 
 /**
  * Print command list menu.
- *
- * @return {void}
  */
 function printMenu() {
     var menu = 'check                              - check program\'s variables\n';
@@ -187,8 +181,7 @@ function printMenu() {
 /**
  * Notify system of given message and print message to console too.
  *
- * @param  {string} message Message
- * @return {void}
+ * @param {String} message Message
  */
 function notifyAndPrintConsole(message) {
     helper.notify(NOTIFICATION_TITLE, message);
@@ -198,8 +191,7 @@ function notifyAndPrintConsole(message) {
 /**
  * Start runner.
  *
- * @param {object} indexer Indexer's object instance
- * @return {void}
+ * @param {Object} indexer Indexer's object instance
  */
 function start(indexer) {
     prompt.start();
@@ -209,8 +201,7 @@ function start(indexer) {
 /**
  * Load informations needed by the spelling corrector.
  *
- * @param {object} indexer Indexer's object instance
- * @return {void}
+ * @param {Object} indexer Indexer's object instance
  */
 function initAndStart(indexer) {
     // Try load index information.

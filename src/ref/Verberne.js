@@ -12,13 +12,13 @@ var ngramConst  = new ngramUtil.NgramConstant();
  * Spelling correction main class (as implemented by Suzan Verberne).
  * @see http://sverberne.ruhosting.nl/papers/verberne2002.pdf
  *
- * @param {object}  ngrams        Word index
- * @param {object}  similars      Words with it's similars pairs
- * @param {integer} distanceLimit Words distance limit
+ * @param {Object}  ngrams        Word index
+ * @param {Object}  similars      Words with it's similars pairs
+ * @param {Integer} distanceLimit Words distance limit
  *
- * @property {object}  data          N-grams words index container
- * @property {object}  similars      Words with it's similars pairs
- * @property {integer} distanceLimit Words distance limit
+ * @property {Object}  data          N-grams words index container
+ * @property {Object}  similars      Words with it's similars pairs
+ * @property {Integer} distanceLimit Words distance limit
  * @constructor
  */
 var Verberne = function (ngrams, similars, distanceLimit) {
@@ -31,9 +31,9 @@ Verberne.prototype = {
     /**
      * Check the validity of given gram.
      *
-     * @param  {string}  gram      Word pair in a form of certain n-gram
-     * @param  {string}  gramClass String representation of the n-gram
-     * @return {boolean}           Gram validity
+     * @param  {String}  gram      Word pair in a form of certain n-gram
+     * @param  {String}  gramClass String representation of the n-gram
+     * @return {Boolean}           Gram validity
      */
     isValid: function (gram, gramClass) {
         if (gramClass === undefined) {
@@ -54,8 +54,8 @@ Verberne.prototype = {
     /**
      * Get list of similar words suggestion given a word.
      *
-     * @param  {string} inputWord Input word
-     * @return {object}           Suggestion list of similar words
+     * @param  {String} inputWord Input word
+     * @return {Object}           Suggestion list of similar words
      */
     getSuggestions: function (inputWord) {
         return this.similars[inputWord];
@@ -64,8 +64,8 @@ Verberne.prototype = {
     /**
      * Try correcting the given sentence if there exists any error.
      *
-     * @param  {string} sentence Text input in a sentence form
-     * @return {object}          List of suggestions (if error exists)
+     * @param  {String} sentence Text input in a sentence form
+     * @return {Object}          List of suggestions (if error exists)
      */
     tryCorrect: function (sentence) {
         var self = this;
@@ -102,8 +102,8 @@ Verberne.prototype = {
     /**
      * Detect non word error if exists.
      *
-     * @param  {array} words List of words (ordered) from a sentence
-     * @return {array}       Index of the word having an error (empty if no error found)
+     * @param  {Array} words List of words (ordered) from a sentence
+     * @return {Array}       Index of the word having an error (empty if no error found)
      */
     detectNonWord: function (words) {
         var self = this;
@@ -121,8 +121,8 @@ Verberne.prototype = {
     /**
      * Detect real word error.
      *
-     * @param  {string}  trigram Word pair in a form of trigram.
-     * @return {boolean}         Indicates if the trigram is valid.
+     * @param  {String}  trigram Word pair in a form of trigram.
+     * @return {Boolean}         Indicates if the trigram is valid.
      */
     detectRealWord: function (trigram) {
         return this.isValid(trigram, ngramConst.TRIGRAM);
@@ -132,8 +132,8 @@ Verberne.prototype = {
      * Create valid trigram alternatives from a list of words' similarity,
      * only allows 1 different word from the original trigram.
      *
-     * @param  {array}  words List of words (ordered) from a sentence
-     * @return {object}       Valid trigrams with its' rank
+     * @param  {Array}  words List of words (ordered) from a sentence
+     * @return {Object}       Valid trigrams with its' rank
      */
     createAlternatives: function (words) {
         var self = this;

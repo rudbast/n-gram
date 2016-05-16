@@ -10,13 +10,13 @@ var levenshtein = require(__dirname + '/../util/levenshtein.js'),
  * Spelling correction main class (as implemented by Iskandar Setiadi).
  * @see https://www.researchgate.net/publication/268334497_Damerau-Levenshtein_Algorithm_and_Bayes_Theorem_for_Spell_Checker_Optimization
  *
- * @param {object}  ngrams        Word index
- * @param {object}  similars      Words with it's similars pairs
- * @param {integer} distanceLimit Words distance limit
+ * @param {Object}  ngrams        Word index
+ * @param {Object}  similars      Words with it's similars pairs
+ * @param {Integer} distanceLimit Words distance limit
  *
- * @property {object}  data          N-grams words index container
- * @property {object}  similars      Words with it's similars pairs
- * @property {integer} distanceLimit Words distance limit
+ * @property {Object}  data          N-grams words index container
+ * @property {Object}  similars      Words with it's similars pairs
+ * @property {Integer} distanceLimit Words distance limit
  * @constructor
  */
 var Setiadi = function (ngrams, similars, distanceLimit) {
@@ -29,8 +29,8 @@ Setiadi.prototype = {
     /**
      * Checks a word's validity.
      *
-     * @param  {string}  inputWord Word to be checked
-     * @return {boolean}           Word validity
+     * @param  {String}  inputWord Word to be checked
+     * @return {Boolean}           Word validity
      */
     isValid: function (inputWord) {
         for (var word in this.data.unigrams) {
@@ -44,9 +44,9 @@ Setiadi.prototype = {
     /**
      * Get list of similar words suggestion given a word.
      *
-     * @param  {string}  inputWord         Input word
-     * @param  {boolean} useWordAssumption Indicates needs of additional points for word rank
-     * @return {object}                    Suggestion list of similar words
+     * @param  {String}  inputWord         Input word
+     * @param  {Boolean} useWordAssumption Indicates needs of additional points for word rank
+     * @return {Object}                    Suggestion list of similar words
      */
     getSuggestions: function (inputWord, useWordAssumption) {
         var checkedLength = inputWord.length,
@@ -94,25 +94,19 @@ Setiadi.prototype = {
     /**
      * Try correcting the given sentence if there exists any error.
      *
-     * @param  {string} sentence Text input in a sentence form
-     * @return {object}          List of suggestions (if error exists)
+     * @param  {String} sentence Text input in a sentence form
+     * @return {Object}          List of suggestions (if error exists)
      */
     tryCorrect: function (sentence) {
         var self = this;
 
         var corrections = new Array(),
-            parts       = ngramUtil.uniSplit(sentence);
+            words       = ngramUtil.uniSplit(sentence);
 
-        parts.forEach(function (part) {
-            // var containsInvalidChars = part.match(/[\W\d_]/),
-            //     word                 = part.replace(/[\W\d_]/g, '');
-
-            var word = part.toLowerCase();
-
-            // if (containsInvalidChars || (!containsInvalidChars && self.isValid(word))) {
+        words.forEach(function (word) {
             if (self.isValid(word)) {
                 corrections.push({
-                    [`${part}`]: self.data.unigrams[word]
+                    [`${word}`]: self.data.unigrams[word]
                 });
             } else {
                 var useWordAssumption   = true,
@@ -123,7 +117,7 @@ Setiadi.prototype = {
                     corrections.push(wordSuggestions);
                 } else {
                     corrections.push({
-                        [`${part}`]: 0
+                        [`${word}`]: 0
                     });
                 }
             }

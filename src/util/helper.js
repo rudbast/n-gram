@@ -8,8 +8,8 @@ var ngramUtil = require(__dirname + '/ngram.js');
 /**
  * Clean article content.
  *
- * @param  {string} content Content to be cleaned
- * @return {string}         Cleaned content
+ * @param  {String} content Content to be cleaned
+ * @return {String}         Cleaned content
  */
 function cleanInitial(content) {
     content = content.toLowerCase();
@@ -42,8 +42,8 @@ function cleanInitial(content) {
 /**
  * Extra step on cleaning content.
  *
- * @param  {string} content Content to be cleaned
- * @return {string}         Cleaned content
+ * @param  {String} content Content to be cleaned
+ * @return {String}         Cleaned content
  */
 function cleanExtra(content) {
     // content = content.replace(/\./g, ' ');
@@ -55,8 +55,8 @@ function cleanExtra(content) {
  * Split text into sentences.
  * (uses external tools by executing shell command)
  *
- * @param  {string} text Text to be split
- * @return {object}      Split sentences
+ * @param  {String} text Text to be split
+ * @return {Object}      Split sentences
  */
 function splitToSentence(text) {
     require('shelljs/global');
@@ -70,9 +70,9 @@ function splitToSentence(text) {
  * Create a combination of words (as sentences) given a list of
  * words' with probability values in the corrections list.
  *
- * @param  {array}  corrections   Multiple words' parts container
- * @param  {string} rankOperation Type of operation to deal with ranks
- * @return {object}               Sentence made from words combination with it's probability
+ * @param  {Array}  corrections   Multiple words' parts container
+ * @param  {String} rankOperation Type of operation to deal with ranks
+ * @return {Object}               Sentence made from words combination with it's probability
  */
 function createNgramCombination(corrections, rankOperation) {
     var combination = new Object();
@@ -120,9 +120,9 @@ function createNgramCombination(corrections, rankOperation) {
  * Check if given gram is a subset of given sentence, returns the
  * position of the last word if subset confirmed, returns -1 otherwise.
  *
- * @param  {string}  sentence Sentence to be checked on
- * @param  {string}  gram     Gram to be checked with
- * @return {integer}          Position of the last word
+ * @param  {String}  sentence Sentence to be checked on
+ * @param  {String}  gram     Gram to be checked with
+ * @return {Integer}          Position of the last word
  */
 function subsetNgramOf(sentence, gram) {
     var gramLength   = ngramUtil.uniSplit(gram).length,
@@ -142,9 +142,8 @@ function subsetNgramOf(sentence, gram) {
 /**
  * Notify user.
  *
- * @param  {string} title   Notification's title
- * @param  {string} message Notification's message
- * @return {void}
+ * @param {String} title   Notification's title
+ * @param {String} message Notification's message
  */
 function notify(title, message) {
     notifier.notify({
@@ -158,9 +157,9 @@ function notify(title, message) {
 /**
  * Convert object into a sorted array.
  *
- * @param  {object}  obj           Object to be converted
- * @param  {boolean} parseAsNumber Indicates whether to parse object's property as number
- * @return {array}                 Converted object
+ * @param  {Object}  obj           Object to be converted
+ * @param  {Boolean} parseAsNumber Indicates whether to parse object's property as number
+ * @return {Array}                 Converted object
  */
 function convertSimpleObjToSortedArray(obj, parseAsNumber) {
     parseAsNumber = _.isUndefined(parseAsNumber) ? false : true;
@@ -180,9 +179,7 @@ function convertSimpleObjToSortedArray(obj, parseAsNumber) {
 }
 
 /**
- * Clear screen.
- *
- * @return {void}
+ * Clear screen (console) by printing bunch of newlines.
  */
 function clearScreen() {
     var i = 0;

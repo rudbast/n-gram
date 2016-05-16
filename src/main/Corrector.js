@@ -11,16 +11,16 @@ var ngramConst  = new ngramUtil.NgramConstant();
 /**
  * Spelling correction main class (custom).
  *
- * @param {object}  ngrams        Word index
- * @param {object}  similars      Words with it's similars pairs
- * @param {integer} distanceLimit Words distance limit
- * @param {object}  vocabularies  Trie's structured vocabularies
+ * @param {Object}  ngrams        Word index
+ * @param {Object}  similars      Words with it's similars pairs
+ * @param {Integer} distanceLimit Words distance limit
+ * @param {Trie}    vocabularies  Trie's structured vocabularies
  *
- * @property {object}  data          N-grams words index container
- * @property {object}  similars      Words with it's similars pairs
- * @property {integer} distanceLimit Words distance limit
- * @property {object}  vocabularies  Trie's structured vocabularies
- * @property {integer} unigramSize   Size of the unigrams' object
+ * @property {Object}  data          N-grams words index container
+ * @property {Object}  similars      Words with it's similars pairs
+ * @property {Integer} distanceLimit Words distance limit
+ * @property {Trie}    vocabularies  Trie's structured vocabularies
+ * @property {Integer} unigramSize   Size of the unigrams' object
  * @constructor
  */
 var Corrector = function (ngrams, similars, distanceLimit, vocabularies) {
@@ -35,7 +35,7 @@ Corrector.prototype = {
     /**
      * Re-set the words distance limit.
      *
-     * @param {integer} distanceLimit Words distance limit
+     * @param {Integer} distanceLimit Words distance limit
      */
     setDistanceLimit: function (distanceLimit) {
         this.distanceLimit = distanceLimit;
@@ -44,9 +44,9 @@ Corrector.prototype = {
     /**
      * Check the validity of given gram.
      *
-     * @param  {string}  gram      Word pair in a form of certain n-gram
-     * @param  {string}  gramClass String representation of the n-gram
-     * @return {boolean}           Gram validity
+     * @param  {String}  gram      Word pair in a form of certain n-gram
+     * @param  {String}  gramClass String representation of the n-gram
+     * @return {Boolean}           Gram validity
      */
     isValid: function (gram, gramClass) {
         if (gramClass === undefined) {
@@ -62,8 +62,8 @@ Corrector.prototype = {
     /**
      * Get list of similar words suggestion given a word.
      *
-     * @param  {string} inputWord Input word
-     * @return {object}           Suggestion list of similar words
+     * @param  {String} inputWord Input word
+     * @return {Object}           Suggestion list of similar words
      */
     getSuggestions: function (inputWord) {
         if (this.isValid(inputWord, ngramConst.UNIGRAM)) {
@@ -95,8 +95,8 @@ Corrector.prototype = {
     /**
      * Try correcting the given sentence if there exists any error.
      *
-     * @param  {string} sentence Text input in a sentence form
-     * @return {object}          List of suggestions (if error exists)
+     * @param  {String} sentence Text input in a sentence form
+     * @return {Object}          List of suggestions (if error exists)
      */
     tryCorrect: function (sentence) {
         var self = this;
@@ -193,8 +193,8 @@ Corrector.prototype = {
     /**
      * Detect non word error if exists.
      *
-     * @param  {array}  words List of words (ordered) from a sentence
-     * @return {object}       Index of the word having an error (empty if no error found)
+     * @param  {Array}  words List of words (ordered) from a sentence
+     * @return {Object}       Index of the word having an error (empty if no error found)
      */
     detectNonWord: function (words) {
         var self = this;
@@ -212,9 +212,9 @@ Corrector.prototype = {
     /**
      * Detect real word error.
      *
-     * @param  {string}  gram      Word pair in a form of a certain gram
-     * @param  {string}  gramClass The n class of the given gram
-     * @return {boolean}           Validity of the given gram
+     * @param  {String}  gram      Word pair in a form of a certain gram
+     * @param  {String}  gramClass The n class of the given gram
+     * @return {Boolean}           Validity of the given gram
      */
     detectRealWord: function (gram, gramClass) {
         return this.isValid(gram, gramClass);
@@ -223,9 +223,9 @@ Corrector.prototype = {
     /**
      * Create new combination of trigram by combining bigrams or unigrams.
      *
-     * @param  {array}  words     List of words (ordered)
-     * @param  {string} gramClass Current dealt gram's class
-     * @return {object}           New combination of trigram
+     * @param  {Array}  words     List of words (ordered)
+     * @param  {String} gramClass Current dealt gram's class
+     * @return {Object}           New combination of trigram
      */
     createAlternateRealWordGramOfTrigram: function (words, gramClass) {
         var self = this;
@@ -259,9 +259,9 @@ Corrector.prototype = {
      * Create valid n-gram alternatives from a list of words' similarity,
      * only allows 1 different word from the original n-gram.
      *
-     * @param  {array}  words     List of words (ordered) from a sentence
-     * @param  {string} gramClass String representation of the n-gram
-     * @return {object}           Valid n-grams with it's probability
+     * @param  {Array}  words     List of words (ordered) from a sentence
+     * @param  {String} gramClass String representation of the n-gram
+     * @return {Object}           Valid n-grams with it's probability
      */
     createAlternativesRealWord: function (words, gramClass) {
         var self = this;
@@ -313,12 +313,12 @@ Corrector.prototype = {
      * Create new combination of trigram, given that previous trigram contains a non
      * word error that is also in the current trigram.
      *
-     * @param  {array}   words        List of words (ordered)
-     * @param  {string}  gramClass    String representation of the n-gram
-     * @param  {array}   errorIndexes Indexes of previous word list that indicates an error
-     * @param  {array}   prevAltWords Unique words of resulted trigram of previous correction
-     * @param  {integer} skipCount    Current skip count
-     * @return {object}               Alternatives gain by combining previous alternatives
+     * @param  {Array}   words        List of words (ordered)
+     * @param  {String}  gramClass    String representation of the n-gram
+     * @param  {Array}   errorIndexes Indexes of previous word list that indicates an error
+     * @param  {Array}   prevAltWords Unique words of resulted trigram of previous correction
+     * @param  {Integer} skipCount    Current skip count
+     * @return {Object}               Alternatives gain by combining previous alternatives
      */
     createAlternateNonWordGramOfTrigram: function (words, gramClass, errorIndexes, prevAltWords, currentSkipCount) {
         var self = this;
@@ -364,10 +364,10 @@ Corrector.prototype = {
      * only allows 1 different word from the original n-gram excluding the
      * word which is categorized as non-word error.
      *
-     * @param  {array}  words        List of words (ordered) from a sentence
-     * @param  {string} gramClass    String representation of the n-gram
-     * @param  {object} errorIndexes Container for indexes of the error word
-     * @return {object}              Valid trigrams with it's probability
+     * @param  {Array}  words        List of words (ordered) from a sentence
+     * @param  {String} gramClass    String representation of the n-gram
+     * @param  {Object} errorIndexes Container for indexes of the error word
+     * @return {Object}              Valid trigrams with it's probability
      */
     createAlternativesNonWord: function (words, gramClass, errorIndexes) {
         var self = this;
@@ -445,8 +445,8 @@ Corrector.prototype = {
      * Compute the probability of a n-gram.
      * @see https://en.wikipedia.org/wiki/Bigram
      *
-     * @param  {array} words Collection of words (ordered)
-     * @return {float}       Probability of the n-gram (range 0-1)
+     * @param  {Array} words Collection of words (ordered)
+     * @return {Float}       Probability of the n-gram (range 0-1)
      */
     ngramProbability: function (words) {
         var gram, probability, precedenceGram;

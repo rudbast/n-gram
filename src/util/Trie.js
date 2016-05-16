@@ -27,17 +27,16 @@ var Trie = function () {}
 /**
  * Trie data structure container.
  *
- * @type {object}
+ * @type {Object}
  */
 Trie.prototype.data = new Object();
 
 /**
  * Insert word into existing data.
  *
- * @param  {string} word Word to be inserted
- * @return {void}
+ * @param  {String} word Word to be inserted
  */
-Trie.prototype.insert = function (word, callback) {
+Trie.prototype.insert = function (word) {
     var currTrie = Trie.prototype.data;
 
     for(var i = 0; i < word.length; ++i) {
@@ -56,8 +55,8 @@ Trie.prototype.insert = function (word, callback) {
 /**
  * Check whether current word exist in the data.
  *
- * @param  {string}  word Word to be checked
- * @return {boolean}      Word validity
+ * @param  {String}  word Word to be checked
+ * @return {Boolean}      Word validity
  */
 Trie.prototype.has = function (word) {
     var trail = Trie.prototype.data;
@@ -77,7 +76,7 @@ Trie.prototype.has = function (word) {
 /**
  * Get trie's data container object.
  *
- * @return {object} Data container
+ * @return {Object} Data container
  */
 Trie.prototype.getData = function () {
     return Trie.prototype.data;
@@ -86,8 +85,7 @@ Trie.prototype.getData = function () {
 /**
  * Output trie's data to a file.
  *
- * @param  {string} file Output file path
- * @return {void}
+ * @param {String} file Output file path
  */
 Trie.prototype.print = function (file) {
     jsFile.writeFile(file, Trie.prototype.data, {spaces: 4}, function (err) {
@@ -100,19 +98,19 @@ Trie.prototype.print = function (file) {
  * Find all words in the dictionary whose distance is within the
  * distance limit of the given word.
  *
- * @param  {string}  word  The given word
- * @param  {integer} limit Distance limit
- * @return {object}        List of words within the distance limit
+ * @param  {String}  word  The given word
+ * @param  {Integer} limit Distance limit
+ * @return {Object}        List of words within the distance limit
  */
 Trie.prototype.findWordsWithinLimit = function (word, limit) {
     /**
      * Compute the sub distance of a given string against current
      * node (character).
      *
-     * @param  {string} currentChar Currently processed char/node
-     * @param  {array}  prevDist    Previous/upper distance values
-     * @param  {array}  currDist    Current/middle distance values
-     * @return {array}              Computed current distance values
+     * @param  {String} currentChar Currently processed char/node
+     * @param  {Array}  prevDist    Previous/upper distance values
+     * @param  {Array}  currDist    Current/middle distance values
+     * @return {Array}              Computed current distance values
      */
     var computeSubDistance = function (currentChar, prevDist, currDist) {
         for (var i = 1; i <= word.length; ++i) {
