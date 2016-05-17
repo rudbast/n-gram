@@ -426,6 +426,16 @@ Indexer.prototype = {
             }
         }
     },
+
+    /**
+     * Save vocabularies (trie) information into file.
+     *
+     * @param  {string}   file     File name
+     * @param  {Function} callback Callback function
+     */
+    saveVocabularies: function (file, callback) {
+        this.vocabularies.save(file, callback);
+    }
 };
 
 module.exports = Indexer;

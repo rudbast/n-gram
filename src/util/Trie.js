@@ -1,6 +1,8 @@
 'use strict';
 
-var jsFile = require('jsonfile'),
+var _      = require('lodash'),
+    assert = require('assert'),
+    jsFile = require('jsonfile'),
     Queue  = require(__dirname + '/../../lib/Queue.js');
 
 /*
@@ -84,12 +86,13 @@ Trie.prototype = {
     /**
      * Output trie's data to a file.
      *
-     * @param {string} file Output file path
+     * @param {string}   file     Output file path
+     * @param {Function} callback Callback function
      */
-    print: function (file) {
+    save: function (file, callback) {
         jsFile.writeFile(file, this.data, {spaces: 4}, function (err) {
-            if (err) console.error(err);
-            console.log('Output file succeeded.');
+            assert.equal(err, null);
+            if (_.isFunction(callback)) callback();
         });
     },
 
