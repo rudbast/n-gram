@@ -3,7 +3,7 @@
 var _      = require('lodash'),
     assert = require('assert');
 
-var helper = require(__dirname + '/../util/helper.js');
+var helper = require(__dirname + '/helper.js');
 
 const DB_HOST = 'localhost',
       DB_PORT = '27017',

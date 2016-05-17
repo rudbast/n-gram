@@ -9,7 +9,7 @@ var _      = require('lodash'),
     prompt = require('prompt');
 
 var helper   = require(__dirname + '/../util/helper.js'),
-    migrator = require(__dirname + '/../misc/migrator.js');
+    migrator = require(__dirname + '/../util/migrator.js');
 
 const DEFAULT_ARTICLE_FILE    = __dirname + '/../../out/articles/data.json',
       DEFAULT_INDEX_DIR       = __dirname + '/../../out/ngrams',
