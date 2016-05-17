@@ -21,9 +21,11 @@ var languageDetector = new LanguageDetect(),
  * @param {Number} distanceLimit Words similarity distance limit
  *
  * @property {Object} data          N-grams words index container
+ * @property {Object} size          Total unique gram/word pair of each N-gram
+ * @property {Object} count         Total frequency count of all gram/word pair of each N-gram
  * @property {Object} similars      Words similarity pair container
- * @property {Number} distanceLimit Words similarity distance limit
  * @property {Trie}   vocabularies  Trie's structured vocabularies
+ * @property {Number} distanceLimit Words similarity distance limit
  * @constructor
  */
 var Indexer = function (distanceLimit) {
