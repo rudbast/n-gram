@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "mini-test": "node src/test/test.js",
+    "mini-test": "node src/misc/test.js",
     "crawler": "node src/crawl/crawler.js",
     "start": "node src/web/server.js",
     "eval-perplexity": "node src/evaluate/perplexity.js"
