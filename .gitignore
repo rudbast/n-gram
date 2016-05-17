@@ -46,7 +46,7 @@ vendor
 bower_components
 
 ## CUSTOM (own)
-src/test
+src/misc/test.js
 
 out/test.dat
 
