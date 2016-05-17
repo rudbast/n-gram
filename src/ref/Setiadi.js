@@ -10,12 +10,12 @@ var levenshtein = require(__dirname + '/../util/levenshtein.js'),
  * Spelling correction main class (as implemented by Iskandar Setiadi).
  * @see https://www.researchgate.net/publication/268334497_Damerau-Levenshtein_Algorithm_and_Bayes_Theorem_for_Spell_Checker_Optimization
  *
- * @param {Object} informations  Words' informations (data, count, size, similars, vocabularies)
- * @param {Number} distanceLimit Words distance limit
+ * @constructor
+ * @param {Object} informations      Words' informations (data, count, size, similars, vocabularies)
+ * @param {number} [distanceLimit=2] Words distance limit
  *
  * @property {Object} data          N-grams words index container
- * @property {Number} distanceLimit Words distance limit
- * @constructor
+ * @property {number} distanceLimit Words distance limit
  */
 var Setiadi = function (informations, distanceLimit) {
     this.data          = informations.data;
@@ -26,8 +26,8 @@ Setiadi.prototype = {
     /**
      * Checks a word's validity.
      *
-     * @param  {String}  inputWord Word to be checked
-     * @return {Boolean}           Word validity
+     * @param  {string}  inputWord Word to be checked
+     * @return {boolean}           Word validity
      */
     isValid: function (inputWord) {
         for (var word in this.data.unigrams) {
@@ -41,8 +41,8 @@ Setiadi.prototype = {
     /**
      * Get list of similar words suggestion given a word.
      *
-     * @param  {String}  inputWord         Input word
-     * @param  {Boolean} useWordAssumption Indicates needs of additional points for word rank
+     * @param  {string}  inputWord         Input word
+     * @param  {boolean} useWordAssumption Indicates needs of additional points for word rank
      * @return {Object}                    Suggestion list of similar words
      */
     getSuggestions: function (inputWord, useWordAssumption) {
@@ -91,7 +91,7 @@ Setiadi.prototype = {
     /**
      * Try correcting the given sentence if there exists any error.
      *
-     * @param  {String} sentence Text input in a sentence form
+     * @param  {string} sentence Text input in a sentence form
      * @return {Object}          List of suggestions (if error exists)
      */
     tryCorrect: function (sentence) {

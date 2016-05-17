@@ -12,13 +12,13 @@ var ngramConst  = new ngramUtil.NgramConstant();
  * Spelling correction main class (as implemented by Suzan Verberne).
  * @see http://sverberne.ruhosting.nl/papers/verberne2002.pdf
  *
+ * @constructor
  * @param {Object} informations  Words' informations (data, count, size, similars, vocabularies)
- * @param {Number} distanceLimit Words distance limit
+ * @param {number} [distanceLimit=2] Words distance limit
  *
  * @property {Object} data          N-grams words index container
  * @property {Object} similars      Words with it's similars pairs
- * @property {Number} distanceLimit Words distance limit
- * @constructor
+ * @property {number} distanceLimit Words distance limit
  */
 var Verberne = function (informations, distanceLimit) {
     this.data          = informations.data;
@@ -30,9 +30,9 @@ Verberne.prototype = {
     /**
      * Check the validity of given gram.
      *
-     * @param  {String}  gram      Word pair in a form of certain n-gram
-     * @param  {String}  gramClass String representation of the n-gram
-     * @return {Boolean}           Gram validity
+     * @param  {string}  gram      Word pair in a form of certain n-gram
+     * @param  {string}  gramClass String representation of the n-gram
+     * @return {boolean}           Gram validity
      */
     isValid: function (gram, gramClass) {
         if (gramClass === undefined) {
@@ -53,7 +53,7 @@ Verberne.prototype = {
     /**
      * Get list of similar words suggestion given a word.
      *
-     * @param  {String} inputWord Input word
+     * @param  {string} inputWord Input word
      * @return {Object}           Suggestion list of similar words
      */
     getSuggestions: function (inputWord) {
@@ -63,7 +63,7 @@ Verberne.prototype = {
     /**
      * Try correcting the given sentence if there exists any error.
      *
-     * @param  {String} sentence Text input in a sentence form
+     * @param  {string} sentence Text input in a sentence form
      * @return {Object}          List of suggestions (if error exists)
      */
     tryCorrect: function (sentence) {
@@ -120,8 +120,8 @@ Verberne.prototype = {
     /**
      * Detect real word error.
      *
-     * @param  {String}  trigram Word pair in a form of trigram.
-     * @return {Boolean}         Indicates if the trigram is valid.
+     * @param  {string}  trigram Word pair in a form of trigram.
+     * @return {boolean}         Indicates if the trigram is valid.
      */
     detectRealWord: function (trigram) {
         return this.isValid(trigram, ngramConst.TRIGRAM);

@@ -2,8 +2,8 @@
  * Compute the average perplexity of uni/bi/tri-gram language model,
  * given sentences in an article.
  *
- * @param {String} indexDir  Ngram's index information (uni/bi/tri) file directory
- * @param {String} inputFile Article used when computing perplexity
+ * @param {string} indexDir  Ngram's index information (uni/bi/tri) file directory
+ * @param {string} inputFile Article used when computing perplexity
  */
 
 'use strict';
@@ -27,6 +27,7 @@ main(process.argv.slice(2));
  * Main logic container.
  *
  * @param {Array} args List of program's arguments
+ * @author Rudy
  */
 function main(args) {
     var indexDir  = _.isUndefined(args[0]) ? DEFAULT_INDEX_DIR : args[0],
@@ -69,8 +70,8 @@ function main(args) {
  * @param  {Array}  parts     Gram splitted from a sentence
  * @param  {Object} data      Container for ngram's index information
  * @param  {Object} count     Container for ngram's index information's total frequency
- * @param  {Number} wordCount Total word count of the main sentence
- * @return {Number}            Perplexity of the sentence
+ * @param  {number} wordCount Total word count of the main sentence
+ * @return {number}            Perplexity of the sentence
  */
 function computePerplexity(parts, data, count, wordCount) {
     var perplexity = 1,
@@ -90,10 +91,10 @@ function computePerplexity(parts, data, count, wordCount) {
 /**
  * Compute the probability of the given gram.
  *
- * @param  {String} gram  Gram to be computed for the probability
+ * @param  {string} gram  Gram to be computed for the probability
  * @param  {Object} data  Container for ngram's index information
  * @param  {Object} count Container for ngram's index information's total frequency
- * @return {Number}       Probability of the given gram
+ * @return {number}       Probability of the given gram
  */
 function ngramProbability(gram, data, count) {
     function findPreviousGram(gram) {

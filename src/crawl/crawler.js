@@ -1,12 +1,13 @@
-'use strict';
-
 /**
  * Script for crawling articles from a news site (specificly: Kompas).
  *
  * @param {string} file Full path of the file used as program output (articles data).
  */
 
-var fs     = require('fs'),
+'use strict';
+
+var _      = require('lodash'),
+    fs     = require('fs'),
     prompt = require('prompt'),
     jsfile = require('jsonfile'),
     assert = require('assert');
@@ -26,10 +27,8 @@ waitForCommandInput();
 
 /**
  * Recursively wait for program command input.
- *
- * @param  {Function} callback Callback function.
  */
-function waitForCommandInput(callback) {
+function waitForCommandInput() {
     /**
      * Print menu & request input.
      */
@@ -48,7 +47,7 @@ function waitForCommandInput(callback) {
     /**
      * Process command.
      *
-     * @param {String} command Command string
+     * @param {string} command Command string
      */
     function processCmd(command) {
         var cmd = command.split(' ');
@@ -131,10 +130,24 @@ function printMenu() {
 }
 
 /**
+ * @typedef ScrapData
+ * @type Object
+ * @property {number} count    Total articles count
+ * @property {Array}  articles List of articles
+ */
+
+/**
+ * Callback for when finished scraping the web for articles.
+ *
+ * @callback scrapeFinish
+ * @param {ScrapData} data Articles scraped from a web
+ */
+
+/**
  * Start scrap process.
  *
- * @param {Number}   scrapLimit Article's scrap limit
- * @param {Function} callback   Callback function
+ * @param {number}       scrapLimit Article's scrap limit
+ * @param {scrapeFinish} [callback] Callback function
  */
 function startScrapper(scrapLimit, callback) {
     /**
@@ -181,7 +194,7 @@ function startScrapper(scrapLimit, callback) {
                 console.log();
                 doScrap();
             } else if (scrapLimit <= articleCount) {
-                callback(data);
+                if (_.isFunction(callback)) callback(data);
             }
         });
     }

@@ -4,9 +4,9 @@
  * Compute levenshtein distance of given strings.
  * @see https://en.wikipedia.org/wiki/Levenshtein_distance#Iterative_with_full_matrix
  *
- * @param  {String}  source Source string
- * @param  {String}  target Target string
- * @return {Integer}        Distance value
+ * @param  {string} source Source string
+ * @param  {string} target Target string
+ * @return {number}        Distance value
  */
 var distance = function (source, target) {
     var m = source.length,
@@ -33,10 +33,10 @@ var distance = function (source, target) {
  * Compute levenshtein distance of given strings with distance threshold.
  * @see http://stackoverflow.com/a/5138114/3190026
  *
- * @param  {String}  source    Source string
- * @param  {String}  target    Target string
- * @param  {Integer} threshold Distance threshold
- * @return {Integer}           Distance value
+ * @param  {string} source    Source string
+ * @param  {string} target    Target string
+ * @param  {number} threshold Distance threshold
+ * @return {number}           Distance value
  */
 var distanceOnThreshold = function (source, target, threshold) {
     const INT_MAX = 2123123123;
@@ -106,9 +106,9 @@ var distanceOnThreshold = function (source, target, threshold) {
  * Compute optimal damerau-levenshtein distance of given strings.
  * @see https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance#Optimal_string_alignment_distance
  *
- * @param  {String}  source Source string
- * @param  {String}  target Target string
- * @return {Integer}        Distance value
+ * @param  {string} source Source string
+ * @param  {string} target Target string
+ * @return {number}        Distance value
  */
 var optimalDamerauDistance = function (source, target) {
     var m = source.length,
@@ -143,9 +143,9 @@ var optimalDamerauDistance = function (source, target) {
  * Compute damerau-levenshtein distance of given strings.
  * @see https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance#Distance_with_adjacent_transpositions
  *
- * @param  {String}  source Source string
- * @param  {String}  target Target string
- * @return {Integer}        Distance value
+ * @param  {string} source Source string
+ * @param  {string} target Target string
+ * @return {number}        Distance value
  */
 function damerauDistance(source, target) {
     var dist = new Array(),

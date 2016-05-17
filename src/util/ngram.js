@@ -4,10 +4,10 @@
  * N-gram's constants, used in spelling corrector to represent
  * ngram.
  *
- * @property {String} UNIGRAM Unigram's string repsenentation
- * @property {String} BIGRAM  Bigram's string repsenentation
- * @property {String} TRIGRAM Trigram's string repsenentation
  * @constructor
+ * @property {string} UNIGRAM Unigram's string repsenentation
+ * @property {string} BIGRAM  Bigram's string repsenentation
+ * @property {string} TRIGRAM Trigram's string repsenentation
  */
 var NgramConstant = function () {
     this.UNIGRAM = 'unigrams';
@@ -26,8 +26,8 @@ var ngramConst = new NgramConstant();
  * Find out what n-gram class of the given word count, represented
  * by a string.
  *
- * @param  {Number} wordCount Word count
- * @return {String}           String representation of the n-gram
+ * @param  {number} wordCount Word count
+ * @return {string}           String representation of the n-gram
  */
 function getGramClass(wordCount) {
     switch (wordCount) {
@@ -41,7 +41,7 @@ function getGramClass(wordCount) {
 /**
  * Split a text into unigram (1-gram) collection of words.
  *
- * @param  {String} text Text to be split
+ * @param  {string} text Text to be split
  * @return {Array}       Split words
  */
 function uniSplit(text) {
@@ -51,7 +51,7 @@ function uniSplit(text) {
 /**
  * Split a text into bigram (2-gram) collection of words.
  *
- * @param  {String} text Text to be split
+ * @param  {string} text Text to be split
  * @return {Array}       Split words
  */
 function biSplit(text) {
@@ -78,7 +78,7 @@ function biSplit(text) {
 /**
  * Split a text into trigram (3-gram) collection of words.
  *
- * @param  {String} text Text to be split
+ * @param  {string} text Text to be split
  * @return {Array}       Split words
  */
 function triSplit(text) {
@@ -107,7 +107,7 @@ function triSplit(text) {
 /**
  * Split a text into 1,2,3-gram collection of words.
  *
- * @param  {String} text Text to be split
+ * @param  {string} text Text to be split
  * @return {Object}      Split words in a object (for each n-gram)
  */
 function tripleNSplit(text) {

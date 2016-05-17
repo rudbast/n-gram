@@ -1,7 +1,7 @@
 /**
  * Extract list of Indonesian words from a webpage.
  *
- * @param {String} outputFile File output of the extracted words
+ * @param {string} outputFile File output of the extracted words
  */
 
 'use strict';
@@ -33,7 +33,7 @@ function main(args) {
     /**
      * Recursively scrap till empty data found.
      *
-     * @param {Function} callback Callback function
+     * @param {Function} [callback] Callback function
      */
     function doScrap(callback) {
         scrap(++pageIndex).then(function (words) {
@@ -62,7 +62,7 @@ function main(args) {
 /**
  * Scrape page from the defined URL and return the words list.
  *
- * @param  {Number} pageIndex Current page of the URL
+ * @param  {number} pageIndex Current page of the URL
  * @return {Array}            Scrap result (words list)
  */
 function scrap(pageIndex) {
@@ -81,7 +81,7 @@ function scrap(pageIndex) {
 /**
  * Extract content (word) from a given page (HTML).
  *
- * @param  {String} htmlPage String scraped from the web page
+ * @param  {string} htmlPage String scraped from the web page
  * @return {Array}           Words list
  */
 function getWordsList(htmlPage) {
@@ -99,8 +99,8 @@ function getWordsList(htmlPage) {
 /**
  * Get the complete URL of the web page along with the parameter: page's index.
  *
- * @param  {Number} pageIndex Current page of the URL
- * @return {String}           Complete URL
+ * @param  {number} pageIndex Current page of the URL
+ * @return {string}           Complete URL
  */
 function getCompleteURL(pageIndex) {
     return `${URL}?${PARAM_PAGE}=${pageIndex}`;
@@ -109,9 +109,9 @@ function getCompleteURL(pageIndex) {
 /**
  * Output data to file.
  *
- * @param {String}   file     File name
- * @param {Array}    data     Data to be output to file
- * @param {Function} callback Callback function
+ * @param {string}   file       File name
+ * @param {Array}    data       Data to be output to file
+ * @param {Function} [callback] Callback function
  */
 function outputToFile(file, data, callback) {
     jsFile.writeFile(file, data, {spaces: 4}, function (err) {

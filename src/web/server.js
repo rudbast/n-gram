@@ -1,3 +1,9 @@
+/**
+ * Spelling Corrector's server instance.
+ *
+ * @param  {string} load Indicates whether word index need to be loaded first
+ */
+
 'use strict';
 
 var _          = require('lodash'),

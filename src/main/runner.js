@@ -1,3 +1,8 @@
+/**
+ * Indexer's object instance manager, used by the server to manipulate
+ * Indexer's information.
+ */
+
 'use strict';
 
 var _      = require('lodash'),
