@@ -1,15 +1,20 @@
 'use strict';
 
 var _        = require('lodash'),
-    notifier = require('node-notifier');
+    notifier = require('node-notifier'),
+    assert   = require('assert'),
+    mongodb  = require('mongodb');
 
 var ngramUtil = require(__dirname + '/ngram.js');
+
+var mongoClient   = mongodb.MongoClient,
+    mongoObjectId = mongodb.ObjectId;
 
 /**
  * Clean article content.
  *
- * @param  {String} content Content to be cleaned
- * @return {String}         Cleaned content
+ * @param  {string} content Content to be cleaned
+ * @return {string}         Cleaned content
  */
 function cleanInitial(content) {
     content = content.toLowerCase();
@@ -42,8 +47,8 @@ function cleanInitial(content) {
 /**
  * Extra step on cleaning content.
  *
- * @param  {String} content Content to be cleaned
- * @return {String}         Cleaned content
+ * @param  {string} content Content to be cleaned
+ * @return {string}         Cleaned content
  */
 function cleanExtra(content) {
     // content = content.replace(/\./g, ' ');
@@ -55,7 +60,7 @@ function cleanExtra(content) {
  * Split text into sentences.
  * (uses external tools by executing shell command)
  *
- * @param  {String} text Text to be split
+ * @param  {string} text Text to be split
  * @return {Object}      Split sentences
  */
 function splitToSentence(text) {
@@ -71,7 +76,7 @@ function splitToSentence(text) {
  * words' with probability values in the corrections list.
  *
  * @param  {Array}  corrections   Multiple words' parts container
- * @param  {String} rankOperation Type of operation to deal with ranks
+ * @param  {string} rankOperation Type of operation to deal with ranks
  * @return {Object}               Sentence made from words combination with it's probability
  */
 function createNgramCombination(corrections, rankOperation) {
@@ -120,9 +125,9 @@ function createNgramCombination(corrections, rankOperation) {
  * Check if given gram is a subset of given sentence, returns the
  * position of the last word if subset confirmed, returns -1 otherwise.
  *
- * @param  {String} sentence Sentence to be checked on
- * @param  {String} gram     Gram to be checked with
- * @return {Number}          Position of the last word
+ * @param  {string} sentence Sentence to be checked on
+ * @param  {string} gram     Gram to be checked with
+ * @return {number}          Position of the last word
  */
 function subsetNgramOf(sentence, gram) {
     var gramLength   = ngramUtil.uniSplit(gram).length,
@@ -142,8 +147,8 @@ function subsetNgramOf(sentence, gram) {
 /**
  * Notify user.
  *
- * @param {String} title   Notification's title
- * @param {String} message Notification's message
+ * @param {string} title   Notification's title
+ * @param {string} message Notification's message
  */
 function notify(title, message) {
     notifier.notify({
@@ -158,7 +163,7 @@ function notify(title, message) {
  * Convert object into a sorted array.
  *
  * @param  {Object}  obj           Object to be converted
- * @param  {Boolean} parseAsNumber Indicates whether to parse object's property as number
+ * @param  {boolean} parseAsNumber Indicates whether to parse object's property as number
  * @return {Array}                 Converted object
  */
 function convertSimpleObjToSortedArray(obj, parseAsNumber) {
@@ -186,6 +191,29 @@ function clearScreen() {
     while (i++ < 60) { console.log() };
 }
 
+/**
+ * Callback for when connected to database.
+ *
+ * @callback databaseCallback
+ * @param {Object} db Database connection's object
+ */
+
+/**
+ * Connect to database.
+ *
+ * @param {string}           hostname Database's host address
+ * @param {number}           port     Database's port
+ * @param {string}           database Database's name
+ * @param {databaseCallback} callback Callback function
+ */
+function connectDB(hostname, port, database, callback) {
+    const URL = `mongodb://${hostname}:${port}/${database}`;
+    mongoClient.connect(URL, function (err, db) {
+        assert.equal(null, err);
+        if (_.isFunction(callback)) callback(db);
+    });
+}
+
 module.exports = {
     cleanExtra,
     cleanInitial,
@@ -194,5 +222,6 @@ module.exports = {
     createNgramCombination,
     notify,
     subsetNgramOf,
-    splitToSentence
+    splitToSentence,
+    connectDB
 };

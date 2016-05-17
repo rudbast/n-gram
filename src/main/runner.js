@@ -8,7 +8,8 @@
 var _      = require('lodash'),
     prompt = require('prompt');
 
-var helper = require(__dirname + '/../util/helper.js');
+var helper   = require(__dirname + '/../util/helper.js'),
+    migrator = require(__dirname + '/../misc/migrator.js');
 
 const DEFAULT_ARTICLE_FILE    = __dirname + '/../../out/articles/data.json',
       DEFAULT_INDEX_DIR       = __dirname + '/../../out/ngrams',
@@ -114,6 +115,30 @@ function waitForCommandInput(indexer) {
                 }
                 break;
 
+            case 'migrate':
+                switch (cmd[1]) {
+                    case 'index':
+                        migrator.migrateIndex(indexer.getInformations().data, function () {
+                            notifyAndPrintConsole('Index migrated');
+                        });
+                        break;
+
+                    case 'similar':
+                        migrator.migrateSimilarities(indexer.getInformations().similars, function () {
+                            notifyAndPrintConsole('Word similarities migrated');
+                        });
+                        break;
+
+                    case 'all':
+                        migrator.migrateIndex(indexer.getInformations().data, function () {
+                            migrator.migrateSimilar(indexer.getInformations().similars, function () {
+                                notifyAndPrintConsole('All informations migrated');
+                            });
+                        });
+                        break;
+                }
+                break;
+
             case 'save':
                 switch (cmd[1]) {
                     case 'index':
@@ -176,6 +201,7 @@ function printMenu() {
         menu += 'build <index/similar/all>          - build index/similarity\n';
         menu += 'clear                              - clear screen\n';
         menu += 'load <index/similar/all>           - load index/similarity from file\n';
+        menu += 'migrate <index/similar/all>        - migrate index/similarity to database\n';
         menu += 'save <index/similar/all>           - save index/similarity to file\n';
         menu += 'set <article/index/similar> <file> - set program\'s variables\n';
         menu += 'exit                               - exit program';
