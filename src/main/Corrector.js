@@ -11,24 +11,22 @@ var ngramConst  = new ngramUtil.NgramConstant();
 /**
  * Spelling correction main class (custom).
  *
- * @param {Object} ngrams        Word index
- * @param {Object} similars      Words with it's similars pairs
+ * @param {Object} informations  Words' informations (data, count, size, similars, vocabularies)
  * @param {Number} distanceLimit Words distance limit
- * @param {Trie}   vocabularies  Trie's structured vocabularies
  *
  * @property {Object} data          N-grams words index container
  * @property {Object} similars      Words with it's similars pairs
  * @property {Number} distanceLimit Words distance limit
  * @property {Trie}   vocabularies  Trie's structured vocabularies
- * @property {Number} unigramSize   Size of the unigrams' object
  * @constructor
  */
-var Corrector = function (ngrams, similars, distanceLimit, vocabularies) {
-    this.data          = ngrams;
-    this.similars      = similars;
+var Corrector = function (informations, distanceLimit) {
+    this.data          = informations.data;
+    this.size          = informations.size;
+    this.count         = informations.count;
+    this.similars      = informations.similars;
+    this.vocabularies  = informations.vocabularies;
     this.distanceLimit = !_.isUndefined(distanceLimit) ? distanceLimit : 2;
-    this.vocabularies  = vocabularies;
-    this.unigramSize   = Object.keys(this.data[ngramConst.UNIGRAM]).length;
 };
 
 Corrector.prototype = {

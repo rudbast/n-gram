@@ -10,18 +10,15 @@ var levenshtein = require(__dirname + '/../util/levenshtein.js'),
  * Spelling correction main class (as implemented by Iskandar Setiadi).
  * @see https://www.researchgate.net/publication/268334497_Damerau-Levenshtein_Algorithm_and_Bayes_Theorem_for_Spell_Checker_Optimization
  *
- * @param {Object} ngrams        Word index
- * @param {Object} similars      Words with it's similars pairs
+ * @param {Object} informations  Words' informations (data, count, size, similars, vocabularies)
  * @param {Number} distanceLimit Words distance limit
  *
  * @property {Object} data          N-grams words index container
- * @property {Object} similars      Words with it's similars pairs
  * @property {Number} distanceLimit Words distance limit
  * @constructor
  */
-var Setiadi = function (ngrams, similars, distanceLimit) {
-    this.data          = ngrams;
-    this.similars      = similars;
+var Setiadi = function (informations, distanceLimit) {
+    this.data          = informations.data;
     this.distanceLimit = !_.isUndefined(distanceLimit) ? distanceLimit : 1;
 };
 

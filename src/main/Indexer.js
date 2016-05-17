@@ -32,45 +32,41 @@ var Indexer = function (distanceLimit) {
         [`${ngramConst.BIGRAM}`]: new Object(),
         [`${ngramConst.TRIGRAM}`]: new Object()
     };
+    this.size = {
+        [`${ngramConst.UNIGRAM}`]: 0,
+        [`${ngramConst.BIGRAM}`]: 0,
+        [`${ngramConst.TRIGRAM}`]: 0
+    };
+    this.count = {
+        [`${ngramConst.UNIGRAM}`]: 0,
+        [`${ngramConst.BIGRAM}`]: 0,
+        [`${ngramConst.TRIGRAM}`]: 0
+    };
     this.similars      = new Object();
+    this.vocabularies  = new Trie();
     this.distanceLimit = !_.isUndefined(distanceLimit) ? distanceLimit : 2;
-    this.vocabularies;
 };
 
 Indexer.prototype = {
     /**
-     * Retrieve the words index data.
+     * Get all the available informations.
      *
-     * @return {Object} Words index
+     * @return {Object} All informations
      */
-    getData: function () {
-        return this.data;
-    },
-
-    /**
-     * Retrieve the words similarities data.
-     *
-     * @return {Object} Words similarities
-     */
-    getSimilars: function () {
-        return this.similars;
-    },
-
-    /**
-     * Retrieve the vocabularies represented by a Trie's data.
-     *
-     * @return {Object} Vocabularies
-     */
-    getVocabularies: function () {
-        return this.vocabularies;
+    getInformations: function () {
+        return {
+            data: this.data,
+            size: this.size,
+            count: this.count,
+            similars: this.similars,
+            vocabularies: this.vocabularies
+        };
     },
 
     /**
      * Build vocabularies information from words index.
      */
     buildVocabularies: function () {
-        this.vocabularies = new Trie();
-
         for (var word in this.data[ngramConst.UNIGRAM]) {
             this.vocabularies.insert(word);
         }
@@ -290,6 +286,7 @@ Indexer.prototype = {
 
                     // Finished processing all articles.
                     if (progressBar.complete) {
+                        self.setIndexCountAndSize();
                         if (_.isFunction(callback)) callback();
                     }
                 });
@@ -319,6 +316,7 @@ Indexer.prototype = {
                     self.data[gramFileName] = data;
 
                     if ((++loadCount) == files.length) {
+                        self.setIndexCountAndSize();
                         if (_.isFunction(callback)) callback();
                     }
                 });
@@ -404,7 +402,21 @@ Indexer.prototype = {
             assert.equal(err, null);
             if (_.isFunction(callback)) callback();
         });
-    }
+    },
+
+    /**
+     * Set the ngram's index data count (total frequency) and set the
+     * ngram's index size (unique count).
+     */
+    setIndexCountAndSize: function () {
+        for (var gram in this.data) {
+            this.size[gram] = Object.keys(this.data[gram]).length;
+
+            for (var word in this.data[gram]) {
+                this.count[gram] += this.data[gram][word];
+            }
+        }
+    },
 };
 
 module.exports = Indexer;
