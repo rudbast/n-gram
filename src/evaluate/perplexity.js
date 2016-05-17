@@ -1,6 +1,12 @@
-'use strict';
+/**
+ * Compute the average perplexity of uni/bi/tri-gram language model,
+ * given sentences in an article.
+ *
+ * @param {String} indexDir  Ngram's index information (uni/bi/tri) file directory
+ * @param {String} inputFile Article used when computing perplexity
+ */
 
-// Compute perplexity of a given ngram
+'use strict';
 
 var _      = require('lodash'),
     jsFile = require('jsonfile');
@@ -13,14 +19,6 @@ var ngramConst = new ngramUtil.NgramConstant();
 
 const DEFAULT_INDEX_DIR    = __dirname + '/../../out/ngrams',
       DEFAULT_ARTICLE_FILE = __dirname + '/../../res/eval-article.json';
-
-/**
- * Compute the average perplexity of uni/bi/tri-gram language model,
- * given sentences in an article.
- *
- * @param {String} indexDir  Ngram's index information (uni/bi/tri) file directory
- * @param {String} inputFile Article used when computing perplexity
- */
 
 // Main.
 main(process.argv.slice(2));

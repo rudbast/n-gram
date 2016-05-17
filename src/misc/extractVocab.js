@@ -1,10 +1,10 @@
-'use strict';
-
 /**
  * Extract list of Indonesian words from a webpage.
  *
  * @param {String} outputFile File output of the extracted words
  */
+
+'use strict';
 
 var _       = require('lodash'),
     request = require('request-promise'),
