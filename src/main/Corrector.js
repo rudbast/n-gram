@@ -452,7 +452,7 @@ Corrector.prototype = {
         switch (ngramUtil.getGramClass(words.length)) {
             case ngramConst.UNIGRAM:
                 gram        = `${words[0]}`;
-                probability = this.data[ngramConst.UNIGRAM][gram] / this.unigramSize;
+                probability = this.data[ngramConst.UNIGRAM][gram] / this.size[ngramConst.UNIGRAM];
                 break;
 
             case ngramConst.BIGRAM:

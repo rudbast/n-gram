@@ -41,12 +41,8 @@ function main(args) {
                     [`${ngramConst.BIGRAM}`]: 0,
                     [`${ngramConst.TRIGRAM}`]: 0
                 },
-                data = indexer.getData(),
-                size = new Object();
-
-            for (var gram in data) {
-                size[gram] = Object.keys(data[gram]).length;
-            }
+                data  = indexer.getInformations().data,
+                count = indexer.getInformations().count;
 
             console.log(':: Perplexity Computation Result ::');
 
@@ -55,7 +51,7 @@ function main(args) {
                     wordCount = Object.keys(parts.unigrams).length;
 
                 for (var gram in averagePerplexity) {
-                    averagePerplexity[gram] += computePerplexity(parts[gram], data, size, wordCount);
+                    averagePerplexity[gram] += computePerplexity(parts[gram], data, count, wordCount);
                 }
             });
 
@@ -72,16 +68,16 @@ function main(args) {
  *
  * @param  {Array}  parts     Gram splitted from a sentence
  * @param  {Object} data      Container for ngram's index information
- * @param  {Object} size      Container for ngram's index information's size / length
+ * @param  {Object} count     Container for ngram's index information's total frequency
  * @param  {Number} wordCount Total word count of the main sentence
  * @return {Number}            Perplexity of the sentence
  */
-function computePerplexity(parts, data, size, wordCount) {
+function computePerplexity(parts, data, count, wordCount) {
     var perplexity = 1,
         probability;
 
     parts.forEach(function (part) {
-        probability = ngramProbability(part, data, size);
+        probability = ngramProbability(part, data, count);
 
         if (!_.isNaN(probability)) {
             perplexity *= 1 / probability;
@@ -94,12 +90,12 @@ function computePerplexity(parts, data, size, wordCount) {
 /**
  * Compute the probability of the given gram.
  *
- * @param  {String} gram Gram to be computed for the probability
- * @param  {Object} data Container for ngram's index information
- * @param  {Object} size Container for ngram's index information's size / length
- * @return {Number}      Probability of the given gram
+ * @param  {String} gram  Gram to be computed for the probability
+ * @param  {Object} data  Container for ngram's index information
+ * @param  {Object} count Container for ngram's index information's total frequency
+ * @return {Number}       Probability of the given gram
  */
-function ngramProbability(gram, data, size) {
+function ngramProbability(gram, data, count) {
     function findPreviousGram(gram) {
         var firstSpacePos = gram.indexOf(' ');
         var secondSpacePos = gram.indexOf(' ', firstSpacePos + 1);
@@ -115,7 +111,7 @@ function ngramProbability(gram, data, size) {
 
     switch (ngramUtil.getGramClass(ngramUtil.uniSplit(gram).length)) {
         case ngramConst.UNIGRAM:
-            probability = data[ngramConst.UNIGRAM][gram] / size[ngramConst.UNIGRAM];
+            probability = data[ngramConst.UNIGRAM][gram] / count[ngramConst.UNIGRAM];
             break;
 
         case ngramConst.BIGRAM:
