@@ -168,7 +168,7 @@ function convertSimpleObjToSortedArray(obj, parseAsNumber) {
         newVal;
 
     for (var key in obj) {
-        if (parseAsNumber) newVal = parseInt(key);
+        if (parseAsNumber) newVal = Number(key);
         else newVal = key;
 
         arr.push(newVal);
