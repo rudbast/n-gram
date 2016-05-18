@@ -5,10 +5,6 @@ var _      = require('lodash'),
 
 var helper = require(__dirname + '/helper.js');
 
-const DB_HOST = 'localhost',
-      DB_PORT = '27017',
-      DB_NAME = 'autocorrect';
-
 /**
  * Migrate words index information to database.
  *
@@ -25,7 +21,7 @@ function migrateIndex(data, callback) {
         }
     }
 
-    helper.connectDB(DB_HOST, DB_PORT, DB_NAME, function (db) {
+    helper.connectDB(function (db) {
         var currentTask = 0;
 
         for (var gram in data) {
@@ -57,7 +53,7 @@ function migrateIndex(data, callback) {
  * @param {Function} [callback] Callback function
  */
 function migrateSimilarities(similars, callback) {
-    helper.connectDB(DB_HOST, DB_PORT, DB_NAME, function (db) {
+    helper.connectDB(function (db) {
         var wordSimilars = new Array();
 
         for (var sourceWord in similars) {

@@ -3,12 +3,15 @@
 var _        = require('lodash'),
     notifier = require('node-notifier'),
     assert   = require('assert'),
-    mongodb  = require('mongodb');
+    mongodb  = require('mongodb'),
+    jsFile   = require('jsonfile');
 
 var ngramUtil = require(__dirname + '/ngram.js');
 
 var mongoClient   = mongodb.MongoClient,
     mongoObjectId = mongodb.ObjectId;
+
+const DB_CONFIG_FILE = __dirname + '/../../res/database.json';
 
 /**
  * Clean article content.
@@ -201,17 +204,19 @@ function clearScreen() {
 /**
  * Connect to database.
  *
- * @param {string}           hostname Database's host address
- * @param {number}           port     Database's port
- * @param {string}           database Database's name
  * @param {databaseCallback} callback Callback function
  */
-function connectDB(hostname, port, database, callback) {
-    const URL = `mongodb://${hostname}:${port}/${database}`;
-    mongoClient.connect(URL, function (err, db) {
-        assert.equal(null, err);
-        if (_.isFunction(callback)) callback(db);
+function connectDB(callback) {
+    jsFile.readFile(DB_CONFIG_FILE, function (err, database) {
+        assert.equal(err, null);
+
+        const URL = `mongodb://${database.host}:${database.port}/${database.name}`;
+        mongoClient.connect(URL, function (err, db) {
+            assert.equal(null, err);
+            if (_.isFunction(callback)) callback(db);
+        });
     });
+
 }
 
 module.exports = {
