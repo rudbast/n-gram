@@ -19,6 +19,7 @@ const DEFAULT_ARTICLE_FILE    = __dirname + '/../../out/articles/data.json',
 
 var articleFile    = DEFAULT_ARTICLE_FILE,
     indexDir       = DEFAULT_INDEX_DIR,
+    trieFile       = DEFAULT_TRIE_FILE,
     similarityFile = DEFAULT_SIMILARITY_FILE,
     message        = '';
 
@@ -268,7 +269,7 @@ function initAndStart(indexer) {
                 console.log();
                 start(indexer);
             });
-        })
+        });
     });
 }
 
