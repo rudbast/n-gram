@@ -12,6 +12,7 @@ var helper   = require(__dirname + '/../util/helper.js'),
     migrator = require(__dirname + '/../util/migrator.js');
 
 const DEFAULT_ARTICLE_FILE    = __dirname + '/../../out/articles/data.json',
+      DEFAULT_TRIE_FILE       = __dirname + '/../../out/trie.json',
       DEFAULT_INDEX_DIR       = __dirname + '/../../out/ngrams',
       DEFAULT_SIMILARITY_FILE = __dirname + '/../../out/similars.json',
       NOTIFICATION_TITLE      = 'Spelling Corrector Web Runner';
@@ -54,6 +55,7 @@ function waitForCommandInput(indexer) {
             case 'check':
                 var result = `article file    : ${articleFile}\n`;
                     result += `index directory : ${indexDir}\n`;
+                    result += `trie file       : ${trieFile}\n`;
                     result += `similarity file : ${similarityFile}`;
 
                 console.log(result);
@@ -64,8 +66,12 @@ function waitForCommandInput(indexer) {
                     case 'index':
                         indexer.constructIndex(articleFile, function () {
                             notifyAndPrintConsole('Index built');
-                            indexer.buildVocabularies();
                         });
+                        break;
+
+                    case 'trie':
+                        indexer.buildTrie(trieFile);
+                        notifyAndPrintConsole('Trie built');
                         break;
 
                     case 'similar':
@@ -76,7 +82,7 @@ function waitForCommandInput(indexer) {
 
                     case 'all':
                         indexer.constructIndex(articleFile, function () {
-                            indexer.buildVocabularies();
+                            indexer.buildTrie();
                             indexer.constructSimilarities(function () {
                                 notifyAndPrintConsole('All informations built');
                             });
@@ -94,7 +100,12 @@ function waitForCommandInput(indexer) {
                     case 'index':
                         indexer.loadIndex(indexDir, function () {
                             notifyAndPrintConsole('Index loaded');
-                            indexer.buildVocabularies();
+                        });
+                        break;
+
+                    case 'trie':
+                        indexer.loadTrie(trieFile, function () {
+                            notifyAndPrintConsole('Trie loaded');
                         });
                         break;
 
@@ -106,9 +117,10 @@ function waitForCommandInput(indexer) {
 
                     case 'all':
                         indexer.loadIndex(indexDir, function () {
-                            indexer.buildVocabularies();
-                            indexer.loadSimilarities(similarityFile, function () {
-                                notifyAndPrintConsole('All informations loaded');
+                            indexer.loadTrie(trieFile, function () {
+                                indexer.loadSimilarities(similarityFile, function () {
+                                    notifyAndPrintConsole('All informations loaded');
+                                });
                             });
                         });
                         break;
@@ -147,6 +159,12 @@ function waitForCommandInput(indexer) {
                         });
                         break;
 
+                    case 'trie':
+                        indexer.saveTrie(trieFile, function () {
+                            notifyAndPrintConsole('Trie saved');
+                        });
+                        break;
+
                     case 'similar':
                         indexer.saveSimilarities(similarityFile, function () {
                             notifyAndPrintConsole('Word similarities saved');
@@ -155,8 +173,10 @@ function waitForCommandInput(indexer) {
 
                     case 'all':
                         indexer.saveIndex(indexDir, function () {
-                            indexer.saveSimilarities(similarityFile, function () {
-                                notifyAndPrintConsole('All informations saved');
+                            indexer.saveTrie(trieFile, function () {
+                                indexer.saveSimilarities(similarityFile, function () {
+                                    notifyAndPrintConsole('All informations saved');
+                                });
                             });
                         });
                         break;
@@ -167,6 +187,9 @@ function waitForCommandInput(indexer) {
                 switch (cmd[1]) {
                     case 'article':
                         articleFile = _.isEmpty(cmd[2]) ? DEFUALT_ARTICLE_FILE : cmd[2];
+                        break;
+                    case 'trie':
+                        trieFile = _.isEmpty(cmd[2]) ? DEFAULT_TRIE_DIR : cmd[2];
                         break;
                     case 'index':
                         indexDir = _.isEmpty(cmd[2]) ? DEFAULT_INDEX_DIR : cmd[2];
@@ -197,14 +220,14 @@ function waitForCommandInput(indexer) {
  * Print command list menu.
  */
 function printMenu() {
-    var menu = 'check                              - check program\'s variables\n';
-        menu += 'build <index/similar/all>          - build index/similarity\n';
-        menu += 'clear                              - clear screen\n';
-        menu += 'load <index/similar/all>           - load index/similarity from file\n';
-        menu += 'migrate <index/similar/all>        - migrate index/similarity to database\n';
-        menu += 'save <index/similar/all>           - save index/similarity to file\n';
-        menu += 'set <article/index/similar> <file> - set program\'s variables\n';
-        menu += 'exit                               - exit program';
+    var menu = 'check                                   - check program\'s variables\n';
+        menu += 'build <index/trie/similar/all>          - build index/similarity\n';
+        menu += 'clear                                   - clear screen\n';
+        menu += 'load <index/trie/similar/all>           - load index/similarity from file\n';
+        menu += 'migrate <index/similar/all>             - migrate index/similarity to database\n';
+        menu += 'save <index/trie/similar/all>           - save index/similarity to file\n';
+        menu += 'set <article/trie/index/similar> <file> - set program\'s variables\n';
+        menu += 'exit                                    - exit program';
 
     console.log(menu);
 }
@@ -237,14 +260,15 @@ function start(indexer) {
 function initAndStart(indexer) {
     // Try load index information.
     indexer.loadIndex(indexDir, function () {
-        indexer.buildVocabularies();
-        indexer.loadSimilarities(similarityFile, function () {
-            console.log('Finished loading all informations.');
-            indexer.printDataInformation();
+        indexer.loadTrie(trieFile, function () {
+            indexer.loadSimilarities(similarityFile, function () {
+                console.log('Finished loading all informations.');
+                indexer.printDataInformation();
 
-            console.log();
-            start(indexer);
-        });
+                console.log();
+                start(indexer);
+            });
+        })
     });
 }
 

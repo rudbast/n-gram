@@ -66,9 +66,9 @@ Indexer.prototype = {
     },
 
     /**
-     * Build vocabularies information from words index.
+     * Build vocabularies (trie) information from words index.
      */
-    buildVocabularies: function () {
+    buildTrie: function () {
         for (var word in this.data[ngramConst.UNIGRAM]) {
             this.vocabularies.insert(word);
         }
@@ -433,7 +433,7 @@ Indexer.prototype = {
      * @param {string}   file       File name
      * @param {Function} [callback] Callback function
      */
-    loadVocabularies: function (file, callback) {
+    loadTrie: function (file, callback) {
         this.vocabularies.load(file, callback);
     },
 
@@ -443,7 +443,7 @@ Indexer.prototype = {
      * @param {string}   file       File name
      * @param {Function} [callback] Callback function
      */
-    saveVocabularies: function (file, callback) {
+    saveTrie: function (file, callback) {
         this.vocabularies.save(file, callback);
     }
 };
