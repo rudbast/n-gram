@@ -428,10 +428,20 @@ Indexer.prototype = {
     },
 
     /**
+     * Load vocabularies (trie) information from file.
+     *
+     * @param {string}   file       File name
+     * @param {Function} [callback] Callback function
+     */
+    loadVocabularies: function (file, callback) {
+        this.vocabularies.load(file, callback);
+    },
+
+    /**
      * Save vocabularies (trie) information into file.
      *
-     * @param  {string}   file     File name
-     * @param  {Function} callback Callback function
+     * @param {string}   file       File name
+     * @param {Function} [callback] Callback function
      */
     saveVocabularies: function (file, callback) {
         this.vocabularies.save(file, callback);

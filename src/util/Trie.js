@@ -84,10 +84,26 @@ Trie.prototype = {
     },
 
     /**
+     * Load trie's data from a file.
+     *
+     * @param {string}   file       File name
+     * @param {Function} [callback] Callback function
+     */
+    load: function (file, callback) {
+        var self = this;
+
+        jsFile.readFile(file, function (err, data) {
+            assert.equal(err, null);
+            self.data = data;
+            if (_.isFunction(callback)) callback();
+        });
+    },
+
+    /**
      * Output trie's data to a file.
      *
-     * @param {string}   file     Output file path
-     * @param {Function} callback Callback function
+     * @param {string}   file       Output file path
+     * @param {Function} [callback] Callback function
      */
     save: function (file, callback) {
         jsFile.writeFile(file, this.data, {spaces: 4}, function (err) {
