@@ -216,7 +216,6 @@ function connectDB(callback) {
             if (_.isFunction(callback)) callback(db);
         });
     });
-
 }
 
 module.exports = {
