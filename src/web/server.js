@@ -56,6 +56,7 @@ app.get('/about', function (request, response) {
 
 /** Route: try correcting a sentence. */
 app.post('/correct', function (request, response) {
+    // TODO: Manage various input symbols, with upper/lower case text.
     var sentence = request.body.sentence,
         type     = request.body.type;
 

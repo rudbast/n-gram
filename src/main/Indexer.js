@@ -338,7 +338,7 @@ Indexer.prototype = {
      */
     printDataInformation: function () {
         for (var gram in this.data) {
-            console.log(`${gram}: ${Object.keys(this.data[gram]).length}`);
+            console.log(`${gram}: ${this.size[gram]}`);
         }
     },
 
@@ -373,7 +373,7 @@ Indexer.prototype = {
             progressBar     = new ProgressBar('    Constructing similar words: [:bar] :percent :elapseds', {
                 complete: '=',
                 incomplete: ' ',
-                total: Object.keys(this.data[ngramConst.UNIGRAM]).length
+                total: this.size[ngramConst.UNIGRAM]
             });
 
         for (var word in this.data[ngramConst.UNIGRAM]) {
@@ -393,7 +393,7 @@ Indexer.prototype = {
     loadSimilarities: function (file, callback) {
         var self = this;
 
-        jsFile.readFile(`${file}`, function (err, data) {
+        jsFile.readFile(file, function (err, data) {
             assert.equal(err, null);
             self.similars = data;
             if (_.isFunction(callback)) callback();
@@ -407,7 +407,7 @@ Indexer.prototype = {
      * @param {Function} [callback] Callback function
      */
     saveSimilarities: function (file, callback) {
-        jsFile.writeFile(`${file}`, this.similars, {spaces: 4}, function (err) {
+        jsFile.writeFile(file, this.similars, {spaces: 4}, function (err) {
             assert.equal(err, null);
             if (_.isFunction(callback)) callback();
         });

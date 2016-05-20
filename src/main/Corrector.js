@@ -197,8 +197,8 @@ Corrector.prototype = {
      * @return {Object}       Index of the word having an error (empty if no error found)
      */
     detectNonWord: function (words) {
-        var self = this;
-        var errorIndexes = new Object();
+        var self         = this,
+            errorIndexes = new Object();
 
         words.forEach(function (word, index) {
             if (!self.isValid(word, ngramConst.UNIGRAM)) {
@@ -228,10 +228,9 @@ Corrector.prototype = {
      * @return {Object}           New combination of trigram
      */
     createAlternateRealWordGramOfTrigram: function (words, gramClass) {
-        var self = this;
-
-        var alternatives   = new Object(),
-            collections    = new Array();
+        var self         = this,
+            alternatives = new Object(),
+            collections  = new Array();
 
         if (gramClass == ngramConst.TRIGRAM) {
             collections.push(this.createAlternativesRealWord(words.slice(0, 2), ngramConst.BIGRAM));
@@ -264,11 +263,9 @@ Corrector.prototype = {
      * @return {Object}           Valid n-grams with it's probability
      */
     createAlternativesRealWord: function (words, gramClass) {
-        var self = this;
-
-        var alternatives = new Object(),
-            wordAlts     = new Array(),
-            collections  = new Array();
+        var self        = this,
+            wordAlts    = new Array(),
+            collections = new Array();
 
         words.forEach(function (word) {
             wordAlts.push({
@@ -294,19 +291,7 @@ Corrector.prototype = {
             collections.push(helper.createNgramCombination(subAlternatives));
         }
 
-        collections.forEach(function (collection) {
-            for (var combination in collection) {
-                // Only accept valid word combination (exists in n-gram knowledge).
-                if (self.isValid(combination, gramClass)) {
-                    // Check if alternatives already exists.
-                    if (!alternatives.hasOwnProperty(combination)) {
-                        alternatives[combination] = self.ngramProbability(ngramUtil.uniSplit(combination));
-                    }
-                }
-            }
-        });
-
-        return alternatives;
+        return this.filterCollectionsResult(collections, gramClass);
     },
 
     /**
@@ -321,11 +306,9 @@ Corrector.prototype = {
      * @return {Object}              Alternatives gain by combining previous alternatives
      */
     createAlternateNonWordGramOfTrigram: function (words, gramClass, errorIndexes, prevAltWords, currentSkipCount) {
-        var self = this;
-
         const MAX_SKIP_COUNT = 2;
 
-        var alternatives    = new Object(),
+        var self            = this,
             collections     = new Array(),
             subAlternatives = new Array(),
             prevAltIndex    = MAX_SKIP_COUNT - (currentSkipCount + 1);
@@ -344,19 +327,7 @@ Corrector.prototype = {
 
         collections.push(helper.createNgramCombination(subAlternatives));
 
-        collections.forEach(function (collection) {
-            for (var combination in collection) {
-                // Only accept valid word combination (exists in n-gram knowledge).
-                if (self.isValid(combination, gramClass)) {
-                    // Check if alternatives already exists.
-                    if (!alternatives.hasOwnProperty(combination)) {
-                        alternatives[combination] = self.ngramProbability(ngramUtil.uniSplit(combination));
-                    }
-                }
-            }
-        });
-
-        return alternatives;
+        return this.filterCollectionsResult(collections, gramClass);
     },
 
     /**
@@ -370,10 +341,8 @@ Corrector.prototype = {
      * @return {Object}              Valid trigrams with it's probability
      */
     createAlternativesNonWord: function (words, gramClass, errorIndexes) {
-        var self = this;
-
-        var wordAlts        = new Array(),
-            alternatives    = new Object(),
+        var self            = this,
+            wordAlts        = new Array(),
             nonErrorIndexes = new Array();
 
         words.forEach(function (word, index) {
@@ -426,20 +395,34 @@ Corrector.prototype = {
             collections.push(helper.createNgramCombination(subAlternatives));
         }
 
+        return this.filterCollectionsResult(collections, gramClass);
+    },
+
+    /**
+     * Filter combinations result only for the valid ones.
+     *
+     * @param  {Array}  collections Array containing list of combinations
+     * @param  {string} gramClass   Class of the gram being processed
+     * @return {Object}             Valid gram combination
+     */
+    filterCollectionsResult: function (collections, gramClass) {
+        var alternatives = new Object();
+
         collections.forEach(function (collection) {
             for (var combination in collection) {
                 // Only accept valid word combination (exists in n-gram knowledge).
                 if (self.isValid(combination, gramClass)) {
                     // Check if alternatives already exists.
-                    if (!alternatives.hasOwnProperty(combination)) {
-                        alternatives[combination] = self.ngramProbability(ngramUtil.uniSplit(combination));
+                    if (!_.has(alternatives, combination)) {
+                        alternatives[combination] =
+                            self.ngramProbability(ngramUtil.uniSplit(combination));
                     }
                 }
             }
         });
 
         return alternatives;
-    },
+    };
 
     /**
      * Compute the probability of a n-gram.
@@ -449,6 +432,7 @@ Corrector.prototype = {
      * @return {number}       Probability of the n-gram (range 0-1)
      */
     ngramProbability: function (words) {
+        // TODO: Add smoothing to unknown words.
         var gram, probability, precedenceGram;
 
         switch (ngramUtil.getGramClass(words.length)) {
