@@ -48,13 +48,8 @@ bower_components
 ## CUSTOM (own)
 src/misc/test.js
 
-out/test.dat
-
-out/articles/test.json
-out/ngrams
-out/similars.json
-
-out/backup
+out
+!out/articles
 
 public
 !src/web/public
