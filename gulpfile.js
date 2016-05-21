@@ -128,11 +128,11 @@ gulp.task('default', function () {
 });
 
 // Custom task to replace data being used. Uses param.
-// example: gulp replacedata --data 1k
-//          gulp replacedata --data 5k
+// example: gulp replacedata --dir 1k
+//          gulp replacedata --dir 5k
 gulp.task('replacedata', function () {
-    var data    = argv.data,
-        dataDir = 'out/backup/' + data + '/**/*';
+    var dir     = argv.dir,
+        dataDir = 'out/backup/' + dir + '/**/*';
 
     return gulp.src(dataDir)
         .pipe(gulp.dest('out'));
