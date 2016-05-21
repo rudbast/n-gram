@@ -233,8 +233,27 @@ Corrector.prototype = {
             collections  = new Array();
 
         if (gramClass == ngramConst.TRIGRAM) {
-            collections.push(this.createAlternativesRealWord(words.slice(0, 2), ngramConst.BIGRAM));
-            collections.push(this.createAlternativesRealWord(words.slice(1), ngramConst.BIGRAM));
+            var subWords = [
+                words.slice(0, 2),
+                words.slice(1)
+            ];
+
+            subWords.forEach(function (subWord) {
+                var tempResult = self.createAlternativesRealWord(subWord, ngramConst.BIGRAM);
+
+                if (Object.keys(tempResult).length > 0) {
+                    collections.push(tempResult);
+                } else {
+                    var subSubWords = [
+                        subWord.slice(0, 1),
+                        subWord.slice(1)
+                    ];
+
+                    subSubWords.forEach(function (subSubWord) {
+                        collections.push(self.createAlternativesRealWord(subSubWord, ngramConst.UNIGRAM));
+                    });
+                }
+            });
         } else if (gramClass == ngramConst.BIGRAM) {
             words.forEach(function (word) {
                 collections.push(self.createAlternativesRealWord([word], ngramConst.UNIGRAM));
