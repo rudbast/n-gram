@@ -219,14 +219,50 @@ function connectDB(callback) {
     });
 }
 
+/**
+ * Map the dictionary structured correction result into collection.
+ *
+ * @param  {Object} corrections Corrections result in a form of dictionary (hash)
+ * @return {Array}              Collection of correction
+ */
+function mapCorrectionsToCollection(corrections) {
+    return _.chain(corrections)
+        .map(function (probability, sentence) {
+            return {
+                sentence: sentence,
+                probability: probability
+            };
+        })
+        .orderBy(['probability', 'sentence'], ['desc', 'asc'])
+        .value();
+}
+
+/**
+ * Limit the correction result by a certain amount.
+ *
+ * @param  {Object} corrections Corrections result in a form of dictionary (hash)
+ * @param  {number} [limit=25]  Result limit
+ * @return {Array}              Collection of correction
+ */
+function limitCollection(corrections, limit) {
+    const DEFAULT_LIMIT = 25;
+    limit = _.isUndefined(limit) ? DEFAULT_LIMIT : limit;
+
+    return _.chain(corrections)
+        .slice(0, limit)
+        .value();
+}
+
 module.exports = {
     cleanExtra,
     cleanInitial,
     clearScreen,
+    connectDB,
     convertSimpleObjToSortedArray,
     createNgramCombination,
+    limitCollection,
+    mapCorrectionsToCollection,
     notify,
-    subsetNgramOf,
     splitToSentence,
-    connectDB
+    subsetNgramOf
 };

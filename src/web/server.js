@@ -27,6 +27,7 @@ var connection,
     corrector;
 
 const DISTANCE_LIMIT = 2,
+      RESULT_LIMIT   = 25,
       PUBLIC_PATH    = __dirname + '/../../public',
       FILTER_COUNT   = 10;
 
@@ -75,7 +76,12 @@ app.post('/correct', function (request, response) {
             break;
     }
 
-    response.send(corrector.tryCorrect(sentence));
+    var corrections = corrector.tryCorrect(sentence);
+
+    corrections = helper.mapCorrectionsToCollection(corrections);
+    corrections = helper.limitCollection(corrections, RESULT_LIMIT);
+
+    response.send(corrections);
 });
 
 app.post('/compare', function (request, response) {
@@ -89,14 +95,19 @@ app.post('/compare', function (request, response) {
 
     var result = new Array();
     correctors.forEach(function (corrector) {
-        var subResult = new Object();
+        var corrections, startTime, endTime;
 
-        var startTime = now();
-        subResult.corrections = corrector.tryCorrect(sentence);
-        var endTime = now();
+        startTime   = now();
+        corrections = corrector.tryCorrect(sentence);
+        endTime     = now();
 
-        subResult.time = endTime - startTime;
-        result.push(subResult);
+        corrections = helper.mapCorrectionsToCollection(corrections);
+        corrections = helper.limitCollection(corrections, RESULT_LIMIT);
+
+        result.push({
+            corrections: corrections,
+            time: endTime - startTime
+        });
     });
 
     response.send(result);

@@ -1,23 +1,3 @@
-/**
- * Filter corrections' result before sending it back to client.
- *
- * @param  {Object} corrections Corrections result in a form of dictionary (hash)
- * @param  {number} filterCount Number of result to be shown (others removed/sliced)
- * @return {Array}              Collection of correction
- */
-function filterCorrections(corrections, filterCount) {
-    return _.chain(corrections)
-        .map(function (probability, sentence) {
-            return {
-                sentence: sentence,
-                probability: probability
-            };
-        })
-        .orderBy(['probability', 'sentence'], ['desc', 'asc'])
-        .slice(0, filterCount)
-        .value();
-}
-
 // Initialize button side nav on mobile / smaller device.
 $(".button-collapse").sideNav();
 

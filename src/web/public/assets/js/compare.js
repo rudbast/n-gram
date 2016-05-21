@@ -17,7 +17,7 @@ function formSubmitSuccess(comparison) {
             });
         } else if (identifier == 'corrections') {
             comparison.forEach(function (corrector) {
-                var corrections  = filterCorrections(corrector[identifier], 25),
+                var corrections  = corrector[identifier],
                     subChildNode = '<ul class="collection orange-text darken-4">';
 
                 corrections.forEach(function (correction) {
