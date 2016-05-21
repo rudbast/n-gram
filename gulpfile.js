@@ -65,11 +65,6 @@ gulp.task('copylibscss', function () {
         .pipe(gulp.dest(ASSETS_DIST_DIR + '/css'));
 });
 
-gulp.task('copylibscss', function () {
-    return gulp.src(ASSETS_SRC_DIR + '/css/libs.css')
-        .pipe(gulp.dest(ASSETS_DIST_DIR + '/css'));
-});
-
 gulp.task('copylibsjs', function () {
     return gulp.src(ASSETS_SRC_DIR + '/js/libs.js')
         .pipe(gulp.dest(ASSETS_DIST_DIR + '/js'));
@@ -78,13 +73,6 @@ gulp.task('copylibsjs', function () {
 gulp.task('copylibsfonts', function () {
     return gulp.src(ASSETS_SRC_DIR + '/fonts/**/*')
         .pipe(gulp.dest(ASSETS_DIST_DIR + '/fonts'));
-});
-
-// Combined libraries tasks.
-gulp.task('libs', function () {
-    runSeq('cleanlibs',
-           ['csslibs', 'jslibs', 'otherlibs'],
-           ['copylibscss', 'copylibsjs', 'copylibsfonts']);
 });
 
 gulp.task('publichtml', function () {
@@ -132,7 +120,12 @@ gulp.task('public', [
 ]);
 
 // Default task.
-gulp.task('default', ['libs', 'public']);
+gulp.task('default', function () {
+    runSeq('cleanlibs',
+           ['csslibs', 'jslibs', 'otherlibs'],
+           ['copylibscss', 'copylibsjs', 'copylibsfonts'],
+           'public');
+});
 
 // Custom task to replace data being used. Uses param.
 // example: gulp replacedata --data 1k
