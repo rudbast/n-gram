@@ -11,9 +11,9 @@ var gulp    = require('gulp'),
 const PUBLIC_SRC_DIR  = './src/web/public',
       ASSETS_SRC_DIR  = PUBLIC_SRC_DIR + '/assets',
       BOWER_DIR       = './bower_components',
-      BOOTSTRAP_DIR   = BOWER_DIR + '/bootstrap-css',
       JQUERY_DIR      = BOWER_DIR + '/jquery/dist',
       MATERIALIZE_DIR = BOWER_DIR + '/Materialize/dist',
+      LODASH_DIR      = BOWER_DIR + '/lodash/dist',
       PUBLIC_DIST_DIR = './public',
       ASSETS_DIST_DIR = PUBLIC_DIST_DIR + '/assets';
 
@@ -29,8 +29,6 @@ gulp.task('cleanlibs', function () {
 // Concat all css libraries.
 gulp.task('csslibs', function () {
     var libsSrc = [
-        // BOOTSTRAP_DIR + '/css/bootstrap.min.css',
-        // BOOTSTRAP_DIR + '/css/bootstrap-theme.min.css',
         MATERIALIZE_DIR + '/css/materialize.min.css'
     ];
 
@@ -43,7 +41,7 @@ gulp.task('csslibs', function () {
 gulp.task('jslibs', function () {
     var libsSrc = [
         JQUERY_DIR + '/jquery.min.js',
-        // BOOTSTRAP_DIR + '/js/bootstrap.min.js'
+        LODASH_DIR + '/lodash.min.js',
         MATERIALIZE_DIR + '/js/materialize.min.js'
     ];
 
@@ -55,7 +53,6 @@ gulp.task('jslibs', function () {
 // Copy fonts libraries.
 gulp.task('otherlibs', function () {
     var libsSrc = [
-        // BOOTSTRAP_DIR + '/fonts/*',
         MATERIALIZE_DIR + '/fonts/**/*'
     ];
 

@@ -1,29 +1,5 @@
-function formSubmitSuccess(response) {
-    var corrections = $.map(response.corrections, function (probability, sentence) {
-        return [{
-            sentence: sentence,
-            probability: probability
-        }];
-    });
-
-    // Sort customly.
-    corrections.sort(function (a, b) {
-        // Sort probability descendingly.
-        if (a.probability > b.probability) {
-            return -1;
-        } else if (a.probability < b.probability) {
-            return 1;
-        } else {
-            // Sort sentence ascendingly.
-            if (a.sentence < b.sentence) {
-                return -1;
-            } else if (a.sentence > b.sentence) {
-                return 1;
-            } else {
-                return 0;
-            }
-        }
-    });
+function formSubmitSuccess(corrections) {
+    corrections = filterCorrections(corrections, 10);
 
     corrections.forEach(function (correction) {
         var sentence    = correction.sentence,

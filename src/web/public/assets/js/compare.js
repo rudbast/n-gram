@@ -1,4 +1,4 @@
-function formSubmitSuccess(response) {
+function formSubmitSuccess(comparison) {
     var resultTable = $('#result-wrapper table');
 
     var tableRowsId = {
@@ -12,38 +12,14 @@ function formSubmitSuccess(response) {
         childNode += '<td><strong>' + tableRowsId[identifier] + '<strong></td>';
 
         if (identifier == 'time') {
-            response.comparison.forEach(function (corrector) {
+            comparison.forEach(function (corrector) {
                 childNode += '<td>' + corrector[identifier].toFixed(3) + '</td>';
             });
         } else if (identifier == 'corrections') {
-            response.comparison.forEach(function (corrector) {
-                var corrections = $.map(corrector[identifier], function (probability, sentence) {
-                    return [{
-                        sentence: sentence,
-                        probability: probability
-                    }];
-                });
+            comparison.forEach(function (corrector) {
+                var corrections  = filterCorrections(corrector[identifier], 10),
+                    subChildNode = '<ul class="collection orange-text darken-4">';
 
-                // Sort customly.
-                corrections.sort(function (a, b) {
-                    // Sort probability descendingly.
-                    if (a.probability > b.probability) {
-                        return -1;
-                    } else if (a.probability < b.probability) {
-                        return 1;
-                    } else {
-                        // Sort sentence ascendingly.
-                        if (a.sentence < b.sentence) {
-                            return -1;
-                        } else if (a.sentence > b.sentence) {
-                            return 1;
-                        } else {
-                            return 0;
-                        }
-                    }
-                });
-
-                var subChildNode = '<ul class="collection orange-text darken-4">';
                 corrections.forEach(function (correction) {
                     var sentence    = correction.sentence,
                         probability = correction.probability;

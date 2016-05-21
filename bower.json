@@ -28,6 +28,7 @@
   "dependencies": {
     "bootstrap-css": "~3.3.6",
     "jquery": "~2.2.3",
-    "Materialize": "materialize#~0.97.6"
+    "Materialize": "materialize#~0.97.6",
+    "lodash": "~4.12.0"
   }
 }

@@ -27,7 +27,8 @@ var connection,
     corrector;
 
 const DISTANCE_LIMIT = 2,
-      PUBLIC_PATH    = __dirname + '/../../public';
+      PUBLIC_PATH    = __dirname + '/../../public',
+      FILTER_COUNT   = 10;
 
 var shouldLoadInformation = _.isUndefined(process.argv[2]) ? false : (process.argv[2] == 'load' ? true : false);
 
@@ -74,7 +75,7 @@ app.post('/correct', function (request, response) {
             break;
     }
 
-    response.send({corrections: corrector.tryCorrect(sentence)});
+    response.send(corrector.tryCorrect(sentence));
 });
 
 app.post('/compare', function (request, response) {
@@ -98,7 +99,7 @@ app.post('/compare', function (request, response) {
         result.push(subResult);
     });
 
-    response.send({comparison: result});
+    response.send(result);
 });
 
 /** Start listening for request. */
