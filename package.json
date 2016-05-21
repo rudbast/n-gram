@@ -37,7 +37,8 @@
     "progress": "^1.1.8",
     "prompt": "^1.0.0",
     "request-promise": "^3.0.0",
-    "shelljs": "^0.6.0"
+    "shelljs": "^0.6.0",
+    "yargs": "^4.7.1"
   },
   "devDependencies": {
     "del": "^2.2.0",

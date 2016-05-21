@@ -3,9 +3,10 @@ var gulp    = require('gulp'),
     jsnano  = require('gulp-minify'),
     concat  = require('gulp-concat'),
     notify  = require('gulp-notify'),
-    del     = require('del')
-    htmlmin = require('gulp-htmlmin')
-    runSeq  = require('run-sequence');
+    del     = require('del'),
+    htmlmin = require('gulp-htmlmin'),
+    runSeq  = require('run-sequence'),
+    argv    = require('yargs').argv;
 
 const PUBLIC_SRC_DIR  = './src/web/public',
       ASSETS_SRC_DIR  = PUBLIC_SRC_DIR + '/assets',
@@ -135,3 +136,14 @@ gulp.task('public', [
 
 // Default task.
 gulp.task('default', ['libs', 'public']);
+
+// Custom task to replace data being used. Uses param.
+// example: gulp replacedata --data 1k
+//          gulp replacedata --data 5k
+gulp.task('replacedata', function () {
+    var data    = argv.data,
+        dataDir = 'out/backup/' + data + '/**/*';
+
+    return gulp.src(dataDir)
+        .pipe(gulp.dest('out'));
+});
