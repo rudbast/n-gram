@@ -406,7 +406,8 @@ Corrector.prototype = {
      * @return {Object}             Valid gram combination
      */
     filterCollectionsResult: function (collections, gramClass) {
-        var alternatives = new Object();
+        var self         = this,
+            alternatives = new Object();
 
         collections.forEach(function (collection) {
             for (var combination in collection) {
