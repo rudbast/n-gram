@@ -324,6 +324,7 @@ Indexer.prototype = {
      * Print current data's informations.
      */
     printDataInformation: function () {
+        console.log(':: N-Gram Information ::');
         for (var gram in this.data) {
             console.log(`${gram}: ${this.size[gram]}`);
         }

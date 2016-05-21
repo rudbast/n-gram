@@ -259,11 +259,9 @@ function start(indexer) {
  * @param {Object} indexer Indexer's object instance
  */
 function initAndStart(indexer) {
-    // Try load index information.
     indexer.loadIndex(indexDir, function () {
         indexer.loadTrie(trieFile, function () {
             indexer.loadSimilarities(similarityFile, function () {
-                console.log('Finished loading all informations.');
                 indexer.printDataInformation();
 
                 console.log();
