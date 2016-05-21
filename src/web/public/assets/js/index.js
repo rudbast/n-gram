@@ -1,5 +1,5 @@
 function formSubmitSuccess(corrections) {
-    corrections = filterCorrections(corrections, 10);
+    corrections = filterCorrections(corrections, 25);
 
     corrections.forEach(function (correction) {
         var sentence    = correction.sentence,
