@@ -54,8 +54,9 @@ function cleanInitial(content) {
  * @return {string}         Cleaned content
  */
 function cleanExtra(content) {
-    // content = content.replace(/\./g, ' ');
     content = content.replace(/\s+/g, ' ');
+    content = content.replace(/^\s+/g, '');
+    content = content.replace(/\s+$/g, '');
     return content;
 }
 
