@@ -226,30 +226,17 @@ Indexer.prototype = {
                 // Remove spaces at the start / end of text.
                 part = part.replace(/^\s+|\s+$/g, '');
 
-                // var containsAlphabets = (part.search(/[a-z]{2,}/g) != -1),
-                var isNotEmpty = (part != '');
-
                 // Filtering content.
-                // if (isNotEmpty && containsAlphabets) {
-                if (isNotEmpty) {
+                if (part != '') {
                     var newGrams = ngramUtil.tripleNSplit(part);
 
                     for (var gram in newGrams) {
                         newGrams[gram].forEach(function (word) {
-                            // NOTE: the 'if' below checks if the word contains a '-' character,
-                            //      and bypass them, except for word repeat such as 'kata-kata',
-                            //      but the solution below is considered a 'hack', as it might
-                            //      fail in a 2/3-gram words couple, such as 'kata-kata u-'.
-                            // var containsWordRepeat = word.match(/[a-z]+-[a-z]+/),
-                                // containsDash       = word.match(/-/);
-
-                            // if ((containsDash && containsWordRepeat) || !containsDash) {
-                                if (!ngrams[gram][word]) {
-                                    ngrams[gram][word] = 1;
-                                } else {
-                                    ++ngrams[gram][word];
-                                }
-                            // }
+                            if (!ngrams[gram][word]) {
+                                ngrams[gram][word] = 1;
+                            } else {
+                                ++ngrams[gram][word];
+                            }
                         });
                     }
                 }

@@ -422,7 +422,7 @@ Corrector.prototype = {
         });
 
         return alternatives;
-    };
+    },
 
     /**
      * Compute the probability of a n-gram.
