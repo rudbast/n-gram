@@ -27,7 +27,6 @@ main(process.argv.slice(2));
  * Main logic container.
  *
  * @param {Array} args List of program's arguments
- * @author Rudy
  */
 function main(args) {
     var indexDir  = _.isUndefined(args[0]) ? DEFAULT_INDEX_DIR : args[0],
@@ -42,22 +41,37 @@ function main(args) {
                     [`${ngramConst.BIGRAM}`]: 0,
                     [`${ngramConst.TRIGRAM}`]: 0
                 },
+                totalCounted = {
+                    [`${ngramConst.UNIGRAM}`]: 0,
+                    [`${ngramConst.BIGRAM}`]: 0,
+                    [`${ngramConst.TRIGRAM}`]: 0
+                },
                 data  = indexer.getInformations().data,
-                count = indexer.getInformations().count;
+                count = indexer.getInformations().count,
+                size  = indexer.getInformations().size;
 
             console.log(':: Perplexity Computation Result ::');
 
             sentences.forEach(function (sentence) {
-                var parts     = ngramUtil.tripleNSplit(sentence),
-                    wordCount = Object.keys(parts.unigrams).length;
+                var parts = sentence.split(',');
 
-                for (var gram in averagePerplexity) {
-                    averagePerplexity[gram] += computePerplexity(parts[gram], data, count, wordCount);
-                }
+                parts.forEach(function (part) {
+                    part = helper.cleanExtra(part);
+
+                    var grams     = ngramUtil.tripleNSplit(part),
+                        wordCount = grams[ngramConst.UNIGRAM].length;
+
+                    for (var gram in averagePerplexity) {
+                        if (grams[gram].length == 0) return;
+                        else totalCounted[gram]++;
+
+                        averagePerplexity[gram] += computePerplexity(grams[gram], data, count, size, wordCount);
+                    }
+                });
             });
 
             for (var gram in averagePerplexity) {
-                averagePerplexity[gram] /= sentences.length;
+                averagePerplexity[gram] /= totalCounted[gram];
                 console.log(`${gram}: ${averagePerplexity[gram]}`);
             }
         });
@@ -65,24 +79,22 @@ function main(args) {
 }
 
 /**
- * Compute perplexity of the given parts (gram splitted from a sentence).
+ * Compute perplexity of the given parts (gram split from a sentence).
  *
- * @param  {Array}  parts     Gram splitted from a sentence
+ * @param  {Array}  parts     Gram split from a sentence
  * @param  {Object} data      Container for ngram's index information
  * @param  {Object} count     Container for ngram's index information's total frequency
+ * @param  {Object} size      Container for ngram's index information's total unique gram
  * @param  {number} wordCount Total word count of the main sentence
- * @return {number}            Perplexity of the sentence
+ * @return {number}           Perplexity of the sentence
  */
-function computePerplexity(parts, data, count, wordCount) {
+function computePerplexity(parts, data, count, size, wordCount) {
     var perplexity = 1,
         probability;
 
     parts.forEach(function (part) {
-        probability = ngramProbability(part, data, count);
-
-        if (!_.isNaN(probability)) {
-            perplexity *= 1 / probability;
-        }
+        probability = ngramProbability(part, data, count, size);
+        perplexity *= 1 / probability;
     });
 
     return Math.pow(perplexity, 1 / wordCount);
@@ -94,35 +106,50 @@ function computePerplexity(parts, data, count, wordCount) {
  * @param  {string} gram  Gram to be computed for the probability
  * @param  {Object} data  Container for ngram's index information
  * @param  {Object} count Container for ngram's index information's total frequency
+ * @param  {Object} size  Container for ngram's index information's total unique gram
  * @return {number}       Probability of the given gram
  */
-function ngramProbability(gram, data, count) {
-    function findPreviousGram(gram) {
-        var firstSpacePos = gram.indexOf(' ');
-        var secondSpacePos = gram.indexOf(' ', firstSpacePos + 1);
-
-        if (secondSpacePos == -1) {
-            return gram.substring(0, firstSpacePos);
-        } else {
-            return gram.substring(0, secondSpacePos);
-        }
-    }
-
-    var probability, precedenceGram;
+function ngramProbability(gram, data, count, size) {
+    var validGram, precedenceGram,
+        words       = ngramUtil.uniSplit(gram),
+        probability = 1;
 
     switch (ngramUtil.getGramClass(ngramUtil.uniSplit(gram).length)) {
         case ngramConst.UNIGRAM:
-            probability = data[ngramConst.UNIGRAM][gram] / count[ngramConst.UNIGRAM];
+            var mainfreq = _.isUndefined(data[ngramConst.UNIGRAM][gram]) ? 0 : data[ngramConst.UNIGRAM][gram];
+            // (C(w_i) + 1) / (N + V)
+            probability = (mainfreq + 1) / (count[ngramConst.UNIGRAM] + size[ngramConst.UNIGRAM]);
             break;
 
         case ngramConst.BIGRAM:
-            precedenceGram = findPreviousGram(gram);
-            probability    = data[ngramConst.BIGRAM][gram] / data[ngramConst.UNIGRAM][precedenceGram];
+            precedenceGram = `${words[0]}`;
+            validGram      = !_.isUndefined(data[ngramConst.BIGRAM][gram]);
+
+            if (!validGram) {
+                words.forEach(function (word) {
+                    probability *= ngramProbability(word, data, count, size);
+                });
+            } else {
+                probability = data[ngramConst.BIGRAM][gram] / data[ngramConst.UNIGRAM][precedenceGram];
+            }
             break;
 
         case ngramConst.TRIGRAM:
-            precedenceGram = findPreviousGram(gram);
-            probability    = data[ngramConst.TRIGRAM][gram] / data[ngramConst.BIGRAM][precedenceGram];
+            precedenceGram = `${words[0]} ${words[1]}`;
+            validGram      = !_.isUndefined(data[ngramConst.TRIGRAM][gram]);
+
+            if (!validGram) {
+                var newGrams = [
+                    precedenceGram,
+                    `${words[1]} ${words[2]}`
+                ];
+
+                newGrams.forEach(function (newGram) {
+                    probability *= ngramProbability(newGram, data, count, size);
+                });
+            } else {
+                probability = data[ngramConst.TRIGRAM][gram] / data[ngramConst.BIGRAM][precedenceGram];
+            }
             break;
     }
 
