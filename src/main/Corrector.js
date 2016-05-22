@@ -102,7 +102,8 @@ Corrector.prototype = {
         var self = this;
 
         var corrections = new Array(),
-            parts       = ngramUtil.triSplit(sentence);
+            parts       = ngramUtil.triSplit(sentence),
+            suggestions = new Object();
 
         // If parts is empty, it means the word is lower than three.
         if (parts.length == 0) {
@@ -132,61 +133,58 @@ Corrector.prototype = {
                                                                         previousErrorIndexes,
                                                                         previousAlternatives,
                                                                         skipCount);
-                corrections.push(alternatives);
-                return;
-            }
+            } else {
+                var errorIndexes     = self.detectNonWord(words),
+                    errorIndexLength = Object.keys(errorIndexes).length,
+                    isValidGram      = self.detectRealWord(part, gramClass);
 
-            var errorIndexes     = self.detectNonWord(words),
-                errorIndexLength = Object.keys(errorIndexes).length,
-                isValidGram      = self.detectRealWord(part, gramClass);
+                if (errorIndexLength == 0 && isValidGram) {
+                    // Contains no error.
+                    alternatives[part] = self.ngramProbability(words);
+                } else if (errorIndexLength != 0) {
+                    // Contains non-word error.
+                    alternatives = self.createAlternativesNonWord(words, gramClass, errorIndexes);
 
-            if (errorIndexLength == 0 && isValidGram) {
-                // Contains no error.
-                alternatives[part] = self.ngramProbability(words);
-            } else if (errorIndexLength != 0) {
-                // Contains non-word error.
-                alternatives = self.createAlternativesNonWord(words, gramClass, errorIndexes);
+                    // Skipping only applies if there's more part to be checked.
+                    if (partIndex < parts.length - 1) {
+                        // Find the last occurred error's index, and we'll skip checking the next
+                        // 'skipCount' part of trigram.
+                        previousErrorIndexes = helper.convertSimpleObjToSortedArray(errorIndexes,
+                                                                                    parseAsNumber);
+                        skipCount            = previousErrorIndexes[previousErrorIndexes.length - 1];
+                        previousAlternatives = [
+                            new Object(),
+                            new Object(),
+                            new Object()
+                        ];
 
-                // Skipping only applies if there's more part to be checked.
-                if (partIndex < parts.length - 1) {
-                    // Find the last occurred error's index, and we'll skip checking the next
-                    // 'skipCount' part of trigram.
-                    previousErrorIndexes = helper.convertSimpleObjToSortedArray(errorIndexes,
-                                                                                parseAsNumber);
-                    skipCount            = previousErrorIndexes[previousErrorIndexes.length - 1];
-                    previousAlternatives = [
-                        new Object(),
-                        new Object(),
-                        new Object()
-                    ];
+                        // Extract all unique word's of each index from the alternatives.
+                        for (var alt in alternatives) {
+                            ngramUtil.uniSplit(alt).forEach(function (altWord, altIndex) {
+                                previousAlternatives[altIndex][altWord] = true;
+                            });
+                        }
+                    }
+                } else if (!isValidGram) {
+                    // Contains real word error.
+                    // NOTE: Current real word error correction only allows 1 word from
+                    //      any word length (2/3) to be corrected. This means if the current
+                    //      gram has more than 2 real word error, only 1 will be corrected
+                    //      and not the other, so the correction will fail. Might need to
+                    //      reconsider this problem.
+                    alternatives = self.createAlternativesRealWord(words, gramClass);
 
-                    // Extract all unique word's of each index from the alternatives.
-                    for (var alt in alternatives) {
-                        ngramUtil.uniSplit(alt).forEach(function (altWord, altIndex) {
-                            previousAlternatives[altIndex][altWord] = true;
-                        });
+                    // In case of no alternative trigram available, we're going to create them by
+                    // combining bigrams, or even unigrams.
+                    if (Object.keys(alternatives).length == 0 && gramClass != ngramConst.UNIGRAM) {
+                        alternatives = self.createAlternateRealWordGramOfTrigram(words, gramClass);
                     }
                 }
-            } else if (!isValidGram) {
-                // Contains real word error.
-                // NOTE: Current real word error correction only allows 1 word from
-                //      any word length (2/3) to be corrected. This means if the current
-                //      gram has more than 2 real word error, only 1 will be corrected
-                //      and not the other, so the correction will fail. Might need to
-                //      reconsider this problem.
-                alternatives = self.createAlternativesRealWord(words, gramClass);
-
-                // In case of no alternative trigram available, we're going to create them by
-                // combining bigrams, or even unigrams.
-                if (Object.keys(alternatives).length == 0 && gramClass != ngramConst.UNIGRAM) {
-                    alternatives = self.createAlternateRealWordGramOfTrigram(words, gramClass);
-                }
             }
 
-            corrections.push(alternatives);
+            suggestions = helper.createNgramCombination([suggestions, alternatives]);
         });
 
-        var suggestions = helper.createNgramCombination(corrections);
         return suggestions;
     },
 
