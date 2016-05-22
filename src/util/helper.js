@@ -81,9 +81,13 @@ function splitToSentence(text) {
  *
  * @param  {Array}  corrections   Multiple words' parts container
  * @param  {string} rankOperation Type of operation to deal with ranks
+ * @param  {string} joinType      Type of join with the combinations
  * @return {Object}               Sentence made from words combination with it's probability
  */
-function createNgramCombination(corrections, rankOperation) {
+function createNgramCombination(corrections, rankOperation, joinType) {
+    rankOperation = _.isUndefined(rankOperation) ? 'plus' : rankOperation;
+    joinType      = _.isUndefined(joinType) ? 'assimilate' : joinType;
+
     var combination = new Object();
 
     corrections.forEach(function (correction) {
@@ -95,25 +99,30 @@ function createNgramCombination(corrections, rankOperation) {
                 newCombination[gram] = correction[gram];
             } else {
                 for (var sentence in combination) {
-                    var gramSubsetPos = subsetNgramOf(sentence, gram),
-                        newRank, extraWord;
+                    var gramSubsetPos, newRank, extraWord, joinWord;
 
-                    if (gramSubsetPos != -1) {
-                        extraWord = gram.substring(gramSubsetPos);
+                    if (joinType == 'assimilate') {
+                        gramSubsetPos = subsetNgramOf(sentence, gram);
 
-                        switch (rankOperation) {
-                            case 'plus':
-                                newRank = combination[sentence] + correction[gram];
-                                break;
-
-                            case 'multiply':
-                                newRank = combination[sentence] * correction[gram];
-                                break;
-
-                            default:
-                                newRank = combination[sentence] + correction[gram];
+                        if (gramSubsetPos != -1) {
+                            extraWord = gram.substring(gramSubsetPos);
+                            joinWord  = ' ';
                         }
-                        newCombination[`${sentence} ${extraWord}`] = newRank;
+                    } else if (joinType == 'join') {
+                        extraWord = gram;
+                        joinWord  = ', ';
+                    }
+
+                    if ((gramSubsetPos != -1 && joinType == 'assimilate')
+                            || joinType == 'join') {
+
+                        if (rankOperation == 'plus') {
+                            newRank = combination[sentence] + correction[gram];
+                        } else if (rankOperation == 'multiply') {
+                            newRank = combination[sentence] * correction[gram];
+                        }
+
+                        newCombination[`${sentence}${joinWord}${extraWord}`] = newRank;
                     }
                 }
             }

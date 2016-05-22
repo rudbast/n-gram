@@ -33,15 +33,6 @@ var Corrector = function (informations, distanceLimit) {
 
 Corrector.prototype = {
     /**
-     * Re-set the words distance limit.
-     *
-     * @param {number} distanceLimit Words distance limit
-     */
-    setDistanceLimit: function (distanceLimit) {
-        this.distanceLimit = distanceLimit;
-    },
-
-    /**
      * Check the validity of given gram.
      *
      * @param  {string}  gram        Word pair in a form of certain n-gram
@@ -99,25 +90,46 @@ Corrector.prototype = {
      * @return {Object}          List of suggestions (if error exists)
      */
     tryCorrect: function (sentence) {
-        var self = this;
+        var self      = this,
+            result    = new Object(),
+            subParts  = helper.cleanInitial(sentence).split(',');
 
-        var corrections = new Array(),
-            parts       = ngramUtil.triSplit(sentence),
-            suggestions = new Object();
+        subParts.forEach(function (subPart) {
+            subPart = helper.cleanExtra(subPart);
+            subPart = ngramUtil.tripleNSplit(subPart);
 
-        // If parts is empty, it means the word is lower than three.
-        if (parts.length == 0) {
-            var tempWords = ngramUtil.uniSplit(sentence);
-
-            if (tempWords.length == 2) {
-                parts.push(tempWords[0] + ' ' + tempWords[1]);
+            // If parts is empty, it means the word is lower than three.
+            if (subPart[ngramConst.TRIGRAM].length == 0) {
+                if (subPart[ngramConst.BIGRAM].length == 0) {
+                    subPart = subPart[ngramConst.UNIGRAM];
+                } else {
+                    subPart = subPart[ngramConst.BIGRAM];
+                }
             } else {
-                parts.push(tempWords[0]);
+                subPart = subPart[ngramConst.TRIGRAM];
             }
-        }
 
-        var skipCount     = 0,
+            result = helper.createNgramCombination(
+                [result, self.doCorrect(subPart)],
+                'plus',
+                'join'
+            );
+        });
+
+        return result;
+    },
+
+    /**
+     * Main correction's logic.
+     *
+     * @param  {Array}  parts Ngram split word
+     * @return {Object}       Correction results in a form of hash/dictionary
+     */
+    doCorrect: function (parts) {
+        var self          = this,
+            skipCount     = 0,
             parseAsNumber = true,
+            suggestions   = new Object(),
             previousErrorIndexes, previousAlternatives;
 
         parts.forEach(function (part, partIndex) {
@@ -242,14 +254,17 @@ Corrector.prototype = {
                 if (Object.keys(tempResult).length > 0) {
                     collections.push(tempResult);
                 } else {
-                    var subSubWords = [
-                        subWord.slice(0, 1),
-                        subWord.slice(1)
-                    ];
+                    var subCollections = new Array(),
+                        subSubWords    = [
+                            subWord.slice(0, 1),
+                            subWord.slice(1)
+                        ];
 
                     subSubWords.forEach(function (subSubWord) {
-                        collections.push(self.createAlternativesRealWord(subSubWord, ngramConst.UNIGRAM));
+                        subCollections.push(self.createAlternativesRealWord(subSubWord, ngramConst.UNIGRAM));
                     });
+
+                    collections.push(helper.createNgramCombination(subCollections));
                 }
             });
         } else if (gramClass == ngramConst.BIGRAM) {
