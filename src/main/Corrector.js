@@ -47,22 +47,30 @@ Corrector.prototype = {
         if (gramClass == ngramConst.UNIGRAM) {
             return this.vocabularies.has(gram);
         }
-        return this.data[gramClass].hasOwnProperty(gram);
+        return _.has(this.data[gramClass], gram);
     },
 
     /**
      * Get list of similar words suggestion given a word.
      *
-     * @param  {string} inputWord Input word
-     * @return {Object}           Suggestion list of similar words
+     * @param  {string}  inputWord         Input word
+     * @param  {boolean} [includeMainWord] Indicates whether the main input word should be included in result
+     * @return {Object}                    Suggestion list of similar words
      */
-    getSuggestions: function (inputWord) {
+    getSuggestions: function (inputWord, includeMainWord) {
+        includeMainWord = _.isUndefined(includeMainWord) ? false : includeMainWord;
+        var similarWords;
+
         if (this.isValid(inputWord, ngramConst.UNIGRAM)) {
-            return this.similars[inputWord];
+            similarWords = this.similars[inputWord];
+        } else {
+            // Get suggestions by incorporating Levenshtein with Trie.
+            similarWords = this.vocabularies.findWordsWithinLimit(inputWord, this.distanceLimit);
         }
 
-        // Get suggestions by incorporating Levenshtein with Trie.
-        return this.vocabularies.findWordsWithinLimit(inputWord, this.distanceLimit);
+        if (includeMainWord) similarWords[inputWord] = 0;
+
+        return similarWords;
 
         // NOTE: Might need to consider whether to remove the code below a little later.
         // Get suggestions by computing Levenshtein naively.
@@ -94,7 +102,7 @@ Corrector.prototype = {
             result    = new Object(),
             subParts  = helper.cleanInitial(sentence).split(',');
 
-        subParts.forEach(function (subPart) {
+        _.forEach(subParts, function (subPart) {
             subPart = helper.cleanExtra(subPart);
             subPart = ngramUtil.tripleNSplit(subPart);
 
@@ -132,7 +140,7 @@ Corrector.prototype = {
             suggestions   = new Object(),
             previousErrorIndexes, previousAlternatives;
 
-        parts.forEach(function (part, partIndex) {
+        _.forEach(parts, function (part, partIndex) {
             var words        = ngramUtil.uniSplit(part),
                 gramClass    = ngramUtil.getGramClass(words.length),
                 alternatives = new Object();
@@ -140,11 +148,11 @@ Corrector.prototype = {
             // Skip checking current trigram and just combine result from previous correction
             // if previous ones contains non word error.
             if ((--skipCount) >= 0) {
-                alternatives = self.createAlternateNonWordGramOfTrigram(words,
-                                                                        gramClass,
-                                                                        previousErrorIndexes,
-                                                                        previousAlternatives,
-                                                                        skipCount);
+                alternatives = self.createTrigramFrom(words,
+                                                      gramClass,
+                                                      previousErrorIndexes,
+                                                      previousAlternatives,
+                                                      skipCount);
             } else {
                 var errorIndexes     = self.detectNonWord(words),
                     errorIndexLength = Object.keys(errorIndexes).length,
@@ -155,7 +163,7 @@ Corrector.prototype = {
                     alternatives[part] = self.ngramProbability(words);
                 } else if (errorIndexLength != 0) {
                     // Contains non-word error.
-                    alternatives = self.createAlternativesNonWord(words, gramClass, errorIndexes);
+                    alternatives = self.createNonWordGram(words, gramClass, errorIndexes);
 
                     // Skipping only applies if there's more part to be checked.
                     if (partIndex < parts.length - 1) {
@@ -184,12 +192,12 @@ Corrector.prototype = {
                     //      gram has more than 2 real word error, only 1 will be corrected
                     //      and not the other, so the correction will fail. Might need to
                     //      reconsider this problem.
-                    alternatives = self.createAlternativesRealWord(words, gramClass);
+                    alternatives = self.createRealWordGram(words, gramClass);
 
                     // In case of no alternative trigram available, we're going to create them by
                     // combining bigrams, or even unigrams.
                     if (Object.keys(alternatives).length == 0 && gramClass != ngramConst.UNIGRAM) {
-                        alternatives = self.createAlternateRealWordGramOfTrigram(words, gramClass);
+                        alternatives = self.alternateNextGram(words, gramClass);
                     }
                 }
             }
@@ -210,7 +218,7 @@ Corrector.prototype = {
         var self         = this,
             errorIndexes = new Object();
 
-        words.forEach(function (word, index) {
+        _.forEach(words, function (word, index) {
             if (!self.isValid(word, ngramConst.UNIGRAM)) {
                 errorIndexes[index] = true;
             }
@@ -237,7 +245,7 @@ Corrector.prototype = {
      * @param  {string} gramClass Current dealt gram's class
      * @return {Object}           New combination of trigram
      */
-    createAlternateRealWordGramOfTrigram: function (words, gramClass) {
+    alternateNextGram: function (words, gramClass) {
         var self         = this,
             alternatives = new Object(),
             collections  = new Array();
@@ -248,8 +256,8 @@ Corrector.prototype = {
                 words.slice(1)
             ];
 
-            subWords.forEach(function (subWord) {
-                var tempResult = self.createAlternativesRealWord(subWord, ngramConst.BIGRAM);
+            _.forEach(subWords, function (subWord) {
+                var tempResult = self.createRealWordGram(subWord, ngramConst.BIGRAM);
 
                 if (Object.keys(tempResult).length > 0) {
                     collections.push(tempResult);
@@ -260,16 +268,16 @@ Corrector.prototype = {
                             subWord.slice(1)
                         ];
 
-                    subSubWords.forEach(function (subSubWord) {
-                        subCollections.push(self.createAlternativesRealWord(subSubWord, ngramConst.UNIGRAM));
+                    _.forEach(subSubWords, function (subSubWord) {
+                        subCollections.push(self.createRealWordGram(subSubWord, ngramConst.UNIGRAM));
                     });
 
                     collections.push(helper.createNgramCombination(subCollections));
                 }
             });
         } else if (gramClass == ngramConst.BIGRAM) {
-            words.forEach(function (word) {
-                collections.push(self.createAlternativesRealWord([word], ngramConst.UNIGRAM));
+            _.forEach(words, function (word) {
+                collections.push(self.createRealWordGram([word], ngramConst.UNIGRAM));
             });
         }
 
@@ -280,7 +288,7 @@ Corrector.prototype = {
         //      'compute trigram probabilities, given only known bigram'
         //      @see http://stackoverflow.com/a/20587491/3190026
         if (alternativeSize == 0 && gramClass == ngramConst.TRIGRAM) {
-            alternatives = this.createAlternateRealWordGramOfTrigram(words, ngramConst.BIGRAM);
+            alternatives = this.alternateNextGram(words, ngramConst.BIGRAM);
         }
 
         return alternatives;
@@ -294,12 +302,12 @@ Corrector.prototype = {
      * @param  {string} gramClass String representation of the n-gram
      * @return {Object}           Valid n-grams with it's probability
      */
-    createAlternativesRealWord: function (words, gramClass) {
+    createRealWordGram: function (words, gramClass) {
         var self        = this,
             wordAlts    = new Array(),
             collections = new Array();
 
-        words.forEach(function (word) {
+        _.forEach(words, function (word) {
             wordAlts.push({
                 [`${word}`]: self.data.unigrams[word]
             });
@@ -310,12 +318,9 @@ Corrector.prototype = {
 
             for (var j = 0; j < words.length; ++j) {
                 if (i == j) {
-                    var suggestions = self.getSuggestions(words[j]);
                     // Include the original word into the 'words similarity' list, as it
                     // might be a solution too.
-                    suggestions[words[j]] = 0;
-
-                    subAlternatives.push(suggestions);
+                    subAlternatives.push(self.getSuggestions(words[j], true));
                 } else {
                     subAlternatives.push(wordAlts[j]);
                 }
@@ -337,15 +342,14 @@ Corrector.prototype = {
      * @param  {number} skipCount    Current skip count
      * @return {Object}              Alternatives gain by combining previous alternatives
      */
-    createAlternateNonWordGramOfTrigram: function (words, gramClass, errorIndexes, prevAltWords, currentSkipCount) {
+    createTrigramFrom: function (words, gramClass, errorIndexes, prevAltWords, currentSkipCount) {
         const MAX_SKIP_COUNT = 2;
 
         var self            = this,
-            collections     = new Array(),
             subAlternatives = new Array(),
             prevAltIndex    = MAX_SKIP_COUNT - (currentSkipCount + 1);
 
-        words.forEach(function (word, wordIndex) {
+        _.forEach(words, function (word, wordIndex) {
             var subWordAlts = new Object();
             subWordAlts[word] = 0;
 
@@ -357,9 +361,10 @@ Corrector.prototype = {
             subAlternatives.push(subWordAlts);
         });
 
-        collections.push(helper.createNgramCombination(subAlternatives));
-
-        return this.filterCollectionsResult(collections, gramClass);
+        return this.filterCollectionsResult(
+            [helper.createNgramCombination(subAlternatives)],
+            gramClass
+        );
     },
 
     /**
@@ -372,13 +377,13 @@ Corrector.prototype = {
      * @param  {Object} errorIndexes Container for indexes of the error word
      * @return {Object}              Valid trigrams with it's probability
      */
-    createAlternativesNonWord: function (words, gramClass, errorIndexes) {
+    createNonWordGram: function (words, gramClass, errorIndexes) {
         var self            = this,
             wordAlts        = new Array(),
             nonErrorIndexes = new Array();
 
-        words.forEach(function (word, index) {
-            if (errorIndexes.hasOwnProperty(index)) {
+        _.forEach(words, function (word, index) {
+            if (_.has(errorIndexes, index)) {
                 // If the current index word is an error, just push
                 // empty string.
                 wordAlts.push('');
@@ -401,8 +406,8 @@ Corrector.prototype = {
             var subAlternatives     = new Array(),
                 incrementCleanIndex = false;
 
-            words.forEach(function (word, index) {
-                if (errorIndexes.hasOwnProperty(index)) {
+            _.forEach(words, function (word, index) {
+                if (_.has(errorIndexes, index)) {
                     // Current index is an error, we need to get suggestion for it.
                     subAlternatives.push(self.getSuggestions(word));
                 } else {
@@ -441,7 +446,7 @@ Corrector.prototype = {
         var self         = this,
             alternatives = new Object();
 
-        collections.forEach(function (collection) {
+        _.forEach(collections, function (collection) {
             for (var combination in collection) {
                 // Only accept valid word combination (exists in n-gram knowledge).
                 if (self.isValid(combination, gramClass)) {
