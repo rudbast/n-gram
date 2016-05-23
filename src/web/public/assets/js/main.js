@@ -46,3 +46,15 @@ $('#sentence').on('input', function () {
         $('#result-wrapper').addClass('hide');
     }
 });
+
+// Listen for keypress in textarea (sentence input) form,
+// submit form if it's ENTER key.
+$("#sentence").on('keypress', function (e) {
+    // Check if the perssed key is enter, keycode 13.
+    if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+        $('#btn-submit').click();
+        return false;
+    } else {
+        return true;
+    }
+});
