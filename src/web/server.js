@@ -59,8 +59,9 @@ app.get('/about', function (request, response) {
 /** Route: try correcting a sentence. */
 app.post('/correct', function (request, response) {
     // TODO: Manage various input symbols, with upper/lower case text.
-    var sentence = request.body.sentence,
-        type     = request.body.type;
+    var sentence = helper.cleanInitial(request.body.sentence),
+        type     = request.body.type,
+        corrections;
 
     switch (type) {
         case 'custom':
@@ -76,16 +77,20 @@ app.post('/correct', function (request, response) {
             break;
     }
 
-    var corrections = corrector.tryCorrect(sentence);
+    corrections = corrector.tryCorrect(sentence);
 
     corrections = helper.mapCorrectionsToCollection(corrections);
     corrections = helper.limitCollection(corrections, RESULT_LIMIT);
 
-    response.send(corrections);
+    response.send({
+        sentence: sentence,
+        corrections: corrections
+    });
 });
 
 app.post('/compare', function (request, response) {
-    var sentence = request.body.sentence;
+    var sentence = helper.cleanInitial(request.body.sentence),
+        result   = new Array();
 
     var correctors = [
         new Corrector(indexer.getInformations(), DISTANCE_LIMIT),
@@ -93,7 +98,6 @@ app.post('/compare', function (request, response) {
         new Verberne(indexer.getInformations(), DISTANCE_LIMIT)
     ];
 
-    var result = new Array();
     correctors.forEach(function (corrector) {
         var corrections, startTime, endTime;
 
@@ -110,7 +114,10 @@ app.post('/compare', function (request, response) {
         });
     });
 
-    response.send(result);
+    response.send({
+        sentence: sentence,
+        comparison: result
+    });
 });
 
 /** Start listening for request. */

@@ -23,6 +23,7 @@ $('#btn-submit').click(function (e) {
             $('#result-wrapper').removeClass('hide');
             // Clean result before adding new ones.
             $('#result-list').empty();
+            // Call customized function of each page.
             formSubmitSuccess(response);
         },
         complete: function () {
@@ -58,3 +59,29 @@ $("#sentence").on('keypress', function (e) {
         return true;
     }
 });
+
+/**
+ * Mark the different word from the given source and target sentence.
+ *
+ * @param  {string} source Source sentence
+ * @param  {string} target Target sentence
+ * @return {string}        Formatted sentence with marked differences
+ */
+function markStringDifference(source, target) {
+    source = source.split(/\s+/);
+    target = target.split(/\s+/);
+
+    var result = '';
+
+    _.forEach(source, function (word, index) {
+        if (index > 0) result += ' ';
+
+        if (source[index] != target[index]) {
+            result += '<span class="correction-word">' + target[index] + '</span>';
+        } else {
+            result += target[index];
+        }
+    });
+
+    return result;
+}

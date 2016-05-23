@@ -16,6 +16,15 @@ main {
     font-style: bold italic;
 }
 
+.list-odd {
+    background-color: #f5f5f5 !important;
+}
+
 .correction-item {
     cursor: pointer;
+    color: #212121;
+}
+
+.correction-word {
+    color: #ff9800;
 }
