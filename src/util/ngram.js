@@ -1,5 +1,7 @@
 'use strict';
 
+var _ = require('lodash');
+
 /**
  * N-gram's constants, used in spelling corrector to represent
  * ngram.
@@ -23,18 +25,48 @@ var NgramConstant = function () {
 var ngramConst = new NgramConstant();
 
 /**
- * Find out what n-gram class of the given word count, represented
- * by a string.
+ * Find out what n-gram class of the given word count of the ngram
+ * or the string representation (return the opposite alternate representation).
  *
- * @param  {number} wordCount Word count
- * @return {string}           String representation of the n-gram
+ * @throws {string} If given identity is not uni/bi/tri-gram's number/string representation
+ * @param  {number|string} wordCount Word count/string representation of ngram
+ * @return {number|string}           String/number representation of the n-gram's class
  */
-function getGramClass(wordCount) {
-    switch (wordCount) {
-        case 1: return ngramConst.UNIGRAM;
-        case 2: return ngramConst.BIGRAM;
-        case 3: return ngramConst.TRIGRAM;
-        default: return 'invalid';
+function getGramClass(identity) {
+    if (_.isNumber(identity)) {
+        switch (identity) {
+            case 1: return ngramConst.UNIGRAM;
+            case 2: return ngramConst.BIGRAM;
+            case 3: return ngramConst.TRIGRAM;
+            default: throw 'Invalid gram give, only accept uni/bi/tri-gram.';
+        }
+    } else {
+        switch (identity) {
+            case ngramConst.UNIGRAM: return 1;
+            case ngramConst.BIGRAM: return 2;
+            case ngramConst.TRIGRAM: return 3;
+            default: throw 'Invalid gram give, only accept uni/bi/tri-gram.';
+        }
+    }
+}
+
+/**
+ * Get the lower gram class of the given gram. Will return 'invalid' if "1/unigrams"
+ * is given, since it's already the lowest one.
+ *
+ * @throws {string} If given identity is not bi/tri-gram's number/string representation
+ * @param  {number|string} identity Word count/string representation of ngram
+ * @return {number|string}          String/number representation of the lower n-gram's class
+ */
+function getLowerGramClass(identity) {
+    if (!_.isNumber(identity)) {
+        identity = getGramClass(identity);
+    }
+
+    switch (identity) {
+        case 2: return ngramConst.UNIGRAM;
+        case 3: return ngramConst.BIGRAM;
+        default: throw 'Invalid gram given, only accept bi/tri-gram.';
     }
 }
 
@@ -152,6 +184,7 @@ function tripleNSplit(text) {
 module.exports = {
     NgramConstant,
     getGramClass,
+    getLowerGramClass,
     uniSplit,
     biSplit,
     triSplit,
