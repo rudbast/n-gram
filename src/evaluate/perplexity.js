@@ -18,7 +18,7 @@ var Indexer   = require(__dirname + '/../main/Indexer.js'),
 var ngramConst = new ngramUtil.NgramConstant();
 
 const DEFAULT_INDEX_DIR    = __dirname + '/../../out/ngrams',
-      DEFAULT_ARTICLE_FILE = __dirname + '/../../res/eval/article.json';
+      DEFAULT_ARTICLE_FILE = __dirname + '/../../res/eval/perplexity.json';
 
 // Main.
 main(process.argv.slice(2));

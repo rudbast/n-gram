@@ -1,0 +1,452 @@
+[
+    {
+        "id": 1,
+        "correct": "Rata-rata luka lebar 3 cm",
+        "error": {
+            "non": "Rata-rat luka lebar 3 cm",
+            "real": "Rata-rata luka lebari 3 cm",
+            "both": "Rata-rat luka lebari 3 cm"
+        }
+    },
+    {
+        "id": 2,
+        "correct": "keterangan beberapa orang saksi bahwa 15 menit sebelum kedua perempuan tersebut ditemukan tewas mengenaskan, beberapa warga sempat melihat keduanya dibonceng oleh lelaki yang berambut cepak dan berbadan tegap",
+        "error": {
+            "non": "keterangan bebrapa orang saksi bahwa 15 menit sebelum kedua perempuan tersebut ditemukan tewas mengenaskan, beberapa warga sempat menlihat keduanya dibonceng oleh lelaki yang berambut cepak dan berbadan tegap",
+            "real": "keterangan beberapa orang seksi bahwa 15 menit sebelum kedua perempuan tersebut ditemukan tewas mengenaskan, beberapa waria sempat melihat keduanya dibonceng oleh lelaki yang berambut cepak dan berbadan tegap",
+            "both": "keterangan bebrapa orang seksi bahwa 15 menit sebelum kedua perempuan tersebut ditemukan tewas mengenaskan, beberapa waria sempat menlihat keduanya dibonceng oleh lelaki yang berambut cepak dan berbadan tegap"
+        }
+    },
+    {
+        "id": 3,
+        "correct": "Dalam kesempatan tersebut",
+        "error": {
+            "non": "Dalm kesempatan tersebut",
+            "real": "Dalam kesempitan tersebut",
+            "both": "Dalm kesempitan tersebut"
+        }
+    },
+    {
+        "id": 4,
+        "correct": "Alasannya karena perusahaan pemilik kapal asal Taiwan",
+        "error": {
+            "non": "Alasannya karena perusahaan pemilik kapal asal Tawan",
+            "real": "Alasannya karena perusahaan pemilik kepal asal Taiwan",
+            "both": "Alasannya karena perusahaan pemilik kepal asal Tawan"
+        }
+    },
+    {
+        "id": 5,
+        "correct": "Namun nahas, sekoci kemudian jatuh dan terbalik",
+        "error": {
+            "non": "Namun nahas, sekoci kemudian jatuh dan erbalik",
+            "real": "Namun nafas, sekoci kemudian jauh dan terbalik",
+            "both": "Namun nahas, sekoci kemudian jauh dan erbalik"
+        }
+    },
+    {
+        "id": 6,
+        "correct": "Ani Yudhoyono kembali mengunjungi Rumah Sakit Pondok Indah untuk menengok cucu keduanya yang baru lahir",
+        "error": {
+            "non": "Ani Yudhoyono kembli mengunjungi Rumah Sakit Pondok Indah untuk menengok cucu keduanya yang baru lahir",
+            "real": "Ani Yudhoyono kembali mengunjungi Rumah Sakti Pondok Indah untuk menengok cucu keduanya yang bau lahir",
+            "both": "Ani Yudhoyono kembli mengunjungi Rumah Sakti Pondok Indah untuk menengok cucu keduanya yang bau lahir"
+        }
+    },
+    {
+        "id": 7,
+        "correct": "Ibu Negara yang mengenakan batik coklat itu datang sendiri",
+        "error": {
+            "non": "Ibu Negra yang mengenakan batik coklat itu datng sendiri",
+            "real": "Ibu Negara yang mengenakan batok coklat itu datang sendiri",
+            "both": "Ibu Negra yang mengenakan batok coklat itu datng sendiri"
+        }
+    },
+    {
+        "id": 8,
+        "correct": "Salah satunya dengan menjaga kecepatan jalan kaki",
+        "error": {
+            "non": "Salah satuny dengan menjaga kecepatan jalan kaki",
+            "real": "Salah satunya dengan menjaga kecepatan jalan kaku",
+            "both": "Salah satuny dengan menjaga kecepatan jalan kaku"
+        }
+    },
+    {
+        "id": 9,
+        "correct": "Api berasal dari kamar tidur",
+        "error": {
+            "non": "Api beraasl dari kamar tidur",
+            "real": "Api berasal dasi kamar tidur",
+            "both": "Api beraasl dasi kamar tidur"
+        }
+    },
+    {
+        "id": 10,
+        "correct": "Dari pojok ruangan, merembet ke ruang Hakim Agung Hamdan",
+        "error": {
+            "non": "Dari pojok ruangan, merembet ke rang Hakim Agung Hamdan",
+            "real": "Duri pojok ruangan, merembet ke ruang Hakim Agung Hamdan",
+            "both": "Duri pojok ruangan, merembet ke rang Hakim Agung Hamdan"
+        }
+    },
+    {
+        "id": 11,
+        "correct": "Kebakaran Melanda Gedung MA",
+        "error": {
+            "non": "Kebakaran Melanda Gedung MA",
+            "real": "Kebkaran Melanda Gadung MA",
+            "both": "Kebkaran Melanda Gadung MA"
+        }
+    },
+    {
+        "id": 12,
+        "correct": "Tokek Asia Tenggara Terancam Punah",
+        "error": {
+            "non": "Tokek Asia Tengara Terancam Punah",
+            "real": "Tokek Asia Tenggara Terancam Panah",
+            "both": "Tokek Asia Tengara Terancam Panah"
+        }
+    },
+    {
+        "id": 13,
+        "correct": "dapat disebut film kolosal",
+        "error": {
+            "non": "dapat disebut film koolsal",
+            "real": "rapat disebut film koolsal",
+            "both": "rapat disebut film koolsal"
+        }
+    },
+    {
+        "id": 14,
+        "correct": "Sutradara perempuan Arab meraih penghargaan",
+        "error": {
+            "non": "Sutradara perempuan Arab meraih penghargaan",
+            "real": "Sutraara perempuan Arab meraib penghargaan",
+            "both": "Sutraara perempuan Arab meraib penghargaan"
+        }
+    },
+    {
+        "id": 15,
+        "correct": "Situs porno bawa ancaman virus",
+        "error": {
+            "non": "Stus porno bawa ancaman virus",
+            "real": "Situs parno bawa ancaman virus",
+            "both": "Stus parno bawa ancaman virus"
+        }
+    },
+    {
+        "id": 16,
+        "correct": "ada beberapa pengendara motor yang bekerja sama mengangkat motor untuk dipindahkan dari jalur transjakarta ke jalur reguler",
+        "error": {
+            "non": "ada bbrapa pengendara motor yang bekerja sama mengangkat motor untuk dipindahkan dari jalur transjakarta ke jalur reguler",
+            "real": "ada beberapa pengendara motor uang bekerja sama mengangkat motor untuk dipindahkan dari jalur transjakarta ke jalur reguler",
+            "both": "ada bbrapa pengendara motor uang bekerja sama mengangkat motor untuk dipindahkan dari jalur transjakarta ke jalur reguler"
+        }
+    },
+    {
+        "id": 17,
+        "correct": "Lebih pada sosialisasi kartu apa saja yang bisa dilihat",
+        "error": {
+            "non": "Lebih paad sosialisasi kartu apa saja yang bisa dilihat",
+            "real": "Lebih pada sosialisasi kartun apa saja yang bisa dilihat",
+            "both": "Lebih paad sosialisasi kartun apa saja yang bisa dilihat"
+        }
+    },
+    {
+        "id": 18,
+        "correct": "Kecelakaan Kapal Paling Mengerikan di Dunia",
+        "error": {
+            "non": "Kecelakan Kapal Paling Mengerikan di Dunia",
+            "real": "Kecelakaan Kapal Palang Mengerikan di Dunia",
+            "both": "Kecelakan Kapal Palang Mengerikan di Dunia"
+        }
+    },
+    {
+        "id": 19,
+        "correct": "Data korban yang meninggal hingga saat ini 7 orang",
+        "error": {
+            "non": "Data korban yang meninggal hinga saat ini 7 orang",
+            "real": "Data kurban yang meninggal hingga saat ini 7 orang",
+            "both": "Data kurban yang meninggal hinga saat ini 7 orang"
+        }
+    },
+    {
+        "id": 20,
+        "correct": "Posisi KM Bahuga Jaya Ditemukan di Kedalaman 76 Meter",
+        "error": {
+            "non": "Posisi KM Bahuga Jaya Ditemukan dfi Kedalaman 76 Meter",
+            "real": "Posisi KM Bahuga Jaya Ditemukan di Kedalaman 76 Meteor",
+            "both": "Posisi KM Bahuga Jaya Ditemukan dfi Kedalaman 76 Meteor"
+        }
+    },
+    {
+        "id": 21,
+        "correct": "Pondok Gede adalah sebuah kecamatan di Kota Bekasi",
+        "error": {
+            "non": "Pondok Gedek adalah sebuah kecamatan di Kota Bekasi",
+            "real": "Pondok Gede adalah sebuah kecamatan di Kuta Bekasi",
+            "both": "Pondok Gedek adalah sebuah kecamatan di Kuta Bekasi"
+        }
+    },
+    {
+        "id": 22,
+        "correct": "Manusia yang baik, adalah manusia yang tidak pernah lupa akan sosok yang telah membuatnya menjadi baik",
+        "error": {
+            "non": "Manusia yang baik, adalah manusia yang tidakk pernah lupa akan sosok yang telah membuatnya menjadi baik",
+            "real": "Manusia yang baik, adalah manusia yang tidak pernah lupa akan sosok yang telah membuatnya menjadi balik",
+            "both": "Manusia yang baik, adalah manusia yang tidak pernah lupa akan sosok yang telah membuatnya menjadi balik"
+        }
+    },
+    {
+        "id": 23,
+        "correct": "Meninggal saat di perjalanan ke rumah sakit",
+        "error": {
+            "non": "Meninggal sata di perjalanan ke rumah sakit",
+            "real": "Meninggal saat di perjalanan ke rumah sakti",
+            "both": "Meninggal sata di perjalanan ke rumah sakti"
+        }
+    },
+    {
+        "id": 24,
+        "correct": "Diduga kepalanya dihantam dengan batu",
+        "error": {
+            "non": "Diduga kepalanya dihantem dengan batu",
+            "real": "Diduga kepalanya dihantam dengan batuk",
+            "both": "Diduga kepalanya dihantem dengan batuk"
+        }
+    },
+    {
+        "id": 25,
+        "correct": "Dipenuhinya hak-haknya sesuai dengan Undang-undang",
+        "error": {
+            "non": "Dipenuhinya hak-haknya sesuai dengan Udang-udang",
+            "real": "Dipenuhinya hak-haknya seusai dengan Udang-udang",
+            "both": "Dipenuhinya hak-haknya seusai dengan Udang-udang"
+        }
+    },
+    {
+        "id": 26,
+        "correct": "dua orang terdakwa dalam kasus korupsi tersebut yakni",
+        "error": {
+            "non": "dua orang terdakwa dalam kaskus korupsi tersebut yakni",
+            "real": "dia orang terdakwa dalam kasus korupsi tersebut yakni",
+            "both": "dia orang terdakwa dalam kaskus korupsi tersebut yakni"
+        }
+    },
+    {
+        "id": 27,
+        "correct": "Ada dua kantong mayat yang ditunjukkan oleh petugas",
+        "error": {
+            "non": "Ada dua kantong mayat yang ditunjukkan oleh ptugas",
+            "real": "Ada dua kantong ayat yang ditunjukkan oleh petugas",
+            "both": "Ada dua kantong ayat yang ditunjukkan oleh ptugas"
+        }
+    },
+    {
+        "id": 28,
+        "correct": "katanya",
+        "error": {
+            "non": "ktanya",
+            "real": "katana",
+            "both": "katana"
+        }
+    },
+    {
+        "id": 29,
+        "correct": "Keduanya akhirnya mengaku dikendalikan oleh seorang narapidana, berinisial K, di Lapas Krobokan, Bali",
+        "error": {
+            "non": "Keduany akhirnya mengaku dikendalikan oleh seorang narapidana, berinisial K, di Lapas Krobokan, Bali",
+            "real": "Keduanya akhirnya mengaku dikendalikan boleh seorang narapidana, berinisial K, di Lapas Krobokan, Bali",
+            "both": "Keduany akhirnya mengaku dikendalikan boleh seorang narapidana, berinisial K, di Lapas Krobokan, Bali"
+        }
+    },
+    {
+        "id": 30,
+        "correct": "Akhirnya saling diberi pengetahuan melakukan pidana yang lebih canggih",
+        "error": {
+            "non": "Akhirnya saling diberi pengetahuan melakukan pirdana yang lebih canggih",
+            "real": "Akhirnya saing diberi pengetahuan melakukan pidana yang lebih canggih",
+            "both": "Akhirnya saing diberi pengetahuan melakukan pirdana yang lebih canggih"
+        }
+    },
+    {
+        "id": 31,
+        "correct": "Ini penyalahgunaan senjata, ada unsur kelalaian",
+        "error": {
+            "non": "Inih penyalahgunaan senjata, ada unsur kelalaian",
+            "real": "Ini penyalahgunaan senjata, pada unsur kelalaian",
+            "both": "Inih penyalahgunaan senjata, pada unsur kelalaian"
+        }
+    },
+    {
+        "id": 32,
+        "correct": "Senjata itu seperti ada setannya, jadi kena sial",
+        "error": {
+            "non": "Senjata itu seperti ada setannya, jaadi kena sial",
+            "real": "Senjata situ seperti ada setannya, jadi kena sial",
+            "both": "Senjata situ seperti ada setannya, jaadi kena sial"
+        }
+    },
+    {
+        "id": 33,
+        "correct": "Jangan Abaikan Dampak Psikologis Lagu Dewasa Pada Anak",
+        "error": {
+            "non": "Jangan Abaikan Dampak Psikologis Lagu Dewasa Pada nak",
+            "real": "Jangan Abdikan Dampak Psikologis Lagu Dewasa Pada Anak",
+            "both": "Jangan Abdikan Dampak Psikologis Lagu Dewasa Pada nak"
+        }
+    },
+    {
+        "id": 34,
+        "correct": "Tanpa pendampingan orang tuanya, anak-anak akan mencari tahu arti lirik lagu yang mereka dengar",
+        "error": {
+            "non": "Tanpaa pendampingan orang tuanya, anak-anak akan mencari tahu arti lirik lagu yang mereka dengar",
+            "real": "Tanpa pendampingan orang tuanya, anak-anak akan mencuri tahu arti lirik lagu yang mereka dengar",
+            "both": "Tanpaa pendampingan orang tuanya, anak-anak akan mencuri tahu arti lirik lagu yang mereka dengar"
+        }
+    },
+    {
+        "id": 35,
+        "correct": "Tutur kata dan moralitas itu nantinya akan jadi kepribadian anak",
+        "error": {
+            "non": "Tutur kata dan moralitas itu naninya akan jadi kepribadian anak",
+            "real": "Tutur mata dan moralitas itu nantinya akan jadi kepribadian anak",
+            "both": "Tutur mata dan moralitas itu naninya akan jadi kepribadian anak"
+        }
+    },
+    {
+        "id": 36,
+        "correct": "Mungkin ini bisa diadopsi",
+        "error": {
+            "non": "Mugkin ini bisa diadopsi",
+            "real": "Mungkin ini basa diadopsi",
+            "both": "Mugkin ini basa diadopsi"
+        }
+    },
+    {
+        "id": 37,
+        "correct": "Bandar Narkoba Ditangkap di Lapas Tanjung Gusta Medan",
+        "error": {
+            "non": "andar Narkoba Ditangkap di Lapas Tanjung Gusta Medan",
+            "real": "Bandar Narkoba Ditangkap di Lepas Tanjung Gusta Medan",
+            "both": "andar Narkoba Ditangkap di Lepas Tanjung Gusta Medan"
+        }
+    },
+    {
+        "id": 38,
+        "correct": "Warga Pondok Aren Dikejutkan Penemuan Bayi Perempuan",
+        "error": {
+            "non": "Warga Pondok Aren Dikejutkan Penemuan Bayi Perempumn",
+            "real": "Harga Pondok Aren Dikejutkan Penemuan Bayi Perempuan",
+            "both": "Harga Pondok Aren Dikejutkan Penemuan Bayi Perempumn"
+        }
+    },
+    {
+        "id": 39,
+        "correct": "Kemungkinan ini korban aborsi yang tidak dikehendaki oleh orangtuanya",
+        "error": {
+            "non": "Kemungkinan ini korban aborsi yang tidak dikehendaki oleh oangtuanya",
+            "real": "Kemungkinan ini kurban aborsi yang tidak dikehendaki oleh orangtuanya",
+            "both": "Kemungkinan ini kurban aborsi yang tidak dikehendaki oleh oangtuanya"
+        }
+    },
+    {
+        "id": 40,
+        "correct": "itu salah kaprah",
+        "error": {
+            "non": "itu salah kparah",
+            "real": "situ salah kaprah",
+            "both": "situ salah kparah"
+        }
+    },
+    {
+        "id": 41,
+        "correct": "Tadi saya sudah ketemu Kapolda, untuk cari solusi terbaik",
+        "error": {
+            "non": "Tadi saya sudah ketemu Kapolda, untuk cari solusii terbaik",
+            "real": "Tadi saya mudah ketemu Kapolda, untuk cari solusi terbaik",
+            "both": "Tadi saya mudah ketemu Kapolda, untuk cari solusii terbaik"
+        }
+    },
+    {
+        "id": 42,
+        "correct": "Mereka ditangkap lantaran melakukan aksi unjuk rasa anarkis",
+        "error": {
+            "non": "Mereka ditangkap lantran melakukan aksi unjuk rasa anarkis",
+            "real": "Mereka ditangkap lantaran melakukan aksi tunjuk rasa anarkis",
+            "both": "Mereka ditangkap lantran melakukan aksi tunjuk rasa anarkis"
+        }
+    },
+    {
+        "id": 43,
+        "correct": "Dia mungkin dengan mudah mengalahkan saya dalam sepak bola",
+        "error": {
+            "non": "Dia mungkin dengan mudah mengalahkan saya dalam aepak bola",
+            "real": "Dia mungkin dengan ludah mengalahkan saya dalam sepak bola",
+            "both": "Dia mungkin dengan ludah mengalahkan saya dalam aepak bola"
+        }
+    },
+    {
+        "id": 44,
+        "correct": "Kejar Burung Peliharaan, Fandi Tewas Terjatuh",
+        "error": {
+            "non": "Kejar Burung Pelharaan, Fandi Tewas Terjatuh",
+            "real": "Kejar Burung Peliharaan, Fandi Tewas Terjauh",
+            "both": "Kejar Burung Pelharaan, Fandi Tewas Terjauh"
+        }
+    },
+    {
+        "id": 45,
+        "correct": "Alwi mengaku, awalnya dia hanya sekadar coba-coba untuk melakukan kejahatan",
+        "error": {
+            "non": "Alwi mengaku, awalnay dia hanya sekadar coba-coba untuk melakukan kejahatan",
+            "real": "Alwi mengaku, awalnya dia tanya sekadar coba-coba untuk melakukan kejahatan",
+            "both": "Alwi mengaku, awalnay dia tanya sekadar coba-coba untuk melakukan kejahatan"
+        }
+    },
+    {
+        "id": 46,
+        "correct": "Kami mengutuk keras tindakan brutal yang telah menewaskan delapan prajurit dan empat warga sipil di Papua, kami ucapkan belasungkawa",
+        "error": {
+            "non": "Kami mengutuk keras tindakan bretal yang telah menewaskan delapan prajurit dan empat warga sipil di Papua, kami ucapkan belasungkawa",
+            "real": "Kami mengutuk keras tindakan brutal yang telah menewaskan delapan prajurit dan empati warga sipil di Papua, kami ucapkan belasungkawa",
+            "both": "Kami mengutuk keras tindakan bretal yang telah menewaskan delapan prajurit dan empati warga sipil di Papua, kami ucapkan belasungkawa"
+        }
+    },
+    {
+        "id": 47,
+        "correct": "Bom Rakitan yang Belum Meledak Dibawa Brimob dari Lokasi Ledakan",
+        "error": {
+            "non": "Bom Rakitn yang Belum Meledak Dibawa Brimob dari Lokasi Ledakan",
+            "real": "Bom Rakitan yang Belum Meledak Dibawa Brimob dasi Lokasi Ledakan",
+            "both": "Bom Rakitn yang Belum Meledak Dibawa Brimob dasi Lokasi Ledakan"
+        }
+    },
+    {
+        "id": 48,
+        "correct": "Tjin adalah seorang pengangguran yang bermasalah dengan istrinya",
+        "error": {
+            "non": "Tjin adalah seorang pengangguran yang bermasalha dengan istrinya",
+            "real": "Tjin adalah serang pengangguran yang bermasalah dengan istrinya",
+            "both": "Tjin adalah serang pengangguran yang bermasalha dengan istrinya"
+        }
+    },
+    {
+        "id": 49,
+        "correct": "Dia hanya mengakui bahwa ekstasi itu miliknya dan hanya akan dikonsumsi sendiri",
+        "error": {
+            "non": "Dia hanya mengakui bahwa ekstasi itu imliknya dan hanya akan dikonsumsi sendiri",
+            "real": "Dia hanya mengakui bahwa ekstasi itu miliknya dan tanya akan dikonsumsi sendiri",
+            "both": "Dia hanya mengakui bahwa ekstasi itu imliknya dan tanya akan dikonsumsi sendiri"
+        }
+    },
+    {
+        "id": 50,
+        "correct": "Mobil tersebut dibeli dari hasil penjualan narkoba",
+        "error": {
+            "non": "Mobil tersebut dibeli dari hasil penjualan narokba",
+            "real": "Mobil terebut dibeli dari hasil penjualan narkoba",
+            "both": "Mobil terebut dibeli dari hasil penjualan narokba"
+        }
+    }
+]
