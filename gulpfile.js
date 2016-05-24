@@ -132,8 +132,25 @@ gulp.task('default', function () {
 //          gulp replacedata --dir 5k
 gulp.task('replacedata', function () {
     var dir     = argv.dir,
-        dataDir = 'out/backup/' + dir + '/**/*';
+        dataDir = 'out/backup/' + dir + '/**/*',
+        destDir = 'out';
 
     return gulp.src(dataDir)
-        .pipe(gulp.dest('out'));
+        .pipe(gulp.dest(destDir));
+});
+
+// Custom task to backup current data. Uses param.
+// example: gulp replacedata --dir 1k
+//          gulp replacedata --dir 5k
+gulp.task('backupdata', function () {
+    var dir     = argv.dir,
+        dataDir = [
+            'out/ngrams/**/*',
+            'out/similars.json',
+            'out/trie.json'
+        ],
+        destDir = 'out/backup/' + dir;
+
+    return gulp.src(dataDir, {base: './out/'})
+        .pipe(gulp.dest(destDir));
 });
