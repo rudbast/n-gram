@@ -440,6 +440,46 @@ Indexer.prototype = {
      */
     saveTrie: function (file, callback) {
         this.vocabularies.save(file, callback);
+    },
+
+    /**
+     * Load all informations (indexes, trie, word similarities).
+     *
+     * @param {string}   indexDir       Word indexes's directory path
+     * @param {string}   trieFile       Trie's file path
+     * @param {string}   similarityFile Word similarities' file path
+     * @param {Function} [callback]     Callback function
+     */
+    loadInformations: function (indexDir, trieFile, similarityFile, callback) {
+        var self = this;
+
+        self.loadIndex(indexDir, function () {
+            self.loadTrie(trieFile, function () {
+                self.loadSimilarities(similarityFile, function () {
+                    if (_.isFunction(callback)) callback();
+                });
+            });
+        });
+    },
+
+    /**
+     * Save all informations (indexes, trie, word similarities).
+     *
+     * @param {string}   indexDir       Word indexes's directory path
+     * @param {string}   trieFile       Trie's file path
+     * @param {string}   similarityFile Word similarities' file path
+     * @param {Function} [callback]     Callback function
+     */
+    saveInformations: function (indexDir, trieFile, similarityFile, callback) {
+        var self = this;
+
+        self.saveIndex(indexDir, function () {
+            self.saveTrie(trieFile, function () {
+                self.saveSimilarities(similarityFile, function () {
+                    if (_.isFunction(callback)) callback();
+                });
+            });
+        });
     }
 };
 

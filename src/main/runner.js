@@ -117,12 +117,8 @@ function waitForCommandInput(indexer) {
                         break;
 
                     case 'all':
-                        indexer.loadIndex(indexDir, function () {
-                            indexer.loadTrie(trieFile, function () {
-                                indexer.loadSimilarities(similarityFile, function () {
-                                    notifyAndPrintConsole('All informations loaded');
-                                });
-                            });
+                        indexer.loadInformations(indexDir, trieFile, similarityFile, function () {
+                            notifyAndPrintConsole('All informations loaded');
                         });
                         break;
                 }
@@ -173,12 +169,8 @@ function waitForCommandInput(indexer) {
                         break;
 
                     case 'all':
-                        indexer.saveIndex(indexDir, function () {
-                            indexer.saveTrie(trieFile, function () {
-                                indexer.saveSimilarities(similarityFile, function () {
-                                    notifyAndPrintConsole('All informations saved');
-                                });
-                            });
+                        indexer.saveInformations(indexDir, trieFile, similarityFile, function () {
+                            notifyAndPrintConsole('All informations saved');
                         });
                         break;
                 }
