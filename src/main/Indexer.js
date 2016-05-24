@@ -69,8 +69,10 @@ Indexer.prototype = {
      * Build vocabularies (trie) information from words index.
      */
     buildTrie: function () {
-        for (var word in this.data[ngramConst.UNIGRAM]) {
-            this.vocabularies.insert(word);
+        for (let word in this.data[ngramConst.UNIGRAM]) {
+            if (word.indexOf(ngramConst.TOKEN_NUMBER) == -1) {
+                this.vocabularies.insert(word);
+            }
         }
     },
 
@@ -214,14 +216,14 @@ Indexer.prototype = {
             }
 
             parts.forEach(function (part) {
-                // NOTE: The use of language detector is still in debatable, use it on
-                //      sentence level ? or on word level ? or 'part' level ?
-                // Detect current sentence's part's language.
-                var language = languageDetector.detect(part, 1);
-                // If it's not indonesian, we'll exempt it from being indexed.
-                if (!_.isUndefined(language[0])) {
-                    if (language[0][0] != 'indonesian') return;
-                }
+                // // NOTE: The use of language detector is still in debatable, use it on
+                // //      sentence level ? or on word level ? or 'part' level ?
+                // // Detect current sentence's part's language.
+                // var language = languageDetector.detect(part, 1);
+                // // If it's not indonesian, we'll exempt it from being indexed.
+                // if (!_.isUndefined(language[0])) {
+                //     if (language[0][0] != 'indonesian') return;
+                // }
 
                 // Remove spaces at the start / end of text.
                 part = part.replace(/^\s+|\s+$/g, '');
@@ -230,7 +232,7 @@ Indexer.prototype = {
                 if (part != '') {
                     var newGrams = ngramUtil.tripleNSplit(part);
 
-                    for (var gram in newGrams) {
+                    for (let gram in newGrams) {
                         newGrams[gram].forEach(function (word) {
                             if (!ngrams[gram][word]) {
                                 ngrams[gram][word] = 1;
@@ -270,8 +272,8 @@ Indexer.prototype = {
                     progressBar.tick();
 
                     // Update n-gram information from newly acquired data.
-                    for (var gram in indexResultData) {
-                        for (var word in indexResultData[gram]) {
+                    for (let gram in indexResultData) {
+                        for (let word in indexResultData[gram]) {
                             if (!self.data[gram][word]) {
                                 self.data[gram][word] = 1;
                             } else {
@@ -325,7 +327,7 @@ Indexer.prototype = {
      */
     printDataInformation: function () {
         console.log(':: N-Gram Information ::');
-        for (var gram in this.data) {
+        for (let gram in this.data) {
             console.log(`${gram}: ${this.size[gram]}`);
         }
     },
@@ -339,7 +341,7 @@ Indexer.prototype = {
     saveIndex: function (directory, callback) {
         var insertCount = Object.keys(this.data).length;
 
-        for (var ngram in this.data) {
+        for (let ngram in this.data) {
             // Save to file system.
             jsFile.writeFile(`${directory}/${ngram}.json`, this.data[ngram], {spaces: 4}, function (err) {
                 assert.equal(err, null);
@@ -364,8 +366,13 @@ Indexer.prototype = {
                 total: this.size[ngramConst.UNIGRAM]
             });
 
-        for (var word in this.data[ngramConst.UNIGRAM]) {
-            this.similars[word] = this.vocabularies.findWordsWithinLimit(word, this.distanceLimit);
+        for (let word in this.data[ngramConst.UNIGRAM]) {
+            if (word.indexOf(ngramConst.TOKEN_NUMBER) == -1) {
+                // Levenshtein.
+                this.similars[word] = this.vocabularies.findWordsWithinLimit(word, this.distanceLimit);
+                // Optimal damerau-levensthein.
+                // this.similars[word] = this.vocabularies.findWordsWithinLimitDamLev(word, this.distanceLimit);
+            }
             progressBar.tick();
         }
 
@@ -406,10 +413,10 @@ Indexer.prototype = {
      * ngram's index size (unique count).
      */
     setIndexCountAndSize: function () {
-        for (var gram in this.data) {
+        for (let gram in this.data) {
             this.size[gram] = Object.keys(this.data[gram]).length;
 
-            for (var word in this.data[gram]) {
+            for (let word in this.data[gram]) {
                 this.count[gram] += this.data[gram][word];
             }
         }

@@ -7,14 +7,17 @@ var _ = require('lodash');
  * ngram.
  *
  * @constructor
- * @property {string} UNIGRAM Unigram's string repsenentation
- * @property {string} BIGRAM  Bigram's string repsenentation
- * @property {string} TRIGRAM Trigram's string repsenentation
+ * @property {string} UNIGRAM      Unigram's string repsenentation
+ * @property {string} BIGRAM       Bigram's string repsenentation
+ * @property {string} TRIGRAM      Trigram's string repsenentation
+ * @property {string} TOKEN_NUMBER Number token's string representation
  */
 var NgramConstant = function () {
     this.UNIGRAM = 'unigrams';
     this.BIGRAM  = 'bigrams';
     this.TRIGRAM = 'trigrams';
+
+    this.TOKEN_NUMBER  = '<number>';
 };
 
 /**
