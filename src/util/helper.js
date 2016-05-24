@@ -262,9 +262,31 @@ function limitCollection(corrections, limit) {
     const DEFAULT_LIMIT = 25;
     limit = _.isUndefined(limit) ? DEFAULT_LIMIT : limit;
 
-    return _.chain(corrections)
-        .slice(0, limit)
-        .value();
+    return _.slice(corrections, 0, limit)
+}
+
+/**
+ * Extract all the digits from a string.
+ *
+ * @param  {string} content Content to be extracted
+ * @return {Array}          List of extracted digits
+ */
+function getDigits(content) {
+    return content.match(/(\d+(\.\d+)?)/g);
+}
+
+/**
+ * Map (replace) back the digits in a sentence.
+ *
+ * @param  {string} content String resulting from digits extraction
+ * @param  {Array}  digits  Extracted digits from a sentence
+ * @return {string}         String with the digits mapped back
+ */
+function mapBackDigits(content, digits) {
+    digits.forEach(function (digit) {
+        content = content.replace(ngramConst.TOKEN_NUMBER, digit);
+    });
+    return content;
 }
 
 module.exports = {
@@ -278,5 +300,7 @@ module.exports = {
     mapCorrectionsToCollection,
     notify,
     splitToSentence,
-    subsetNgramOf
+    subsetNgramOf,
+    getDigits,
+    mapBackDigits
 };

@@ -58,10 +58,8 @@ app.get('/about', function (request, response) {
 
 /** Route: try correcting a sentence. */
 app.post('/correct', function (request, response) {
-    // TODO: Manage various input symbols, with upper/lower case text.
-    var sentence = helper.cleanInitial(request.body.sentence),
-        type     = request.body.type,
-        corrections;
+    var sentence = request.body.sentence,
+        type     = request.body.type;
 
     switch (type) {
         case 'custom':
@@ -77,10 +75,23 @@ app.post('/correct', function (request, response) {
             break;
     }
 
-    corrections = corrector.tryCorrect(sentence);
+    var digits, corrections;
 
+    digits   = helper.getDigits(sentence);
+    sentence = helper.cleanInitial(sentence);
+
+    corrections = corrector.tryCorrect(sentence);
     corrections = helper.mapCorrectionsToCollection(corrections);
     corrections = helper.limitCollection(corrections, RESULT_LIMIT);
+
+    // If digits exists, we'll map back the original value to the corrections.
+    if (!_.isNull(digits)) {
+        sentence    = helper.mapBackDigits(sentence, digits);
+        corrections = _.map(corrections, function (correction) {
+            correction.sentence = helper.mapBackDigits(correction.sentence, digits);
+            return correction;
+        });
+    }
 
     response.send({
         sentence: sentence,
@@ -89,7 +100,7 @@ app.post('/correct', function (request, response) {
 });
 
 app.post('/compare', function (request, response) {
-    var sentence = helper.cleanInitial(request.body.sentence),
+    var sentence = request.body.sentence,
         result   = new Array();
 
     var correctors = [
@@ -97,6 +108,11 @@ app.post('/compare', function (request, response) {
         new Setiadi(indexer.getInformations(), DISTANCE_LIMIT),
         new Verberne(indexer.getInformations(), DISTANCE_LIMIT)
     ];
+
+    var digits, corrections;
+
+    digits   = helper.getDigits(sentence);
+    sentence = helper.cleanInitial(sentence);
 
     correctors.forEach(function (corrector) {
         var corrections, startTime, endTime;
@@ -108,11 +124,24 @@ app.post('/compare', function (request, response) {
         corrections = helper.mapCorrectionsToCollection(corrections);
         corrections = helper.limitCollection(corrections, RESULT_LIMIT);
 
+        // If digits exists, we'll map back the original value to the corrections.
+        if (!_.isNull(digits)) {
+            corrections = _.map(corrections, function (correction) {
+                correction.sentence = helper.mapBackDigits(correction.sentence, digits);
+                return correction;
+            });
+        }
+
         result.push({
             corrections: corrections,
             time: endTime - startTime
         });
     });
+
+    // If digits exists, we'll map back the original value to the corrections.
+    if (!_.isNull(digits)) {
+        sentence = helper.mapBackDigits(sentence, digits);
+    }
 
     response.send({
         sentence: sentence,
