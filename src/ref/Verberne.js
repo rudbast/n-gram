@@ -39,15 +39,7 @@ Verberne.prototype = {
             gramClass = ngramUtil.getGramClass(ngramUtil.uniSplit(gram).length);
         }
 
-        if (gramClass == ngramConst.UNIGRAM) {
-            for (var dictGram in this.data[gramClass]) {
-                if (dictGram == gram) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        return this.data[gramClass].hasOwnProperty(gram);
+        return _.has(this.data[gramClass], gram);
     },
 
     /**
@@ -67,35 +59,60 @@ Verberne.prototype = {
      * @return {Object}          List of suggestions (if error exists)
      */
     tryCorrect: function (sentence) {
-        var self = this;
+        var self        = this,
+            suggestions = new Object(),
+            subParts    = sentence.split(',');
 
-        var corrections = new Array(),
-            parts       = ngramUtil.triSplit(sentence);
+        subParts.forEach(function (subPart) {
+            subPart = helper.cleanExtra(subPart);
+            subPart = ngramUtil.triSplit(subPart);
+
+            suggestions = helper.createNgramCombination(
+                [suggestions, self.doCorrect(subPart)],
+                'plus',
+                'join'
+            );
+        });
+
+        return suggestions;
+    },
+
+    /**
+     * Main correction's logic.
+     *
+     * @param  {Array}  parts Ngram split word
+     * @return {Object}       Correction results in a form of hash/dictionary
+     */
+    doCorrect: function (parts) {
+        var self        = this,
+            corrections = new Object();
 
         parts.forEach(function (part) {
             var words            = ngramUtil.uniSplit(part),
                 errorIndexes     = self.detectNonWord(words),
-                errorIndexLength = Object.keys(errorIndexes).length,
+                errorIndexLength = _.keys(errorIndexes).length,
                 isValidTrigram   = self.detectRealWord(part),
                 alternatives     = new Object();
 
-            if (errorIndexLength == 0 && isValidTrigram) {
-                // Contains no error.
-                alternatives[part] = self.data.trigrams[part];
-            } else if (errorIndexLength != 0) {
-                // Since verberne's spelling corrector only correct real word error,
-                // we'll push the original ones in if it contains non-word error.
-                alternatives[part] = 0;
-            } else if (!isValidTrigram) {
+            if (!isValidTrigram) {
                 // Contains real word error.
                 alternatives = self.createAlternatives(words);
             }
 
-            corrections.push(alternatives);
+            if (isValidTrigram) {
+                // If trigram is valid, we'll add it into the alternatives, with
+                // its' frequency information.
+                alternatives[part] = self.data[ngramConst.TRIGRAM][part];
+            } else {
+                // Append original trigram as the alternatives when ANY error
+                // is detected.
+                alternatives[part] = 0;
+            }
+
+            corrections = helper.createNgramCombination([corrections, alternatives]);
         });
 
-        var suggestions = helper.createNgramCombination(corrections, 'plus');
-        return suggestions;
+        return corrections;
     },
 
     /**
@@ -105,9 +122,9 @@ Verberne.prototype = {
      * @return {Array}       Index of the word having an error (empty if no error found)
      */
     detectNonWord: function (words) {
-        var self = this;
+        var self         = this,
+            errorIndexes = new Array();
 
-        var errorIndexes = new Array();
         words.forEach(function (word, index) {
             if (!self.isValid(word, ngramConst.UNIGRAM)) {
                 errorIndexes.push(index);
@@ -135,20 +152,28 @@ Verberne.prototype = {
      * @return {Object}       Valid trigrams with its' rank
      */
     createAlternatives: function (words) {
-        var self = this;
+        var self         = this,
+            alternatives = new Object(),
+            wordAlts     = [
+                {[`${words[0]}`]: this.data[ngramConst.UNIGRAM][words[0]]},
+                {[`${words[1]}`]: this.data[ngramConst.UNIGRAM][words[1]]},
+                {[`${words[2]}`]: this.data[ngramConst.UNIGRAM][words[2]]}
+            ],
+            suggestWords = new Array();
 
-        var alternatives = new Object();
-
-        var wordAlts = [
-            {[`${words[0]}`]: this.data[ngramConst.UNIGRAM][words[0]]},
-            {[`${words[1]}`]: this.data[ngramConst.UNIGRAM][words[1]]},
-            {[`${words[2]}`]: this.data[ngramConst.UNIGRAM][words[2]]}
-        ];
+        // Create alternate suggestions, excluding the token <number>.
+        words.forEach(function (word) {
+            if (word != '<number>') {
+                suggestWords.push(self.getSuggestions(word));
+            } else {
+                suggestWords.push(word);
+            }
+        });
 
         var collections = [
-            helper.createNgramCombination([this.getSuggestions(words[0]), wordAlts[1], wordAlts[2]]),
-            helper.createNgramCombination([wordAlts[0], this.getSuggestions(words[1]), wordAlts[2]]),
-            helper.createNgramCombination([wordAlts[0], wordAlts[1], this.getSuggestions(words[2])])
+            helper.createNgramCombination([suggestWords[0], wordAlts[1], wordAlts[2]]),
+            helper.createNgramCombination([wordAlts[0], suggestWords[1], wordAlts[2]]),
+            helper.createNgramCombination([wordAlts[0], wordAlts[1], suggestWords[2]])
         ];
 
         collections.forEach(function (collection) {
@@ -156,8 +181,8 @@ Verberne.prototype = {
                 // Only accept valid word combination (exists in n-gram knowledge).
                 if (self.isValid(combination, ngramConst.TRIGRAM)) {
                     // Check if alternatives already exists.
-                    if (!alternatives.hasOwnProperty(combination)) {
-                        alternatives[combination] = self.data.trigrams[combination];
+                    if (!_.has(alternatives, combination)) {
+                        alternatives[combination] = self.data[ngramConst.TRIGRAM][combination];
                     }
                 }
             }

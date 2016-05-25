@@ -95,10 +95,33 @@ Setiadi.prototype = {
      * @return {Object}          List of suggestions (if error exists)
      */
     tryCorrect: function (sentence) {
-        var self = this;
+        var self        = this,
+            suggestions = new Object(),
+            subParts    = sentence.split(',');
 
-        var corrections = new Array(),
-            words       = ngramUtil.uniSplit(sentence);
+        subParts.forEach(function (subPart) {
+            subPart = helper.cleanExtra(subPart);
+            subPart = ngramUtil.uniSplit(subPart);
+
+            suggestions = helper.createNgramCombination(
+                [suggestions, self.doCorrect(subPart)],
+                'plus',
+                'join'
+            );
+        });
+
+        return suggestions;
+    },
+
+    /**
+     * Main correction's logic.
+     *
+     * @param  {Array}  words Ngram split word
+     * @return {Object}       Correction results in a form of hash/dictionary
+     */
+    doCorrect: function (words) {
+        var self = this,
+            corrections = new Array();
 
         words.forEach(function (word) {
             if (self.isValid(word)) {
@@ -108,7 +131,7 @@ Setiadi.prototype = {
             } else {
                 var useWordAssumption   = true,
                     wordSuggestions     = self.getSuggestions(word, useWordAssumption),
-                    wordSuggestionsSize = Object.keys(wordSuggestions).length;
+                    wordSuggestionsSize = _.keys(wordSuggestions).length;
 
                 if (wordSuggestionsSize != 0) {
                     corrections.push(wordSuggestions);
@@ -120,8 +143,7 @@ Setiadi.prototype = {
             }
         });
 
-        var suggestions = helper.createNgramCombination(corrections, 'plus');
-        return suggestions;
+        return helper.createNgramCombination(corrections);
     }
 };
 
