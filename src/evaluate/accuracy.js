@@ -1,11 +1,11 @@
 /**
  * Compute the accuracy of the spelling correction's corrector.
  *
- * @param {string} distanceLimit Word distance limit (used when correcting words)
- * @param {string} inputFile     Sentences' file used for testing
- * @param {string} indexDir      Ngram's index information (uni/bi/tri) file directory
- * @param {string} trieFile      Ngram's trie information file
- * @param {string} similarFile   Ngram's word similarity information file
+ * @param {string} type       Sentences' file used for testing
+ * @param {string} limit      Word distance limit (used when correcting words)
+ * @param {string} index      Ngram's index information (uni/bi/tri) file directory
+ * @param {string} trie       Ngram's trie information file
+ * @param {string} similarity Ngram's word similarity information file
  */
 
 'use strict';
@@ -13,7 +13,8 @@
 var _           = require('lodash'),
     assert      = require('assert'),
     jsFile      = require('jsonfile'),
-    ProgressBar = require('progress');
+    ProgressBar = require('progress'),
+    argv        = require('yargs').argv;
 
 var Indexer   = require(__dirname + '/../main/Indexer.js'),
     ngramUtil = require(__dirname + '/../util/ngram.js'),
@@ -24,29 +25,39 @@ var Indexer   = require(__dirname + '/../main/Indexer.js'),
 
 var ngramConst = new ngramUtil.NgramConstant();
 
-const DEFAULT_SENTENCES_FILE  = __dirname + '/../../res/eval/accuracy.json',
+const DEFAULT_ACCURACY_FILE   = __dirname + '/../../res/eval/accuracy.json',
+      DEFAULT_FALSPOS_FILE    = __dirname + '/../../res/eval/false-positive.json',
       DEFAULT_TRIE_FILE       = __dirname + '/../../out/trie.json',
       DEFAULT_INDEX_DIR       = __dirname + '/../../out/ngrams',
       DEFAULT_SIMILARITY_FILE = __dirname + '/../../out/similars.json',
-      DEFAULT_REPORT_FILE     = __dirname + '/../../out/eval/accuracy.json';
+      DEFAULT_REPORT_FILE     = __dirname + '/../../out/eval/accuracy.json',
+      DEFAULT_DISTANCE_LIMIT  = 1;
 
 var indexer = new Indexer(),
     corrector;
 
 // Main.
-main(process.argv.slice(2));
+main();
 
 /**
  * Main logic container.
- *
- * @param {Array} args List of program's arguments
  */
-function main(args) {
-    var distanceLimit = _.isUndefined(args[0]) ? DEFAULT_DISTANCE_LIMIT : args[0],
-        inputFile     = _.isUndefined(args[1]) ? DEFAULT_SENTENCES_FILE : args[1],
-        indexDir      = _.isUndefined(args[2]) ? DEFAULT_INDEX_DIR : args[2],
-        trieFile      = _.isUndefined(args[3]) ? DEFAULT_TRIE_FILE : args[3],
-        similarFile   = _.isUndefined(args[4]) ? DEFAULT_SIMILARITY_FILE : args[4];
+function main() {
+    var distanceLimit = _.isUndefined(argv.limit) ? DEFAULT_DISTANCE_LIMIT : argv.limit,
+        indexDir      = _.isUndefined(argv.index) ? DEFAULT_INDEX_DIR : argv.index,
+        trieFile      = _.isUndefined(argv.trie) ? DEFAULT_TRIE_FILE : argv.trie,
+        similarFile   = _.isUndefined(argv.similarity) ? DEFAULT_SIMILARITY_FILE : argv.similarity,
+        inputFile;
+
+    if (_.isUndefined(argv.type)) {
+        inputFile = DEFAULT_ACCURACY_FILE;
+    } else {
+        if (argv.type == 'fp') {
+            inputFile = DEFAULT_FALSPOS_FILE;
+        } else {
+            inputFile = DEFAULT_ACCURACY_FILE;
+        }
+    }
 
     indexer.loadInformations(indexDir, trieFile, similarFile, function () {
         corrector = new Corrector(indexer.getInformations(), distanceLimit);

@@ -11,7 +11,8 @@ var _          = require('lodash'),
     app        = express(),
     bodyParser = require('body-parser'),
     path       = require('path'),
-    now        = require('performance-now');
+    now        = require('performance-now'),
+    argv        = require('yargs').argv;
 
 var helper    = require(__dirname + '/../util/helper.js'),
     Indexer   = require(__dirname + '/../main/Indexer.js'),
@@ -31,7 +32,8 @@ const DISTANCE_LIMIT = 2,
       PUBLIC_PATH    = __dirname + '/../../public',
       FILTER_COUNT   = 10;
 
-var shouldLoadInformation = _.isUndefined(process.argv[2]) ? false : (process.argv[2] == 'load' ? true : false);
+var shouldLoadInformation = _.isUndefined(argv.load) ? false : true,
+    distanceLimit         = _.isUndefined(argv.limit) ? DISTANCE_LIMIT : argv.limit;
 
 // Register url path for static files.
 app.use('/assets', express.static(PUBLIC_PATH + '/assets'));
@@ -63,15 +65,15 @@ app.post('/correct', function (request, response) {
 
     switch (type) {
         case 'custom':
-            corrector = new Corrector(indexer.getInformations(), DISTANCE_LIMIT);
+            corrector = new Corrector(indexer.getInformations(), distanceLimit);
             break;
 
         case 'setiadi':
-            corrector = new Setiadi(indexer.getInformations(), DISTANCE_LIMIT);
+            corrector = new Setiadi(indexer.getInformations(), distanceLimit);
             break;
 
         case 'verberne':
-            corrector = new Verberne(indexer.getInformations(), DISTANCE_LIMIT);
+            corrector = new Verberne(indexer.getInformations(), distanceLimit);
             break;
     }
 
@@ -104,9 +106,9 @@ app.post('/compare', function (request, response) {
         result   = new Array();
 
     var correctors = [
-        new Corrector(indexer.getInformations(), DISTANCE_LIMIT),
-        new Setiadi(indexer.getInformations(), DISTANCE_LIMIT),
-        new Verberne(indexer.getInformations(), DISTANCE_LIMIT)
+        new Corrector(indexer.getInformations(), distanceLimit),
+        new Setiadi(indexer.getInformations(), distanceLimit),
+        new Verberne(indexer.getInformations(), distanceLimit)
     ];
 
     var digits, corrections;
@@ -155,7 +157,7 @@ var server = app.listen(WEB_PORT, function () {
     helper.notify('Spelling Corrector Server', message);
     console.log(message + '\n');
 
-    indexer = new Indexer(DISTANCE_LIMIT);
+    indexer = new Indexer(distanceLimit);
 
     if (shouldLoadInformation) {
         runner.initAndStart(indexer);
