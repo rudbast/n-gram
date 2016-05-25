@@ -95,40 +95,41 @@ function createNgramCombination(corrections, rankOperation, joinType) {
 
     var combination = new Object();
 
-    corrections.forEach(function (correction) {
+    corrections.forEach(function (correction, correctionIndex) {
         var newCombination    = new Object(),
-            combinationLength = Object.keys(combination).length;
+            combinationLength = _.keys(combination).length;
+
+        if (combinationLength == 0) {
+            combination = correction;
+            return;
+        }
 
         for (var gram in correction) {
-            if (combinationLength == 0) {
-                newCombination[gram] = correction[gram];
-            } else {
-                for (var sentence in combination) {
-                    var gramSubsetPos, newRank, extraWord, joinWord;
+            for (var sentence in combination) {
+                var gramSubsetPos, newRank, extraWord, joinWord;
 
-                    if (joinType == 'assimilate') {
-                        gramSubsetPos = subsetNgramOf(sentence, gram);
+                if (joinType == 'assimilate') {
+                    gramSubsetPos = subsetNgramOf(sentence, gram);
+                    joinWord  = ' ';
 
-                        if (gramSubsetPos != -1) {
-                            extraWord = gram.substring(gramSubsetPos);
-                            joinWord  = ' ';
-                        }
-                    } else if (joinType == 'join') {
-                        extraWord = gram;
-                        joinWord  = ', ';
+                    if (gramSubsetPos != -1) {
+                        extraWord = gram.substring(gramSubsetPos);
+                    }
+                } else if (joinType == 'join') {
+                    extraWord = gram;
+                    joinWord  = ', ';
+                }
+
+                if ((gramSubsetPos != -1 && joinType == 'assimilate')
+                        || joinType == 'join') {
+
+                    if (rankOperation == 'plus') {
+                        newRank = combination[sentence] + correction[gram];
+                    } else if (rankOperation == 'multiply') {
+                        newRank = combination[sentence] * correction[gram];
                     }
 
-                    if ((gramSubsetPos != -1 && joinType == 'assimilate')
-                            || joinType == 'join') {
-
-                        if (rankOperation == 'plus') {
-                            newRank = combination[sentence] + correction[gram];
-                        } else if (rankOperation == 'multiply') {
-                            newRank = combination[sentence] * correction[gram];
-                        }
-
-                        newCombination[`${sentence}${joinWord}${extraWord}`] = newRank;
-                    }
+                    newCombination[`${sentence}${joinWord}${extraWord}`] = newRank;
                 }
             }
         }
@@ -148,14 +149,8 @@ function createNgramCombination(corrections, rankOperation, joinType) {
  * @return {number}          Position of the last word
  */
 function subsetNgramOf(sentence, gram) {
-    var gramLength   = ngramUtil.uniSplit(gram).length,
-        lastSpacePos = -1;
-
-    while ((--gramLength) != 0) {
-        lastSpacePos = gram.indexOf(' ', lastSpacePos + 1);
-    }
-
-    var subsetGram        = gram.substring(0, lastSpacePos),
+    var lastSpacePos      = gram.lastIndexOf(' '),
+        subsetGram        = gram.substring(0, lastSpacePos),
         sentenceSubsetPos = sentence.indexOf(subsetGram, sentence.length - subsetGram.length),
         isSubsetGram      = (sentenceSubsetPos != -1);
 
