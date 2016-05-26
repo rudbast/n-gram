@@ -244,11 +244,11 @@
     },
     {
         "id": 28,
-        "correct": "katanya",
+        "correct": "Katanya Ada Seribu",
         "error": {
-            "non": "ktanya",
-            "real": "katana",
-            "both": "katana"
+            "non": "Katanyaa Ada Seribu",
+            "real": "Katanya Ada Seibu",
+            "both": "Katanyaa Ada Seibu"
         }
     },
     {
