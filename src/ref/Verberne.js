@@ -65,7 +65,19 @@ Verberne.prototype = {
 
         subParts.forEach(function (subPart) {
             subPart = helper.cleanExtra(subPart);
-            subPart = ngramUtil.triSplit(subPart);
+            subPart = ngramUtil.tripleNSplit(subPart);
+
+            if (subPart[ngramConst.TRIGRAM].length == 0) {
+                if (subPart[ngramConst.UNIGRAM].length == 0) {
+                    return;
+                } else if (subPart[ngramConst.BIGRAM].length == 0) {
+                    subPart = subPart[ngramConst.UNIGRAM];
+                } else {
+                    subPart = subPart[ngramConst.BIGRAM];
+                }
+            } else {
+                subPart = subPart[ngramConst.TRIGRAM];
+            }
 
             suggestions = helper.createNgramCombination(
                 [suggestions, self.doCorrect(subPart)],
