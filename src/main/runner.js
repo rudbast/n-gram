@@ -251,15 +251,11 @@ function start(indexer) {
  * @param {Object} indexer Indexer's object instance
  */
 function initAndStart(indexer) {
-    indexer.loadIndex(indexDir, function () {
-        indexer.loadTrie(trieFile, function () {
-            indexer.loadSimilarities(similarityFile, function () {
-                indexer.printDataInformation();
+    indexer.loadInformations(indexDir, trieFile, similarityFile, function () {
+        indexer.printDataInformation();
 
-                console.log();
-                start(indexer);
-            });
-        });
+        console.log();
+        start(indexer);
     });
 }
 

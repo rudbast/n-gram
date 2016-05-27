@@ -21,7 +21,7 @@ var Indexer      = require(__dirname + '/../main/Indexer.js'),
     ngramUtil    = require(__dirname + '/../util/ngram.js'),
     helper       = require(__dirname + '/../util/helper.js'),
     Corrector    = require(__dirname + '/../main/Corrector.js'),
-    AuxCorrector = require(__dirname + '/../misc/Corrector.js'),
+    AuxCorrector = require(__dirname + '/../main/AuxCorrector.js'),
     Setiadi      = require(__dirname + '/../ref/Setiadi.js'),
     Verberne     = require(__dirname + '/../ref/Verberne.js');
 
