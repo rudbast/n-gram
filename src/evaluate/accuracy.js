@@ -14,14 +14,16 @@ var _           = require('lodash'),
     assert      = require('assert'),
     jsFile      = require('jsonfile'),
     ProgressBar = require('progress'),
-    argv        = require('yargs').argv;
+    argv        = require('yargs').argv,
+    now         = require('performance-now');
 
-var Indexer   = require(__dirname + '/../main/Indexer.js'),
-    ngramUtil = require(__dirname + '/../util/ngram.js'),
-    helper    = require(__dirname + '/../util/helper.js'),
-    Corrector = require(__dirname + '/../misc/Corrector.js'),
-    Setiadi   = require(__dirname + '/../ref/Setiadi.js'),
-    Verberne  = require(__dirname + '/../ref/Verberne.js');
+var Indexer      = require(__dirname + '/../main/Indexer.js'),
+    ngramUtil    = require(__dirname + '/../util/ngram.js'),
+    helper       = require(__dirname + '/../util/helper.js'),
+    Corrector    = require(__dirname + '/../main/Corrector.js'),
+    AuxCorrector = require(__dirname + '/../misc/Corrector.js'),
+    Setiadi      = require(__dirname + '/../ref/Setiadi.js'),
+    Verberne     = require(__dirname + '/../ref/Verberne.js');
 
 var ngramConst = new ngramUtil.NgramConstant();
 
@@ -49,63 +51,76 @@ function main() {
         similarFile   = _.isUndefined(argv.similarity) ? DEFAULT_SIMILARITY_FILE : argv.similarity,
         inputFile;
 
-    if (_.isUndefined(argv.type)) {
-        inputFile = DEFAULT_ACCURACY_FILE;
-    } else {
-        if (argv.type == 'fp') {
-            inputFile = DEFAULT_FALSPOS_FILE;
-        } else {
-            inputFile = DEFAULT_ACCURACY_FILE;
-        }
+    switch (argv.type) {
+        case 'fp': inputFile = DEFAULT_FALSPOS_FILE; break;
+        default: inputFile = DEFAULT_ACCURACY_FILE;
     }
 
+    console.log('Loading N-Gram informations..');
     indexer.loadInformations(indexDir, trieFile, similarFile, function () {
-        corrector = new Corrector(indexer.getInformations(), distanceLimit);
+        switch (argv.version) {
+            case 'rudy-1': corrector = new Corrector(indexer.getInformations(), distanceLimit); break;
+            case 'rudy-2': corrector = new AuxCorrector(indexer.getInformations(), distanceLimit); break;
+            case 'setiadi': corrector = new Setiadi(indexer.getInformations(), distanceLimit); break;
+            case 'verberne': corrector = new Verberne(indexer.getInformations(), distanceLimit); break;
+            default: corrector = new Corrector(indexer.getInformations(), distanceLimit);
+        }
 
         jsFile.readFile(inputFile, function (err, data) {
             assert.equal(err, null);
+            console.log('Informations loaded. Commencing computation..\n');
 
-            var report = new Array();
-            console.log('Informations loaded, commencing computation..\n');
-
-            var correctResult = 0,
-                progressBar   = new ProgressBar('    Computing accuracy: [:bar] :percent :elapseds', {
+            var corrected   = 0,
+                timeSpent   = 0,
+                report      = new Array(),
+                progressBar = new ProgressBar('    Computing accuracy: [:bar] :percent :elapseds', {
                     complete: '=',
                     incomplete: ' ',
                     total: data.length
-                });
+                }),
+                inputContent;
+
+            switch (argv.type) {
+                case 'fp': inputContent = 'correct'; break;
+                case 'non': inputContent = 'error.non'; break;
+                case 'real': inputContent = 'error.real'; break;
+                default: inputContent = 'error.both';
+            }
 
             data.forEach(function (content) {
-                var errorSentence   = helper.cleanInitial(content.error.both),
+                var errorSentence   = helper.cleanInitial(_.get(content, inputContent)),
                     correctSentence = helper.cleanInitial(content.correct),
-                    corrections, result;
+                    corrections, result, start, end;
 
+                start       = now();
                 corrections = corrector.tryCorrect(errorSentence);
-                corrections = helper.mapCorrectionsToCollection(corrections);
-                // corrections = helper.limitCollection(corrections, 1);
+                end         = now();
 
-                result = _.first(corrections);
+                corrections = helper.mapCorrectionsToCollection(corrections);
+                result      = _.first(corrections);
 
                 if (result.sentence == correctSentence) {
-                    ++correctResult;
+                    ++corrected;
                 } else {
                     report.push({
                         id: content.id,
                         correct: correctSentence,
+                        input: errorSentence,
                         result: result.sentence
                     });
                 }
 
+                timeSpent += end - start;
                 progressBar.tick();
             });
-
-            var accuracy = correctResult / data.length * 100;
 
             console.log();
             console.log(':: Evaluation Result ::');
             console.log(`Sentence count     : ${data.length}`);
-            console.log(`Corrected sentence : ${correctResult}`);
-            console.log(`Accuracy           : ${accuracy}%\n`);
+            console.log(`Corrected sentence : ${corrected}`);
+            console.log(`Accuracy           : ${corrected / data.length * 100}%`);
+            console.log(`Total time spent   : ${_.round(timeSpent / 1000, 4)} second`);
+            console.log(`Average Speed      : ${_.round(timeSpent / data.length, 4)} millisecond\n`);
 
             jsFile.writeFile(DEFAULT_REPORT_FILE, report, {spaces: 4}, function (err) {
                 assert.equal(err, null);
