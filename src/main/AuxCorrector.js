@@ -239,7 +239,7 @@ Corrector.prototype = {
             var subAlternatives = new Array();
 
             words.forEach(function (auxWord, auxIndex) {
-                if (mainIndex == auxIndex && auxWord != '<number>') {
+                if (mainIndex == auxIndex && auxWord != ngramConst.TOKEN_NUMBER) {
                     subAlternatives.push(self.getSuggestions(auxWord, true));
                 } else {
                     subAlternatives.push({
