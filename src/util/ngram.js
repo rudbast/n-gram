@@ -17,7 +17,7 @@ var NgramConstant = function () {
     this.BIGRAM  = 'bigrams';
     this.TRIGRAM = 'trigrams';
 
-    this.TOKEN_NUMBER  = '<number>';
+    this.TOKEN_NUMBER  = '<ANGKA>';
 };
 
 /**
