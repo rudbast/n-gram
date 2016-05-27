@@ -128,9 +128,9 @@ gulp.task('default', function () {
 });
 
 // Custom task to replace data being used. Uses param.
-// example: gulp replacedata --dir 1k
-//          gulp replacedata --dir 5k
-gulp.task('replacedata', function () {
+// example: gulp restorecorpus --dir 1k
+//          gulp restorecorpus --dir 5k
+gulp.task('restorecorpus', function () {
     var dir     = argv.dir,
         dataDir = 'out/backup/' + dir + '/**/*',
         destDir = 'out';
@@ -140,9 +140,9 @@ gulp.task('replacedata', function () {
 });
 
 // Custom task to backup current data. Uses param.
-// example: gulp replacedata --dir 1k
-//          gulp replacedata --dir 5k
-gulp.task('backupdata', function () {
+// example: gulp backupcorpus --dir 1k
+//          gulp backupcorpus --dir 5k
+gulp.task('backupcorpus', function () {
     var dir     = argv.dir,
         dataDir = [
             'out/ngrams/**/*',
