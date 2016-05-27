@@ -35,38 +35,26 @@ Corrector.prototype = {
     /**
      * Check the validity of given gram.
      *
-     * @param  {string}  gram             Word pair in a form of certain n-gram
-     * @param  {string}  [gramClass]      String representation of the n-gram
-     * @param  {boolean} [checkLowerGram] Indicates whether to check lower gram (back-off) when validity fails
-     * @return {boolean}                  Gram validity
+     * @param  {string}  gram        Word pair in a form of certain n-gram
+     * @param  {string}  [gramClass] String representation of the n-gram
+     * @return {boolean}             Gram validity
      */
-    isValid: function (gram, gramClass, checkLowerGram) {
+    isValid: function (gram, gramClass) {
         if (_.isUndefined(gramClass)) {
             gramClass = ngramUtil.getGramClass(ngramUtil.uniSplit(gram).length);
         }
-        checkLowerGram = _.isUndefined(checkLowerGram) ? false : checkLowerGram;
 
-        if (gramClass == ngramConst.UNIGRAM) {
+        if (gramClass == ngramConst.UNIGRAM && gram != ngramConst.TOKEN_NUMBER) {
             return this.vocabularies.has(gram);
         }
-
-        let isValidGram = _.has(this.data[gramClass], gram);
-
-        if (isValidGram || !checkLowerGram || gramClass == ngramConst.BIGRAM) {
-            return isValidGram;
-        } else  {
-            let newGrams = ngramUtil.biSplit(gram);
-
-            return _.has(this.data[ngramConst.BIGRAM], _.first(newGrams))
-                && _.has(this.data[ngramConst.BIGRAM], _.last(newGrams));
-        }
+        return _.has(this.data[gramClass], gram);
     },
 
     /**
      * Get list of similar words suggestion given a word.
      *
      * @param  {string}  inputWord         Input word
-     * @param  {boolean} [includeMainWord] Indicates whether the input word should be included in result
+     * @param  {boolean} [includeMainWord] Indicates whether the main input word should be included in result
      * @return {Object}                    Suggestion list of similar words
      */
     getSuggestions: function (inputWord, includeMainWord) {
@@ -116,21 +104,19 @@ Corrector.prototype = {
             suggestions = new Object(),
             subParts    = sentence.split(',');
 
-        _.forEach(subParts, function (subPart) {
+        subParts.forEach(function (subPart) {
             subPart = helper.cleanExtra(subPart);
             subPart = ngramUtil.tripleNSplit(subPart);
 
-            // If parts is empty, it means the word is lower than three.
-            if (subPart[ngramConst.TRIGRAM].length == 0) {
-                if (subPart[ngramConst.UNIGRAM].length == 0) {
-                    return;
-                } else if (subPart[ngramConst.BIGRAM].length == 0) {
-                    subPart = subPart[ngramConst.UNIGRAM];
-                } else {
-                    subPart = subPart[ngramConst.BIGRAM];
-                }
+            if (subPart[ngramConst.UNIGRAM].length == 0) {
+                return;
+            } else if (subPart[ngramConst.BIGRAM].length == 0) {
+                subPart = subPart[ngramConst.UNIGRAM];
             } else {
-                subPart = subPart[ngramConst.TRIGRAM];
+                subPart = _.concat(
+                    _.first(subPart[ngramConst.UNIGRAM]),
+                    subPart[ngramConst.BIGRAM]
+                );
             }
 
             suggestions = helper.createNgramCombination(
@@ -157,19 +143,17 @@ Corrector.prototype = {
             corrections = new Object(),
             previousErrorIndexes, previousGram;
 
-        _.forEach(parts, function (part, partIndex) {
+        parts.forEach(function (part, partIndex) {
             var words        = ngramUtil.uniSplit(part),
                 gramClass    = ngramUtil.getGramClass(words.length),
                 alternatives = new Object();
 
-            // Skip checking current trigram and just combine result from previous correction
-            // if previous ones contains non word error.
             if ((--skipCount) >= 0) {
+                // Skip checking current trigram and just combine result from previous correction
+                // if previous ones contains non word error.
                 alternatives = self.createGramFrom(words,
                                                    gramClass,
-                                                   previousErrorIndexes,
-                                                   previousGram,
-                                                   skipCount);
+                                                   previousGram);
             } else {
                 let errorIndexes     = self.detectNonWord(words),
                     errorIndexLength = _.keys(errorIndexes).length,
@@ -183,12 +167,11 @@ Corrector.prototype = {
 
                     // Skipping only applies if there's more part to be checked.
                     if (partIndex < parts.length - 1) {
-                        previousErrorIndexes = errorIndexes;
                         // Find the last occurred error's index, and we'll skip checking the next
                         // 'skipCount' part of trigram.
-                        _.forEach(errorIndexes, function (value, index) {
-                            skipCount = Math.max(skipCount, index);
-                        });
+                        previousErrorIndexes = helper.convertSimpleObjToSortedArray(errorIndexes,
+                                                                                    true);
+                        skipCount    = _.last(previousErrorIndexes);
                         previousGram = correctionResult.distinctData;
                     }
                 } else if (words.length > 1) {
@@ -196,7 +179,7 @@ Corrector.prototype = {
                     // AND even if there's no error found (valid bigram)
                     // AND ONLY IF the words length is more than 1, else it's not eligible
                     // for real word correction.
-                    alternatives = self.createRealWordGram(words, gramClass);
+                    alternatives = self.createRealWordGram(words, gramClass, partIndex);
                 }
             }
 
@@ -220,7 +203,7 @@ Corrector.prototype = {
         var self         = this,
             errorIndexes = new Object();
 
-        _.forEach(words, function (word, index) {
+        words.forEach(function (word, index) {
             if (!self.isValid(word, ngramConst.UNIGRAM)) {
                 errorIndexes[index] = true;
             }
@@ -268,7 +251,7 @@ Corrector.prototype = {
             collections.push(helper.createNgramCombination(subAlternatives));
         });
 
-        return this.filterCollectionsResult(collections, gramClass, { lax: true });
+        return this.filterCollectionsResult(collections, gramClass);
     },
 
     /**
@@ -277,42 +260,31 @@ Corrector.prototype = {
      *
      * @param  {Array}  words        List of words (ordered)
      * @param  {string} gramClass    String representation of the n-gram
-     * @param  {Object} errorIndexes Indexes of previous word list that indicates an error
-     * @param  {Array}  prevAltWords Unique words of resulted trigram of previous correction
-     * @param  {number} skipCount    Current skip count
+     * @param  {Array}  prevAltWords Unique words of resulted gram of previous correction
      * @return {Object}              Alternatives gain by combining previous alternatives
      */
-    createGramFrom: function (words, gramClass, errorIndexes, prevAltWords, currentSkipCount) {
-        const MAX_SKIP_COUNT = ngramUtil.getGramClass(gramClass) - 1;
-
+    createGramFrom: function (words, gramClass, prevAltWords) {
         var self            = this,
-            subAlternatives = new Array(),
-            prevAltIndex    = MAX_SKIP_COUNT - currentSkipCount;
+            subAlternatives = new Array();
 
-        _.forEach(words, function (word, wordIndex) {
-            var subWordAlts = new Object();
-
-            if (_.has(errorIndexes, wordIndex + prevAltIndex)) {
-                subWordAlts = prevAltWords[wordIndex + prevAltIndex - 1];
-            } else if (word != ngramConst.TOKEN_NUMBER) {
-                subWordAlts = self.getSuggestions(word);
+        words.forEach(function (word, index) {
+            if (index == 0) {
+                subAlternatives.push(prevAltWords);
+            } else {
+                subAlternatives.push({ [`${word}`]: 0 });
             }
-
-            subWordAlts[word] = 0;
-            subAlternatives.push(subWordAlts);
         });
 
         return this.filterCollectionsResult(
             [helper.createNgramCombination(subAlternatives)],
             gramClass,
-            { lax: true }
+            { valid: false }
         );
     },
 
     /**
-     * Create valid n-gram alternatives from a list of words' similarity,
-     * only allows 1 different word from the original n-gram excluding the
-     * word which is categorized as non-word error.
+     * Create valid n-gram alternatives from a list of words' similarity for
+     * the word categorized as error.
      *
      * @param  {Array}  words        List of words (ordered) from a sentence
      * @param  {string} gramClass    String representation of the n-gram
@@ -324,10 +296,10 @@ Corrector.prototype = {
             subAlternatives = new Array();
 
         words.forEach(function (word, index) {
-            if (word == ngramConst.TOKEN_NUMBER) {
-                subAlternatives.push({ [`${word}`]: 0 });
+            if (_.has(errorIndexes, index)) {
+                subAlternatives.push(self.getSuggestions(word));
             } else {
-                subAlternatives.push(self.getSuggestions(word, true));
+                subAlternatives.push({ [`${word}`]: 0 });
             }
         });
 
@@ -336,7 +308,7 @@ Corrector.prototype = {
             gramClass,
             {
                 distinct: true,
-                lax: true
+                valid: false
             }
         );
     },
@@ -347,7 +319,7 @@ Corrector.prototype = {
      * @param  {Array}  collections Array containing list of combinations
      * @param  {string} gramClass   Class of the gram being processed
      * @param  {Object} [options]   Indicate needs to get valid gram's distinct word to avoid recomputation
-     * @return {Object}             Valid gram combination
+     * @return {Object}             Valid gram combination (and distinct gram information)
      */
     filterCollectionsResult: function (collections, gramClass, options) {
         options = _.isUndefined(options) ? new Object() : options;
@@ -356,14 +328,10 @@ Corrector.prototype = {
             alternatives = new Object(),
             getDistinct  = _.isUndefined(options.distinct) ? false : options.distinct,
             onlyValid    = _.isUndefined(options.valid) ? true : options.valid,
-            allowLax     = _.isUndefined(options.lax) ? false : options.lax,
             distinctData;
 
         if (getDistinct) {
-            distinctData = [
-                new Object(),
-                new Object()
-            ];
+            distinctData = new Object();
         }
 
         collections.forEach(function (collection) {
@@ -371,7 +339,7 @@ Corrector.prototype = {
                 let isValidGram;
                 // Check if valid options is ON,
                 // then only accept valid word combination (exists in n-gram knowledge).
-                if (onlyValid) isValidGram = self.isValid(combination, gramClass, allowLax);
+                if (onlyValid) isValidGram = self.isValid(combination, gramClass);
                 else isValidGram = true;
 
                 if (isValidGram) {
@@ -381,10 +349,8 @@ Corrector.prototype = {
                             self.ngramProbability(ngramUtil.uniSplit(combination));
 
                         if (getDistinct) {
-                            let words = _.tail(ngramUtil.uniSplit(combination));
-                            _.forEach(words, function (word, index) {
-                                distinctData[index][word] = true;
-                            });
+                            let lastWord = _.last(ngramUtil.uniSplit(combination));
+                            distinctData[lastWord] = true;
                         }
                     }
                 }
