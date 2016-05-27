@@ -174,7 +174,7 @@ Corrector.prototype = {
                         skipCount    = _.last(previousErrorIndexes);
                         previousGram = correctionResult.distinctData;
                     }
-                } else if (words.length > 1) {
+                } else if (words.length > 1 || partIndex < parts.length - 1) {
                     // We'll generate alternatives for when it contains real word error,
                     // AND even if there's no error found (valid bigram)
                     // AND ONLY IF the words length is more than 1, else it's not eligible
