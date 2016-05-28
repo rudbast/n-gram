@@ -9,7 +9,8 @@
     "crawler": "node src/crawl/crawler.js",
     "start": "node src/web/server.js",
     "eval-perplexity": "node src/evaluate/perplexity.js",
-    "eval-accuracy": "node src/evaluate/accuracy.js"
+    "eval-accuracy": "node src/evaluate/accuracy.js",
+    "stats-category": "node src/statistic/articlescategory.js"
   },
   "repository": {
     "type": "git",

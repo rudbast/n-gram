@@ -11,15 +11,16 @@ var _      = require('lodash'),
     prompt = require('prompt'),
     jsfile = require('jsonfile'),
     assert = require('assert');
-// var kompas = require('indonesian-news-scraper').Kompas;
-var kompas = require(__dirname + '/CustomKompas.js')
+
+// var kompas = require('indonesian-news-scraper').Kompas,
+var kompas = require(__dirname + '/CustomKompas.js'),
     helper = require(__dirname + '/../util/helper.js');
 
 var currDate = new Date();
 kompas.setDesiredDate(currDate.getDate(), currDate.getMonth(), currDate.getFullYear());
 
 // Main Logic Variables
-var docFile = (process.argv.length > 2 ? process.argv[2] : ''),
+var docFile = (process.argv.length > 2 ? process.argv[2] : 'out/articles'),
     index   = 0;
 
 prompt.start();
