@@ -1,8 +1,9 @@
 /**
  * Compute the accuracy of the spelling correction's corrector.
  *
- * @param {string} type       Sentences' file used for testing
+ * @param {string} type       Sentences' file used for testing (fp, real, non, both)
  * @param {string} limit      Word distance limit (used when correcting words)
+ * @param {string} version    Version of spelling corrector to use (rudy-1, rudy-2, verberne, setiadi)
  * @param {string} index      Ngram's index information (uni/bi/tri) file directory
  * @param {string} trie       Ngram's trie information file
  * @param {string} similarity Ngram's word similarity information file
