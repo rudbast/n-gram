@@ -29,13 +29,14 @@ var Indexer      = require(__dirname + '/../main/Indexer.js'),
 
 var ngramConst = new ngramUtil.NgramConstant();
 
-const DEFAULT_ACCURACY_FILE   = __dirname + '/../../res/eval/accuracy.json',
-      DEFAULT_FALSPOS_FILE    = __dirname + '/../../res/eval/false-positive.json',
-      DEFAULT_TRIE_FILE       = __dirname + '/../../out/trie.json',
-      DEFAULT_INDEX_DIR       = __dirname + '/../../out/ngrams',
-      DEFAULT_SIMILARITY_FILE = __dirname + '/../../out/similars.json',
-      DEFAULT_REPORT_FILE     = __dirname + '/../../out/eval/accuracy.json',
-      DEFAULT_DISTANCE_LIMIT  = 1;
+const DEFAULT_INPUT_FILE       = __dirname + '/../../res/eval/accuracy.json',
+      DEFAULT_INPUT_PRIOR_FILE = __dirname + '/../../res/eval/accuracy-prior.json',
+      DEFAULT_FALSPOS_FILE     = __dirname + '/../../res/eval/false-positive.json',
+      DEFAULT_TRIE_FILE        = __dirname + '/../../out/trie.json',
+      DEFAULT_INDEX_DIR        = __dirname + '/../../out/ngrams',
+      DEFAULT_SIMILARITY_FILE  = __dirname + '/../../out/similars.json',
+      DEFAULT_REPORT_FILE      = __dirname + '/../../out/eval/accuracy.json',
+      DEFAULT_DISTANCE_LIMIT   = 1;
 
 var indexer = new Indexer(),
     corrector;
@@ -55,8 +56,10 @@ function main() {
 
     switch (argv.type) {
         case 'fp': inputFile = DEFAULT_FALSPOS_FILE; break;
-        default: inputFile = DEFAULT_ACCURACY_FILE;
+        default: inputFile = DEFAULT_INPUT_FILE;
     }
+
+    if (argv.prior) inputFile = DEFAULT_INPUT_PRIOR_FILE;
 
     console.log('Loading N-Gram informations..');
     indexer.loadInformations(indexDir, trieFile, similarFile, function () {

@@ -1,0 +1,452 @@
+[
+    {
+        "id": 1,
+        "correct": "Messi yang ditunjuk sebagai eksekutor, gagal menunaikan tugasnya",
+        "error": {
+            "non": "Messi yang ditunjuk sebagai eksekuor, gagal menunaikan tugasnua",
+            "real": "Messi uang ditunjuk sebagai eksekutor, gagal menunaikan tugasnya",
+            "both": "Messi uang ditunjuk sebagai eksekuor, gagal menunaikan tugasnua"
+        }
+    },
+    {
+        "id": 2,
+        "correct": "Bambang menyebutkan, saat ini wilayah yang masih terendam banjir berada di 12 kelurahan",
+        "error": {
+            "non": "Bambang menyebutkan, saat ini silayah yang masih terendam banjir brada di 12 kelurahan",
+            "real": "Bimbang menyebutkan, saat ini wilayah yang masih terendam banjir berada di 12 kemurahan",
+            "both": "Bimbang menyebutkan, saat ini silayah yang masih terendam banjir brada di 12 kemurahan"
+        }
+    },
+    {
+        "id": 3,
+        "correct": "Kepanikan melanda warga yang rumahnya tertimpa longsor akibat hujan lebat",
+        "error": {
+            "non": "Kepanikan melanda warga yang rumahnya tertimpa lognsor akibat hujan lebat",
+            "real": "Kepanikan belanda warga yang rumahnya tertimpa longsor akibat hujan lebar",
+            "both": "Kepanikan belanda warga yang rumahnya tertimpa lognsor akibat hujan lebar"
+        }
+    },
+    {
+        "id": 4,
+        "correct": "Waktu hujan besar saya lagi di dapur",
+        "error": {
+            "non": "Wakut hujan besar sayya lagi di dapur",
+            "real": "Waktu hujan besar saya lagi di kapur",
+            "both": "Wakut hujan besar sayya lagi di kapur"
+        }
+    },
+    {
+        "id": 5,
+        "correct": "kesepakatan itu terpaksa dibatalkan",
+        "error": {
+            "non": "kesepakatan itu terpaksa dibayalkan",
+            "real": "kesepakatan gitu terpaksa dibatalkan",
+            "both": "kesepakatan gitu terpaksa dibayalkan"
+        }
+    },
+    {
+        "id": 6,
+        "correct": "Banjir Jakarta Enggak Lebih dari Satu Hari kalau Hujan Berhenti",
+        "error": {
+            "non": "Banjir Jakarta Enggak Lebih dari Satu Hri kalau Hujan Brehenti",
+            "real": "Banjar Jakarta Enggak Letih dari Satu Hari kalau Hujan Berhenti",
+            "both": "Banjar Jakarta Enggak Letih dari Satu Hri kalau Hujan Brehenti"
+        }
+    },
+    {
+        "id": 7,
+        "correct": "Banjir dan Longsor Melanda Kota Bogor",
+        "error": {
+            "non": "Banjer dan Longsor Melanda Kota Bogor",
+            "real": "Banjir dan Longsor Belanda Kota Bogor",
+            "both": "Banjer dan Longsor Belanda Kota Bogor"
+        }
+    },
+    {
+        "id": 8,
+        "correct": "Belum diketahui pasti apa penyebab kebakaran tersebut",
+        "error": {
+            "non": "Bleum diketahui pasti apa penyebab kebakaran tersebat",
+            "real": "Belum diketahui kasti apa penyebab kebakaran tersebut",
+            "both": "Bleum diketahui kasti apa penyebab kebakaran tersebat"
+        }
+    },
+    {
+        "id": 9,
+        "correct": "Hingga saat ini, masih banyak masyarakat yang menggunakan jalur KA untuk beraktivitas",
+        "error": {
+            "non": "Hingga saat ini, masih banyak masyarakat yang menggunakan jalur KA untuk beraktivitas",
+            "real": "Hingga saat ini, masih banyak masyarakat yang menggunakan jalur KA untuk beraktivitas",
+            "both": "Hingga saat ini, masih banyak masyarakat yang menggunakan jalur KA untuk beraktivitas"
+        }
+    },
+    {
+        "id": 10,
+        "correct": "karena ini kan kondisinya sedang sakit",
+        "error": {
+            "non": "karenah ini kan kondisinya sedang sakit",
+            "real": "karena ini akan kondisinya sedang sakti",
+            "both": "karenah ini akan kondisinya sedang sakti"
+        }
+    },
+    {
+        "id": 11,
+        "correct": "Karena memang aliran sungainya enggak cukup",
+        "error": {
+            "non": "Karena memang aliran sungainya enggak cukop",
+            "real": "Karena emang aliran sungainya enggak cukup",
+            "both": "Karena emang aliran sungainya enggak cukop"
+        }
+    },
+    {
+        "id": 12,
+        "correct": "Tergantung rumah susun siapnya kapan",
+        "error": {
+            "non": "Tergantung rumah susun siapnya kepan",
+            "real": "Tergantung rumah dusun siapnya kapan",
+            "both": "Tergantung rumah dusun siapnya kepan"
+        }
+    },
+    {
+        "id": 13,
+        "correct": "Nasdem tetap mendukung melalui jalur independen",
+        "error": {
+            "non": "Nasdem tetap mendukung melaliu jalur independen",
+            "real": "Nasdem tatap mendukung melalui jalur independen",
+            "both": "Nasdem tatap mendukung melaliu jalur independen"
+        }
+    },
+    {
+        "id": 14,
+        "correct": "Diduga, korban meninggal dunia karena penyakit jantung",
+        "error": {
+            "non": "Diduga, korban meninggal dnia karena penyakit jantung",
+            "real": "Diduga, kurban meninggal dunia karena penyakit jantung",
+            "both": "Diduga, kurban meninggal dnia karena penyakit jantung"
+        }
+    },
+    {
+        "id": 15,
+        "correct": "Awalnya tadi mereka hanya cekcok mulut masalah utang",
+        "error": {
+            "non": "Awalnya tadi mereka hanya cekcok mulutt masalah utang",
+            "real": "Awalnya nadi mereka hanya cekcok mulut masalah utang",
+            "both": "Awalnya nadi mereka hanya cekcok mulutt masalah utang"
+        }
+    },
+    {
+        "id": 16,
+        "correct": "Basuki menceritakan pembicaraannya dengan para relawan kepada Megawati",
+        "error": {
+            "non": "Basuki menceritakan pembicaraannya degan para relawan kepeda Megawati",
+            "real": "Basuki menderitakan pembicaraannya dengan para relawan kepada Megawati",
+            "both": "Basuki menderitakan pembicaraannya degan para relawan kepeda Megawati"
+        }
+    },
+    {
+        "id": 17,
+        "correct": "Yusril yakin apa yang dilakukan Jokowi merupakan salah satu cara agar menang",
+        "error": {
+            "non": "Yusril yakin apa yang dlakukan Jokowi merupakan salah satu cara agar menang",
+            "real": "Yusril makin apa yang dilakukan Jokowi merupakan malah satu cara agar megang",
+            "both": "Yusril makin apa yang dlakukan Jokowi merupakan malah satu cara agar megang"
+        }
+    },
+    {
+        "id": 18,
+        "correct": "Kemudian, ia mendapat sumbangan dari seorang pengusaha",
+        "error": {
+            "non": "Kemudian, ia mendapat sumbangan dari seorang penfusaha",
+            "real": "Kemudian, ia mendapat sumbangan mari seorang pengusaha",
+            "both": "Kemudian, ia mendapat sumbangan mari seorang penfusaha"
+        }
+    },
+    {
+        "id": 19,
+        "correct": "Kompetisi harus dilakukan secara sehat",
+        "error": {
+            "non": "Komptisi harus dilakukan secara sehat",
+            "real": "Kompetisi harus dilakukan secara rehat",
+            "both": "Komptisi harus dilakukan secara rehat"
+        }
+    },
+    {
+        "id": 20,
+        "correct": "Salah satunya adalah meningkatnya risiko kelumpuhan, termasuk rusaknya fungsi otak",
+        "error": {
+            "non": "Salah satunya adalah meningkatnya risiko kleumpuhan, termasuk rusaknya fungsi otak",
+            "real": "Salak satunya adalah meningkatnya risiko kelumpuhan, termasuk rusaknya fungi otak",
+            "both": "Salak satunya adalah meningkatnya risiko kleumpuhan, termasuk rusaknya fungi otak"
+        }
+    },
+    {
+        "id": 21,
+        "correct": "Ahok menyatakan secara mantap akan mempertaruhkan nasibnya kepada Teman Ahok dan memilih Heru sebagai wakil",
+        "error": {
+            "non": "Ahok menjatakan secara mantap akan mempertaruhkan nasibnya kepad Teman Ahok dan memilih Heru sebagai wakli",
+            "real": "Ahok menyatakan secara mantap makan mempertaruhkan nasibnya kepada Teman Ahok dan memilih Heru sebagai wakil",
+            "both": "Ahok menjatakan secara mantap makan mempertaruhkan nasibnya kepad Teman Ahok dan memilih Heru sebagai wakli"
+        }
+    },
+    {
+        "id": 22,
+        "correct": "Istilah Deparpolisasi Itu Lucu",
+        "error": {
+            "non": "Istilah Deparpolisasi Itu Luc",
+            "real": "Istrilah Deparpolisasi Itu Lucu",
+            "both": "Istrilah Deparpolisasi Itu Luc"
+        }
+    },
+    {
+        "id": 23,
+        "correct": "Sudah punya ide, saya desain",
+        "error": {
+            "non": "Sudah punya ide, saya dersain",
+            "real": "Sudah punya idem, saya desain",
+            "both": "Sudah punya idem, saya dersain"
+        }
+    },
+    {
+        "id": 24,
+        "correct": "ujar petugas di Stasiun Depok",
+        "error": {
+            "non": "ujar petguas di Stasiun Depok",
+            "real": "ujar petugas di Stasiun Depak",
+            "both": "ujar petguas di Stasiun Depak"
+        }
+    },
+    {
+        "id": 25,
+        "correct": "Sebagai seorang politisi, apa yang bisa diharapkan partai politik dari seorang Ahok",
+        "error": {
+            "non": "Sebagai seorang politiki, apa yang bisa diharapkan partai politik dari seorang Ahok",
+            "real": "Sebagai seorang politisi, apa yang busa diharapkan partai politik sari seorang Ahok",
+            "both": "Sebagai seorang politiki, apa yang busa diharapkan partai politik sari seorang Ahok"
+        }
+    },
+    {
+        "id": 26,
+        "correct": "Sementara itu, hal tersebut dapat menambah kenyamanan bagi penumpang",
+        "error": {
+            "non": "Sementara itu, hal tersebut gapat menambah kenyamanan bagih penumpang",
+            "real": "Sementara situ, hal tersebut dapat menambah kenyamanan bagi penumpang",
+            "both": "Sementara situ, hal tersebut gapat menambah kenyamanan bagih penumpang"
+        }
+    },
+    {
+        "id": 27,
+        "correct": "segala kemungkinan masih terbuka soal kelanjutan kasus Sumber Waras",
+        "error": {
+            "non": "segala kemungkinan masih terbuka soal kelanjutan kasus Smber Waras",
+            "real": "sekala kemungkinan masih termuka soal kelanjutan kasus Sumber Waras",
+            "both": "sekala kemungkinan masih termuka soal kelanjutan kasus Smber Waras"
+        }
+    },
+    {
+        "id": 28,
+        "correct": "Adapun pembiayaan taman ini melalui kewajiban tambahan pengembang",
+        "error": {
+            "non": "Agapun pembiayaan taman ini melalui kewajiban tambahan pengembang",
+            "real": "Adapun pembiayaan teman ini melalui kewajiban tambahan penembang",
+            "both": "Agapun pembiayaan teman ini melalui kewajiban tambahan penembang"
+        }
+    },
+    {
+        "id": 29,
+        "correct": "Film tersebut mengajarkan untuk saling berbagi",
+        "error": {
+            "non": "Dilm tersebut mengajarkan untuk saling berbagi",
+            "real": "Film tersebut mengajarkan untuk maling berbagi",
+            "both": "Dilm tersebut mengajarkan untuk maling berbagi"
+        }
+    },
+    {
+        "id": 30,
+        "correct": "Teman Ahok tidak menginginkan Basuki diusung oleh partai politik, termasuk PDI-P",
+        "error": {
+            "non": "Teman Ahok tidak meginginkan Basuki diusung leh partai politik, termasuk PDI-P",
+            "real": "Taman Ahok tidak menginginkan Basuki diusung oleh partai politik, termasuk PDI-P",
+            "both": "Taman Ahok tidak meginginkan Basuki diusung leh partai politik, termasuk PDI-P"
+        }
+    },
+    {
+        "id": 31,
+        "correct": "karena pompa air tidak berfungsi, Waduk Pluit tidak dapat menampung air",
+        "error": {
+            "non": "karna pompa air tidak berfungsi, Waduk Pluit tidak dapat menampung air",
+            "real": "karena pompa air tidak berfungsi, Waduh Pluit tidak dapat menampung air",
+            "both": "karna pompa air tidak berfungsi, Waduh Pluit tidak dapat menampung air"
+        }
+    },
+    {
+        "id": 32,
+        "correct": "Jika hanya berharap pada APBN, maka realisasinya tidak akan cepat",
+        "error": {
+            "non": "Jeka hanya berharap pda APBN, maka realisasinya tidak akan cepat",
+            "real": "Jika hanya berharap pada APBN, maka realisasinya tidak makan cepat",
+            "both": "Jeka hanya berharap pda APBN, maka realisasinya tidak makan cepat"
+        }
+    },
+    {
+        "id": 33,
+        "correct": "Ivan sebagai anggota DPR punya kekuasaan dan dapat melakukan apa pun",
+        "error": {
+            "non": "Ivan sebagia anggota DPR punya kekuasaan adn dapat melakukan apa pun",
+            "real": "Ivan sebagai anggota DPR punya kekuasaan dan dapat melakukan ada pun",
+            "both": "Ivan sebagia anggota DPR punya kekuasaan adn dapat melakukan ada pun"
+        }
+    },
+    {
+        "id": 34,
+        "correct": "Saya Enggak Bisa Kasih Bantuan Uang kepada Partai",
+        "error": {
+            "non": "Say Enggak Bisa Kasih Bantuan Uang kepada Patai",
+            "real": "Saya Enggak Bisa Masih Bantuan Uang kepada Partai",
+            "both": "Say Enggak Bisa Masih Bantuan Uang kepada Patai"
+        }
+    },
+    {
+        "id": 35,
+        "correct": "Karena Pak Heru yang kemungkinan tidak ada masalah yang lain",
+        "error": {
+            "non": "Karen Pak Heru yang kemungkinan tidak ada masalah yang lain",
+            "real": "Karena Pak Heru yang kemungkinan tidak ada masalah yang kain",
+            "both": "Karen Pak Heru yang kemungkinan tidak ada masalah yang kain"
+        }
+    },
+    {
+        "id": 36,
+        "correct": "banyak yang mengadu mengalami pelecehan seksual",
+        "error": {
+            "non": "banyak yang mengadu mengalami pelcehan seksual",
+            "real": "banyak kang mengadu mengalami pelecehan seksual",
+            "both": "banyak kang mengadu mengalami pelcehan seksual"
+        }
+    },
+    {
+        "id": 37,
+        "correct": "Jokowi Minta Pemda Kembangkan Ekonomi dan Wisata di Sekitar Bandara Rembele",
+        "error": {
+            "non": "Jokowi inta Pemda Kembangkan Ekonomi dan Wisata di Sekitar Bandara Rembele",
+            "real": "Jokowi Minta Pemda Kembangkan Ekonom dan Wisata di Sekitar Bandar Rembele",
+            "both": "Jokowi inta Pemda Kembangkan Ekonom dan Wisata di Sekitar Bandar Rembele"
+        }
+    },
+    {
+        "id": 38,
+        "correct": "Posisi Tempat Duduk Bus Transjakarta Akan Diubah",
+        "error": {
+            "non": "Posisi Tempat Dduk Bus Transjakarta Akn Diubah",
+            "real": "Polisi Tempat Duduk Bus Transjakarta Akan Diubah",
+            "both": "Polisi Tempat Dduk Bus Transjakarta Akn Diubah"
+        }
+    },
+    {
+        "id": 39,
+        "correct": "Dua tersangka lainnya ialah dari pihak DPRD",
+        "error": {
+            "non": "Dua tersangka lainnya yalah dari pihak DPRD",
+            "real": "Duta tersangka lainnya ialah dari pihak DPRD",
+            "both": "Duta tersangka lainnya yalah dari pihak DPRD"
+        }
+    },
+    {
+        "id": 40,
+        "correct": "Ini Alasan Grab Tak Buka Rekrutmen Pengemudi Besar-besaran",
+        "error": {
+            "non": "Ini Alsaan Grab Tak Muka Rekrutmen Pengemudi Besar-besaran",
+            "real": "Ini Alasan Grab Tak Buka Rekrutmen Pengemudi Besar-besaran",
+            "both": "Ini Alsaan Grab Tak Muka Rekrutmen Pengemudi Besar-besaran"
+        }
+    },
+    {
+        "id": 41,
+        "correct": "Mereka kerap kali ditelepon atau dihubungi dengan maksud tidak jelas",
+        "error": {
+            "non": "Mereka kerap kali ditelepon atu dihubungi dengan makud tidak jelas",
+            "real": "Mereka kera kali ditelepon atau dihubungi dengan maksud tidak melas",
+            "both": "Mereka kera kali ditelepon atu dihubungi dengan makud tidak melas"
+        }
+    },
+    {
+        "id": 42,
+        "correct": "Sampai saat ini kita masih menduga bahwa ini motifnya adalah salah pengertian",
+        "error": {
+            "non": "Sampai saat ini kita msih menduga bahwa ini motifnya adalah salah pengertian",
+            "real": "Sampah saat ini kita masih menduga bahwa ini motifnya adalah malah pengertian",
+            "both": "Sampah saat ini kita msih menduga bahwa ini motifnya adalah malah pengertian"
+        }
+    },
+    {
+        "id": 43,
+        "correct": "Belum ada PSK yang mendaftar pada petugas di posko",
+        "error": {
+            "non": "Bleum ada PSK yang mendaftar pada petugas di posko",
+            "real": "Belum ada PSK yang mendaftar para petugas di posko",
+            "both": "Bleum ada PSK yang mendaftar para petugas di posko"
+        }
+    },
+    {
+        "id": 44,
+        "correct": "Seorang pria muda dari bengal barat",
+        "error": {
+            "non": "Seorang prai muda dari bengal brat",
+            "real": "Seorang pria muda mari bengal barat",
+            "both": "Seorang prai muda mari bengal brat"
+        }
+    },
+    {
+        "id": 45,
+        "correct": "Jalanan Utama Jakarta Bebas Lubang",
+        "error": {
+            "non": "Jalanan Utama Jakarta Bebs Lubang",
+            "real": "Jalinan Utama Jakarta Bebas Lubang",
+            "both": "Jalinan Utama Jakarta Bebs Lubang"
+        }
+    },
+    {
+        "id": 46,
+        "correct": "Polisi Kesulitan Usut Kebakaran di Kalijodo",
+        "error": {
+            "non": "Polisi Kesulitan Usut Kebakaan di Kalijodo",
+            "real": "Posisi Kesulitan Usut Kebakaran di Kalijodo",
+            "both": "Posisi Kesulitan Usut Kebakaan di Kalijodo"
+        }
+    },
+    {
+        "id": 47,
+        "correct": "Belum dibeberkan lebih lanjut mekanisme fitur tersebut",
+        "error": {
+            "non": "Belum dibeberkan lebih kanjut mekanisme fitur tersebut",
+            "real": "Belu dibeberkan lebih lanjut mekanisme fitur tersebut",
+            "both": "Belu dibeberkan lebih kanjut mekanisme fitur tersebut"
+        }
+    },
+    {
+        "id": 48,
+        "correct": "Setelah penyebabnya diketahui, Basuki berpikir, permasalahan sudah selesai",
+        "error": {
+            "non": "Setelah penyebabnya diektahui, Basuki berpikir, permasalahan sudah selesai",
+            "real": "Setelah penyebabnya diketahui, Basuki berpikir, permasalahan suda selesai",
+            "both": "Setelah penyebabnya diektahui, Basuki berpikir, permasalahan suda selesai"
+        }
+    },
+    {
+        "id": 49,
+        "correct": "Area Jakarta Selatan dan Depok diprediksi hujan ringan",
+        "error": {
+            "non": "Area Jakarta Selatanm dan Depok diprediksi hujan ringan",
+            "real": "Area Jakarta Selatan dan Depok diprediksi hujan ringin",
+            "both": "Area Jakarta Selatanm dan Depok diprediksi hujan ringin"
+        }
+    },
+    {
+        "id": 50,
+        "correct": "Dia sudah tiga hari di rawat di rumah sakit ini",
+        "error": {
+            "non": "Dia sudah tiga hari di rawt di rumah sakit ini",
+            "real": "Dia sudah liga hari di rawat di rumah rakit ini",
+            "both": "Dia sudah liga hari di rawt di rumah rakit ini"
+        }
+    }
+]
