@@ -21,19 +21,18 @@ var helper    = require(__dirname + '/../util/helper.js'),
     Verberne  = require(__dirname + '/../ref/Verberne.js'),
     runner    = require(__dirname + '/../main/runner.js');
 
-const WEB_PORT = 3000;
-
 var connection,
     indexer,
     corrector;
 
-const DISTANCE_LIMIT = 2,
+const WEB_PORT       = 3000,
+      DISTANCE_LIMIT = 2,
       RESULT_LIMIT   = 25,
-      PUBLIC_PATH    = __dirname + '/../../public',
-      FILTER_COUNT   = 10;
+      PUBLIC_PATH    = __dirname + '/../../public';
 
 var shouldLoadInformation = _.isUndefined(argv.load) ? false : true,
-    distanceLimit         = _.isUndefined(argv.limit) ? DISTANCE_LIMIT : argv.limit;
+    distanceLimit         = _.isUndefined(argv.limit) ? DISTANCE_LIMIT : argv.limit,
+    webPort               = _.isUndefined(argv.port) ? WEB_PORT : argv.port;
 
 // Register url path for static files.
 app.use('/assets', express.static(PUBLIC_PATH + '/assets'));
@@ -152,8 +151,8 @@ app.post('/compare', function (request, response) {
 });
 
 /** Start listening for request. */
-var server = app.listen(WEB_PORT, function () {
-    var message = 'App listening at http://localhost:' + WEB_PORT;
+var server = app.listen(webPort, function () {
+    var message = 'App listening at http://0.0.0.0:' + webPort;
     helper.notify('Spelling Corrector Server', message);
     console.log(message + '\n');
 
