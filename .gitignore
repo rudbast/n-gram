@@ -51,6 +51,4 @@ src/misc/test.js
 out
 !out/articles
 
-public
-!src/web/public
 src/experiment

@@ -20,7 +20,7 @@ var currDate = new Date();
 kompas.setDesiredDate(currDate.getDate(), currDate.getMonth(), currDate.getFullYear());
 
 // Main Logic Variables
-var docFile = (process.argv.length > 2 ? process.argv[2] : 'out/articles'),
+var docFile = (process.argv.length > 2 ? process.argv[2] : 'out/articles/test.json'),
     index   = 0;
 
 prompt.start();
