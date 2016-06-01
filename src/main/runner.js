@@ -40,7 +40,6 @@ function waitForCommandInput(indexer) {
                 return 1;
             }
 
-            console.log();
             processCmd(input.command);
         });
     }
@@ -55,7 +54,7 @@ function waitForCommandInput(indexer) {
 
         switch (cmd[0]) {
             case 'check':
-                var result = `article file    : ${path.resolve(articleFile)}\n`;
+                var result = `\narticle file    : ${path.resolve(articleFile)}\n`;
                     result += `index directory : ${path.resolve(indexDir)}\n`;
                     result += `trie file       : ${path.resolve(trieFile)}\n`;
                     result += `similarity file : ${path.resolve(similarityFile)}`;
@@ -202,7 +201,7 @@ function waitForCommandInput(indexer) {
                 process.exit(0);
         }
 
-        console.log('\n');
+        console.log();
         getCommandInput();
     }
 
@@ -214,7 +213,7 @@ function waitForCommandInput(indexer) {
  * Print command list menu.
  */
 function printMenu() {
-    var menu = 'check                                   - check program\'s variables\n';
+    var menu = '\ncheck                                   - check program\'s variables\n';
         menu += 'build <index/trie/similar/all>          - build index/similarity\n';
         menu += 'clear                                   - clear screen\n';
         menu += 'load <index/trie/similar/all>           - load index/similarity from file\n';
@@ -233,7 +232,7 @@ function printMenu() {
  */
 function notifyAndPrintConsole(message) {
     helper.notify(NOTIFICATION_TITLE, message);
-    console.log(message);
+    console.log('\n' + message);
 }
 
 /**
