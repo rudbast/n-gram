@@ -6,7 +6,8 @@
 'use strict';
 
 var _      = require('lodash'),
-    prompt = require('prompt');
+    prompt = require('prompt'),
+    path   = require('path');
 
 var helper   = require(__dirname + '/../util/helper.js'),
     migrator = require(__dirname + '/../util/migrator.js');
@@ -54,10 +55,10 @@ function waitForCommandInput(indexer) {
 
         switch (cmd[0]) {
             case 'check':
-                var result = `article file    : ${articleFile}\n`;
-                    result += `index directory : ${indexDir}\n`;
-                    result += `trie file       : ${trieFile}\n`;
-                    result += `similarity file : ${similarityFile}`;
+                var result = `article file    : ${path.resolve(articleFile)}\n`;
+                    result += `index directory : ${path.resolve(indexDir)}\n`;
+                    result += `trie file       : ${path.resolve(trieFile)}\n`;
+                    result += `similarity file : ${path.resolve(similarityFile)}`;
 
                 console.log(result);
                 break;
