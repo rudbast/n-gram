@@ -69,10 +69,17 @@ Indexer.prototype = {
      * Build vocabularies (trie) information from words index.
      */
     buildTrie: function () {
+        var progressBar  = new ProgressBar('    Constructing trie: [:bar] :percent :elapseds', {
+            complete: '=',
+            incomplete: ' ',
+            total: this.size[ngramConst.UNIGRAM]
+        });
+
         for (let word in this.data[ngramConst.UNIGRAM]) {
             if (word.indexOf(ngramConst.TOKEN_NUMBER) == -1) {
                 this.vocabularies.insert(word);
             }
+            progressBar.tick();
         }
     },
 
