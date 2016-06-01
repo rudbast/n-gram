@@ -2,14 +2,15 @@
  * Compute the average perplexity of uni/bi/tri-gram language model,
  * given sentences in an article.
  *
- * @param {string} indexDir  Ngram's index information (uni/bi/tri) file directory
- * @param {string} inputFile Article used when computing perplexity
+ * @param {string} index   Ngram's index information (uni/bi/tri) file directory
+ * @param {string} article Test file used for computing perplexity
  */
 
 'use strict';
 
 var _      = require('lodash'),
-    jsFile = require('jsonfile');
+    jsFile = require('jsonfile'),
+    argv   = require('yargs').argv;
 
 var Indexer   = require(__dirname + '/../main/Indexer.js'),
     ngramUtil = require(__dirname + '/../util/ngram.js'),
@@ -21,16 +22,14 @@ const DEFAULT_INDEX_DIR    = __dirname + '/../../out/ngrams',
       DEFAULT_ARTICLE_FILE = __dirname + '/../../res/eval/perplexity.json';
 
 // Main.
-main(process.argv.slice(2));
+main();
 
 /**
  * Main logic container.
- *
- * @param {Array} args List of program's arguments
  */
-function main(args) {
-    var indexDir  = _.isUndefined(args[0]) ? DEFAULT_INDEX_DIR : args[0],
-        inputFile = _.isUndefined(args[1]) ? DEFAULT_ARTICLE_FILE : args[1],
+function main() {
+    var indexDir  = _.isUndefined(argv.index) ? DEFAULT_INDEX_DIR : argv.index,
+        inputFile = _.isUndefined(argv.article) ? DEFAULT_ARTICLE_FILE : argv.article,
         indexer   = new Indexer();
 
     indexer.loadIndex(indexDir, function () {
