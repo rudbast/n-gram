@@ -60,16 +60,35 @@ function main() {
                     var grams     = ngramUtil.tripleNSplit(part),
                         wordCount = grams[ngramConst.UNIGRAM].length;
 
-                    for (var gram in averagePerplexity) {
-                        if (grams[gram].length == 0) return;
-                        else totalCounted[gram]++;
+                    for (let gram in averagePerplexity) {
+                        var currentGram;
 
-                        averagePerplexity[gram] += computePerplexity(grams[gram], data, count, size, wordCount);
+                        if (grams[gram].length == 0) return;
+                        else {
+                            totalCounted[gram]++;
+
+                            if (gram == ngramConst.TRIGRAM) {
+                                currentGram = _.concat(
+                                    _.first(grams[ngramConst.UNIGRAM]),
+                                    _.first(grams[ngramConst.BIGRAM]),
+                                    grams[gram]
+                                );
+                            } else if (gram == ngramConst.BIGRAM) {
+                                currentGram = _.concat(
+                                    _.first(grams[ngramConst.UNIGRAM]),
+                                    grams[gram]
+                                );
+                            } else {
+                                currentGram = grams[gram];
+                            }
+                        }
+
+                        averagePerplexity[gram] += computePerplexity(currentGram, data, count, size, wordCount);
                     }
                 });
             });
 
-            for (var gram in averagePerplexity) {
+            for (let gram in averagePerplexity) {
                 averagePerplexity[gram] /= totalCounted[gram];
                 console.log(`${gram}: ${averagePerplexity[gram]}`);
             }
@@ -93,7 +112,7 @@ function computePerplexity(parts, data, count, size, wordCount) {
 
     parts.forEach(function (part) {
         probability = ngramProbability(part, data, count, size);
-        perplexity *= 1 / probability;
+        perplexity *= 1 / Math.exp(probability);
     });
 
     return Math.pow(perplexity, 1 / wordCount);
@@ -111,7 +130,8 @@ function computePerplexity(parts, data, count, size, wordCount) {
 function ngramProbability(gram, data, count, size) {
     var validGram, precedenceGram,
         words       = ngramUtil.uniSplit(gram),
-        probability = 1;
+        probability = 1,
+        logResult   = true;
 
     switch (ngramUtil.getGramClass(ngramUtil.uniSplit(gram).length)) {
         case ngramConst.UNIGRAM:
@@ -126,8 +146,9 @@ function ngramProbability(gram, data, count, size) {
 
             if (!validGram) {
                 words.forEach(function (word) {
-                    probability *= ngramProbability(word, data, count, size);
+                    probability += ngramProbability(word, data, count, size);
                 });
+                logResult = false;
             } else {
                 probability = data[ngramConst.BIGRAM][gram] / data[ngramConst.UNIGRAM][precedenceGram];
             }
@@ -144,13 +165,17 @@ function ngramProbability(gram, data, count, size) {
                 ];
 
                 newGrams.forEach(function (newGram) {
-                    probability *= ngramProbability(newGram, data, count, size);
+                    probability += ngramProbability(newGram, data, count, size);
                 });
+                logResult = false;
             } else {
                 probability = data[ngramConst.TRIGRAM][gram] / data[ngramConst.BIGRAM][precedenceGram];
             }
             break;
     }
 
-    return probability;
+    if (logResult)
+        return Math.log(probability);
+    else
+        return probability;
 }
