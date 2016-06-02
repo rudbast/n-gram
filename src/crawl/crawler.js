@@ -92,9 +92,9 @@ function waitForCommandInput() {
                 break;
 
             case 'scrap':
-                console.log('start scrapping ..');
-                startScrapper((cmd[1] != 'undefined' ? cmd[1] : 0), function (data) {
-                    console.log('Scrapping finished.');
+                console.log('start Scraping ..');
+                startScrapper(cmd[1], function (data) {
+                    console.log('Scraping finished.');
 
                     jsfile.writeFile(docFile, data, {spaces: 4}, function (err) {
                         assert.equal(err, null);
@@ -106,7 +106,7 @@ function waitForCommandInput() {
                 process.exit(0);
         }
 
-        console.log('\n');
+        console.log();
         getCommandInput();
     }
 
@@ -120,28 +120,31 @@ function waitForCommandInput() {
 function printMenu() {
     var menu = 'check                      - check program\'s variables\n';
         menu += 'clear                      - clear screen\n';
-        menu += 'date  <day> <month> <year> - set article date to scrap from\n';
-        menu += 'file  <file path>          - set file to be appended on scrap\n';
+        menu += 'date  <day> <month> <year> - set article date to scrape from\n';
+        menu += 'file  <file path>          - set file output for scraped data\n';
         menu += 'index <number>             - set article index\n';
-        menu += 'page  <number>             - set page to scrap from\n';
-        menu += 'scrap <?article limit>     - start scrapping (limitable)\n';
+        menu += 'page  <number>             - set page to scrape from\n';
+        menu += 'scrape <article limit>     - start scraping\n';
         menu += 'exit                       - exit program';
 
     console.log(menu);
 }
 
 /**
- * @typedef ScrapData
- * @type Object
- * @property {number} count    Total articles count
- * @property {Array}  articles List of articles
+ * @typedef Article
+ * @type {Object}
+ * @property {string} index    Article's identifier
+ * @property {string} category Article's Category
+ * @property {string} title    Article's title
+ * @property {string} date     Article's date
+ * @property {string} content  Article's content
  */
 
 /**
  * Callback for when finished scraping the web for articles.
  *
  * @callback scrapeFinish
- * @param {ScrapData} data Articles scraped from a web
+ * @param {Array.<Article>} articles Articles scraped from a web
  */
 
 /**
@@ -154,13 +157,13 @@ function startScrapper(scrapLimit, callback) {
     /**
      * The scrap process logic.
      */
-    function doScrap() {
-        console.log('Article Count  : ' + articleCount);
+    function doScrape() {
+        console.log('Article Count  : ' + articles.length);
         console.log('URL in process : ' + kompas.getBaseURL());
 
         kompas.scrap().then(function (scraps) {
             scraps.forEach(function (news) {
-                if (!news.content || scrapLimit == articleCount) {
+                if (!news.content || scrapLimit == articles.length) {
                     return;
                 }
 
@@ -172,12 +175,10 @@ function startScrapper(scrapLimit, callback) {
                     content: news.content
                 };
 
-                data.articles.push(article);
-                ++data.count;
-                ++articleCount;
+                articles.push(article);
             });
 
-            console.log(scraps.length + ' articles appended to file.');
+            console.log(scraps.length + ' articles scraped.');
 
             // Process next batch (or page) of articles.
             if (scraps.length < 10) {
@@ -191,17 +192,15 @@ function startScrapper(scrapLimit, callback) {
             }
 
             // Decide whether to continue scrap or not.
-            if (scrapLimit == 0 || scrapLimit > articleCount) {
+            if (scrapLimit > articles.length) {
                 console.log();
-                doScrap();
-            } else if (scrapLimit <= articleCount) {
-                if (_.isFunction(callback)) callback(data);
+                doScrape();
+            } else if (scrapLimit <= articles.length) {
+                if (_.isFunction(callback)) callback(articles);
             }
         });
     }
 
-    var data         = {count: 0, articles: []};
-    var articleCount = 0;
-
-    doScrap();
+    var articles = new Array();
+    doScrape();
 }
