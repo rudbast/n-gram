@@ -128,7 +128,7 @@ app.post('/compare', function (request, response) {
         endTime     = now();
 
         corrections = helper.mapCorrectionsToCollection(corrections);
-        corrections = helper.limitCollection(corrections, RESULT_LIMIT);
+        corrections = helper.limitCollection(corrections, resultLimit);
 
         // If digits exists, we'll map back the original value to the corrections.
         if (!_.isNull(digits)) {
