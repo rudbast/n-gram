@@ -33,7 +33,7 @@ const PUBLIC_PATH            = __dirname + '/../../public',
       DEFAULT_DISTANCE_LIMIT = 1,
       DEFAULT_DISTANCE_MODE  = 'damlev';
 
-var shouldLoadInformation = _.isUndefined(argv.load) ? false : true,
+var shouldLoadInformation = !_.isUndefined(argv.load),
     webPort               = _.isUndefined(argv.port) ? DEFAULT_WEB_PORT : argv.port,
     resultLimit           = _.isUndefined(argv.result) ? DEFAULT_RESULT_LIMIT : argv.result,
     distanceLimit         = _.isUndefined(argv.limit) ? DEFAULT_DISTANCE_LIMIT : argv.limit,
