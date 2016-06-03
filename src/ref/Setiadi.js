@@ -78,9 +78,9 @@ Setiadi.prototype = {
                         // Words' statictics' probabilities using assumption.
                         if (useWordAssumption) {
                             if (wordLength > checkedLength) {
-                                rank += 3 * ranksMarginal;
-                            } else if (wordLength == checkedLength) {
                                 rank += 2 * ranksMarginal;
+                            } else if (wordLength == checkedLength) {
+                                rank += 1 * ranksMarginal;
                             }
                         }
 
