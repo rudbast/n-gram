@@ -13,8 +13,8 @@
         "correct": "keterangan beberapa orang saksi bahwa 15 menit sebelum kedua perempuan tersebut ditemukan tewas mengenaskan, beberapa warga sempat melihat keduanya dibonceng oleh lelaki yang berambut cepak dan berbadan tegap",
         "error": {
             "non": "keterangan bebrapa orang saksi bahwa 15 menit sebelum kedua perempuan tersebut ditemukan tewas mengenaskan, beberapa warga sempat menlihat keduanya dibonceng oleh lelaki yang berambut cepak dan berbadan tegap",
-            "real": "keterangan beberapa orang seksi bahwa 15 menit sebelum kedua perempuan tersebut ditemukan tewas mengenaskan, beberapa waria sempat melihat keduanya dibonceng oleh lelaki yang berambut cepak dan berbadan tegap",
-            "both": "keterangan bebrapa orang seksi bahwa 15 menit sebelum kedua perempuan tersebut ditemukan tewas mengenaskan, beberapa waria sempat menlihat keduanya dibonceng oleh lelaki yang berambut cepak dan berbadan tegap"
+            "real": "keterangan beberapa orang seksi bahwa 15 menit sebelum kedua perempuan tersebut ditemukan tewas mengenaskan, beberapa warga sempit melihat keduanya dibonceng oleh lelaki yang berambut cepak dan berbadan tegap",
+            "both": "keterangan bebrapa orang seksi bahwa 15 menit sebelum kedua perempuan tersebut ditemukan tewas mengenaskan, beberapa warga sempit menlihat keduanya dibonceng oleh lelaki yang berambut cepak dan berbadan tegap"
         }
     },
     {
@@ -31,8 +31,8 @@
         "correct": "Alasannya karena perusahaan pemilik kapal asal Taiwan",
         "error": {
             "non": "Alasannya karena perusahaan pemilik kapal asal Tawan",
-            "real": "Alasannya karena perusahaan pemilik kepal asal Taiwan",
-            "both": "Alasannya karena perusahaan pemilik kepal asal Tawan"
+            "real": "Alasannya karena perusahaan pemilik kapas asal Taiwan",
+            "both": "Alasannya karena perusahaan pemilik kapas asal Tawan"
         }
     },
     {
@@ -130,8 +130,8 @@
         "correct": "Situs porno bawa ancaman virus",
         "error": {
             "non": "Stus porno bawa ancaman virus",
-            "real": "Situs parno bawa ancaman virus",
-            "both": "Stus parno bawa ancaman virus"
+            "real": "Situs porno bawa andaman virus",
+            "both": "Stus porno bawa andaman virus"
         }
     },
     {
@@ -139,8 +139,8 @@
         "correct": "ada beberapa pengendara motor yang bekerja sama mengangkat motor untuk dipindahkan dari jalur transjakarta ke jalur reguler",
         "error": {
             "non": "ada bbrapa pengendara motor yang bekerja sama mengangkat motor untuk dipindahkan dari jalur transjakarta ke jalur reguler",
-            "real": "ada beberapa pengendara motor uang bekerja sama mengangkat motor untuk dipindahkan dari jalur transjakarta ke jalur reguler",
-            "both": "ada bbrapa pengendara motor uang bekerja sama mengangkat motor untuk dipindahkan dari jalur transjakarta ke jalur reguler"
+            "real": "ada beberapa pengendara motor yang pekerja sama mengangkat motor untuk dipindahkan dari jalur transjakarta ke jamur reguler",
+            "both": "ada bbrapa pengendara motor yang pekerja sama mengangkat motor untuk dipindahkan dari jalur transjakarta ke jamur reguler"
         }
     },
     {
@@ -229,8 +229,8 @@
         "correct": "dua orang terdakwa dalam kasus korupsi tersebut yakni",
         "error": {
             "non": "dua orang terdakwa dalam kaskus korupsi tersebut yakni",
-            "real": "dia orang terdakwa dalam kasus korupsi tersebut yakni",
-            "both": "dia orang terdakwa dalam kaskus korupsi tersebut yakni"
+            "real": "duta orang terdakwa dalam kasus korupsi tersebut yakni",
+            "both": "duta orang terdakwa dalam kaskus korupsi tersebut yakni"
         }
     },
     {
@@ -247,8 +247,8 @@
         "correct": "Katanya Ada Seribu",
         "error": {
             "non": "Katanyaa Ada Seribu",
-            "real": "Katanya Ada Seibu",
-            "both": "Katanyaa Ada Seibu"
+            "real": "Katanya Ada Serbu",
+            "both": "Katanyaa Ada Serbu"
         }
     },
     {
@@ -256,8 +256,8 @@
         "correct": "Keduanya akhirnya mengaku dikendalikan oleh seorang narapidana, berinisial K, di Lapas Krobokan, Bali",
         "error": {
             "non": "Keduany akhirnya mengaku dikendalikan oleh seorang narapidana, berinisial K, di Lapas Krobokan, Bali",
-            "real": "Keduanya akhirnya mengaku dikendalikan boleh seorang narapidana, berinisial K, di Lapas Krobokan, Bali",
-            "both": "Keduany akhirnya mengaku dikendalikan boleh seorang narapidana, berinisial K, di Lapas Krobokan, Bali"
+            "real": "Keduanya akhirnya mengaku dikendalikan oleh serang narapidana, berinisial K, di Lapas Krobokan, Bali",
+            "both": "Keduany akhirnya mengaku dikendalikan oleh serang narapidana, berinisial K, di Lapas Krobokan, Bali"
         }
     },
     {
@@ -274,8 +274,8 @@
         "correct": "Ini penyalahgunaan senjata, ada unsur kelalaian",
         "error": {
             "non": "Inih penyalahgunaan senjata, ada unsur kelalaian",
-            "real": "Ini penyalahgunaan senjata, pada unsur kelalaian",
-            "both": "Inih penyalahgunaan senjata, pada unsur kelalaian"
+            "real": "Ini penyalahgunaan senjata, ada undur kelalaian",
+            "both": "Inih penyalahgunaan senjata, ada undur kelalaian"
         }
     },
     {
@@ -291,9 +291,9 @@
         "id": 33,
         "correct": "Jangan Abaikan Dampak Psikologis Lagu Dewasa Pada Anak",
         "error": {
-            "non": "Jangan Abaikan Dampak Psikologis Lagu Dewasa Pada nak",
-            "real": "Jangan Abdikan Dampak Psikologis Lagu Dewasa Pada Anak",
-            "both": "Jangan Abdikan Dampak Psikologis Lagu Dewasa Pada nak"
+            "non": "Jangan Abaikan Dampak Psikologis Lagu Dewasa Pada Nnak",
+            "real": "Jangan Abadikan Dampak Psikologis Lagu Dewasa Pada Anak",
+            "both": "Jangan Abadikan Dampak Psikologis Lagu Dewasa Pada Nnak"
         }
     },
     {
@@ -418,8 +418,8 @@
         "correct": "Bom Rakitan yang Belum Meledak Dibawa Brimob dari Lokasi Ledakan",
         "error": {
             "non": "Bom Rakitn yang Belum Meledak Dibawa Brimob dari Lokasi Ledakan",
-            "real": "Bom Rakitan yang Belum Meledak Dibawa Brimob dasi Lokasi Ledakan",
-            "both": "Bom Rakitn yang Belum Meledak Dibawa Brimob dasi Lokasi Ledakan"
+            "real": "Bom Rakitan yang Belum Meledak Dibawa Brimob dari Alokasi Ledakan",
+            "both": "Bom Rakitn yang Belum Meledak Dibawa Brimob dari Alokasi Ledakan"
         }
     },
     {
@@ -436,8 +436,8 @@
         "correct": "Dia hanya mengakui bahwa ekstasi itu miliknya dan hanya akan dikonsumsi sendiri",
         "error": {
             "non": "Dia hanya mengakui bahwa ekstasi itu imliknya dan hanya akan dikonsumsi sendiri",
-            "real": "Dia hanya mengakui bahwa ekstasi itu miliknya dan tanya akan dikonsumsi sendiri",
-            "both": "Dia hanya mengakui bahwa ekstasi itu imliknya dan tanya akan dikonsumsi sendiri"
+            "real": "Dia hanya mengakui bahwa ekstasi itu miliknya dan hanya akan dikonsumsi pendiri",
+            "both": "Dia hanya mengakui bahwa ekstasi itu imliknya dan hanya akan dikonsumsi pendiri"
         }
     },
     {
