@@ -10,10 +10,10 @@ class NGram {
     /**
      * Functions as constants.
      */
-    get UNIGRAM() { return 'unigrams'; }
-    get BIGRAM() { return 'bigrams'; }
-    get TRIGRAM() { return 'trigrams'; }
-    get NUMBER() { return '<ANGKA>'; }
+    static get UNIGRAM() { return 'unigrams' }
+    static get BIGRAM() { return 'bigrams' }
+    static get TRIGRAM() { return 'trigrams' }
+    static get NUMBER() { return '<ANGKA>' }
 
     /**
      * Find out what n-gram class of the given word count of the ngram
@@ -23,7 +23,7 @@ class NGram {
      * @param  {number|string} wordCount Word count/string representation of ngram
      * @return {number|string}           String/number representation of the n-gram's class
      */
-    getGramClass(identity) {
+    static getGramClass(identity) {
         if (_.isNumber(identity)) {
             switch (identity) {
                 case 1: return this.UNIGRAM;
@@ -49,7 +49,7 @@ class NGram {
      * @param  {number|string} identity Word count/string representation of ngram
      * @return {number|string}          String/number representation of the lower n-gram's class
      */
-    getLowerGramClass(identity) {
+    static getLowerGramClass(identity) {
         if (!_.isNumber(identity)) {
             identity = this.getGramClass(identity);
         }
@@ -67,7 +67,7 @@ class NGram {
      * @param  {string} text Text to be split
      * @return {Array}       Split words
      */
-    uniSplit(text) {
+    static uniSplit(text) {
         return text.split(/\s+/);
     }
 
@@ -77,7 +77,7 @@ class NGram {
      * @param  {string} text Text to be split
      * @return {Array}       Split words
      */
-    biSplit(text) {
+    static biSplit(text) {
         var words   = this.uniSplit(text),
             bigrams = [];
 
@@ -104,7 +104,7 @@ class NGram {
      * @param  {string} text Text to be split
      * @return {Array}       Split words
      */
-    triSplit(text) {
+    static triSplit(text) {
         var words    = this.uniSplit(text),
             trigrams = [];
 
@@ -133,7 +133,7 @@ class NGram {
      * @param  {string} text Text to be split
      * @return {Object}      Split words in a object (for each n-gram)
      */
-    tripleNSplit(text) {
+    static tripleNSplit(text) {
         var words  = this.uniSplit(text),
             ngrams = {
                 [`${this.UNIGRAM}`]: [],
@@ -173,4 +173,4 @@ class NGram {
     }
 }
 
-module.exports = new NGram();
+module.exports = NGram;
