@@ -70,16 +70,16 @@ Verberne.prototype = {
             subPart = helper.cleanExtra(subPart);
             subPart = ngramUtil.tripleNSplit(subPart);
 
-            if (subPart[ngramConst.TRIGRAM].length == 0) {
-                if (subPart[ngramConst.UNIGRAM].length == 0) {
+            if (subPart[ngramUtil.TRIGRAM].length == 0) {
+                if (subPart[ngramUtil.UNIGRAM].length == 0) {
                     return;
-                } else if (subPart[ngramConst.BIGRAM].length == 0) {
-                    subPart = subPart[ngramConst.UNIGRAM];
+                } else if (subPart[ngramUtil.BIGRAM].length == 0) {
+                    subPart = subPart[ngramUtil.UNIGRAM];
                 } else {
-                    subPart = subPart[ngramConst.BIGRAM];
+                    subPart = subPart[ngramUtil.BIGRAM];
                 }
             } else {
-                subPart = subPart[ngramConst.TRIGRAM];
+                subPart = subPart[ngramUtil.TRIGRAM];
             }
 
             suggestions = helper.createNgramCombination(
@@ -117,7 +117,7 @@ Verberne.prototype = {
             if (isValidTrigram) {
                 // If trigram is valid, we'll add it into the alternatives, with
                 // its' frequency information.
-                alternatives[part] = self.data[ngramConst.TRIGRAM][part];
+                alternatives[part] = self.data[ngramUtil.TRIGRAM][part];
             } else {
                 // Append original trigram as the alternatives when ANY error
                 // is detected.
@@ -141,7 +141,7 @@ Verberne.prototype = {
             errorIndexes = new Array();
 
         words.forEach(function (word, index) {
-            if (!self.isValid(word, ngramConst.UNIGRAM)) {
+            if (!self.isValid(word, ngramUtil.UNIGRAM)) {
                 errorIndexes.push(index);
             }
         });
@@ -156,7 +156,7 @@ Verberne.prototype = {
      * @return {boolean}         Indicates if the trigram is valid.
      */
     detectRealWord: function (trigram) {
-        return this.isValid(trigram, ngramConst.TRIGRAM);
+        return this.isValid(trigram, ngramUtil.TRIGRAM);
     },
 
     /**
@@ -170,9 +170,9 @@ Verberne.prototype = {
         var self         = this,
             alternatives = new Object(),
             wordAlts     = [
-                {[`${words[0]}`]: this.data[ngramConst.UNIGRAM][words[0]]},
-                {[`${words[1]}`]: this.data[ngramConst.UNIGRAM][words[1]]},
-                {[`${words[2]}`]: this.data[ngramConst.UNIGRAM][words[2]]}
+                {[`${words[0]}`]: this.data[ngramUtil.UNIGRAM][words[0]]},
+                {[`${words[1]}`]: this.data[ngramUtil.UNIGRAM][words[1]]},
+                {[`${words[2]}`]: this.data[ngramUtil.UNIGRAM][words[2]]}
             ],
             suggestWords = new Array();
 
@@ -194,10 +194,10 @@ Verberne.prototype = {
         collections.forEach(function (collection) {
             for (var combination in collection) {
                 // Only accept valid word combination (exists in n-gram knowledge).
-                if (self.isValid(combination, ngramConst.TRIGRAM)) {
+                if (self.isValid(combination, ngramUtil.TRIGRAM)) {
                     // Check if alternatives already exists.
                     if (!_.has(alternatives, combination)) {
-                        alternatives[combination] = self.data[ngramConst.TRIGRAM][combination];
+                        alternatives[combination] = self.data[ngramUtil.TRIGRAM][combination];
                     }
                 }
             }
