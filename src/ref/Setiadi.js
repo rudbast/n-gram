@@ -52,10 +52,9 @@ Setiadi.prototype = {
      */
     getSuggestions: function (inputWord, useWordAssumption) {
         var checkedLength = inputWord.length,
-            dictLength    = Object.keys(this.data.unigrams).length,
-            ranksMarginal = Math.floor(dictLength / 3);
-
-        var suggestions   = new Object();
+            dictLength    = _.keys(this.data.unigrams).length,
+            ranksMarginal = Math.floor(dictLength / 3),
+            suggestions   = new Object();
 
         for (var dictWord in this.data.unigrams) {
             if (this.data.unigrams.hasOwnProperty(dictWord)) {
