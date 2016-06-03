@@ -9,7 +9,8 @@ var levenshtein = require(__dirname + '/../util/levenshtein.js'),
 var ngramConst  = new ngramUtil.NgramConstant();
 
 /**
- * Spelling correction main class (custom).
+ * @class Corrector
+ * @classdesc Spelling correction main class (uses Bigram as base logic).
  *
  * @constructor
  * @param {Object} informations  Words' informations (data, count, size, similars, vocabularies)
@@ -73,24 +74,6 @@ Corrector.prototype = {
         if (includeMainWord) similarWords[inputWord] = 0;
 
         return similarWords;
-
-        // NOTE: Might need to consider whether to remove the code below a little later.
-        // Get suggestions by computing Levenshtein naively.
-        // var suggestions = new Object();
-
-        // for (var dictWord in this.data[ngramConst.UNIGRAM]) {
-        //     if (this.data[ngramConst.UNIGRAM].hasOwnProperty(dictWord)) {
-        //         // var distance = levenshtein.distanceOnThreshold(inputWord, dictWord, this.distanceLimit);
-        //         var distance = levenshtein.distance(inputWord, dictWord);
-
-        //         if (distance <= this.distanceLimit ) {
-        //             var rank = this.data[ngramConst.UNIGRAM][dictWord];
-        //             suggestions[dictWord] = rank;
-        //         }
-        //     }
-        // }
-
-        // return suggestions;
     },
 
     /**
@@ -316,10 +299,12 @@ Corrector.prototype = {
     /**
      * Filter combinations result only for the valid ones.
      *
-     * @param  {Array}  collections Array containing list of combinations
-     * @param  {string} gramClass   Class of the gram being processed
-     * @param  {Object} [options]   Indicate needs to get valid gram's distinct word to avoid recomputation
-     * @return {Object}             Valid gram combination (and distinct gram information)
+     * @param  {Array}   collections              Array containing list of combinations
+     * @param  {string}  gramClass                Class of the gram being processed
+     * @param  {Object}  [options]                Options to manipulate filtering
+     * @param  {boolean} [options.distinct=false] Indicate needs to get valid gram's distinct word to avoid recomputation
+     * @param  {boolean} [options.valid=true]     Indicate whether to check for gram's validity
+     * @return {Object}                           Valid gram combination
      */
     filterCollectionsResult: function (collections, gramClass, options) {
         options = _.isUndefined(options) ? new Object() : options;
