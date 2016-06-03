@@ -27,6 +27,7 @@ var Indexer      = require(__dirname + '/../main/Indexer.js'),
     Corrector    = require(__dirname + '/../main/Corrector.js'),
     // AuxCorrector = require(__dirname + '/../main/AuxCorrector.js'),
     Setiadi      = require(__dirname + '/../ref/Setiadi.js'),
+    AuxSetiadi   = require(__dirname + '/../ref/AuxSetiadi.js'),
     Verberne     = require(__dirname + '/../ref/Verberne.js');
 
 var indexer = new Indexer(),
@@ -74,11 +75,18 @@ function main() {
             case 'setiadi':
                 corrector = new Setiadi(indexer.getInformations(), {
                     distLimit: distanceLimit
-                }); break;
+                });
+                break;
+            case 'setiadi-trie':
+                corrector = new AuxSetiadi(indexer.getInformations(), {
+                    distLimit: distanceLimit
+                });
+                break;
             case 'verberne':
                 corrector = new Verberne(indexer.getInformations(), {
                     distLimit: distanceLimit
-                }); break;
+                });
+                break;
             default: corrector = new Corrector(indexer.getInformations(), {
                 distLimit: distanceLimit
             });
