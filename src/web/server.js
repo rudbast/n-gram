@@ -17,6 +17,7 @@ var _          = require('lodash'),
     argv        = require('yargs').argv;
 
 var helper    = require(__dirname + '/../util/helper.js'),
+    Default   = require(__dirname + '/../util/Default.js'),
     Indexer   = require(__dirname + '/../main/Indexer.js'),
     Corrector = require(__dirname + '/../main/Corrector.js'),
     Setiadi   = require(__dirname + '/../ref/Setiadi.js'),
@@ -27,17 +28,15 @@ var connection,
     indexer,
     corrector;
 
-const PUBLIC_PATH            = __dirname + '/../../public',
-      DEFAULT_WEB_PORT       = 3000,
-      DEFAULT_RESULT_LIMIT   = 25,
-      DEFAULT_DISTANCE_LIMIT = 1,
-      DEFAULT_DISTANCE_MODE  = 'damlev';
+const PUBLIC_PATH          = __dirname + '/../../public',
+      DEFAULT_WEB_PORT     = 3000,
+      DEFAULT_RESULT_LIMIT = 25;
 
 var shouldLoadInformation = !_.isUndefined(argv.load),
     webPort               = _.isUndefined(argv.port) ? DEFAULT_WEB_PORT : argv.port,
     resultLimit           = _.isUndefined(argv.result) ? DEFAULT_RESULT_LIMIT : argv.result,
-    distanceLimit         = _.isUndefined(argv.limit) ? DEFAULT_DISTANCE_LIMIT : argv.limit,
-    distanceMode          = _.isUndefined(argv.mode) ? DEFAULT_DISTANCE_MODE : argv.mode;
+    distanceLimit         = _.isUndefined(argv.limit) ? Default.DISTANCE_LIMIT : argv.limit,
+    distanceMode          = _.isUndefined(argv.mode) ? Default.DISTANCE_MODE : argv.mode;
 
 // Register url path for static files.
 app.use('/assets', express.static(PUBLIC_PATH + '/assets'));

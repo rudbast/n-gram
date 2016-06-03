@@ -9,8 +9,7 @@ var _        = require('lodash'),
 var ngramUtil = require(__dirname + '/ngram.js');
 
 var mongoClient   = mongodb.MongoClient,
-    mongoObjectId = mongodb.ObjectId,
-    ngramConst    = new ngramUtil.NgramConstant();
+    mongoObjectId = mongodb.ObjectId;
 
 const DB_CONFIG_FILE = __dirname + '/../../res/database.json';
 
@@ -47,7 +46,7 @@ function cleanInitial(content) {
     content = content.replace(/\s+/g, ' ');
 
     // Replace numbers (float / integer) with a custom identifier
-    content = content.replace(/(\d+(\.\d+)?)/g, ngramConst.TOKEN_NUMBER);
+    content = content.replace(/(\d+(\.\d+)?)/g, ngramUtil.NUMBER);
 
     return content;
 }
@@ -279,7 +278,7 @@ function getDigits(content) {
  */
 function mapBackDigits(content, digits) {
     digits.forEach(function (digit) {
-        content = content.replace(ngramConst.TOKEN_NUMBER, digit);
+        content = content.replace(ngramUtil.NUMBER, digit);
     });
     return content;
 }

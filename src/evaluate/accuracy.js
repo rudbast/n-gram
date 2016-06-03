@@ -7,6 +7,7 @@
  * @param {string} index      Ngram's index information (uni/bi/tri) file directory
  * @param {string} trie       Ngram's trie information file
  * @param {string} similarity Ngram's word similarity information file
+ * @param {string} report     Evaluation report detail output file
  */
 
 'use strict';
@@ -22,22 +23,11 @@ var _           = require('lodash'),
 var Indexer      = require(__dirname + '/../main/Indexer.js'),
     ngramUtil    = require(__dirname + '/../util/ngram.js'),
     helper       = require(__dirname + '/../util/helper.js'),
+    Default      = require(__dirname + '/../util/Default.js'),
     Corrector    = require(__dirname + '/../main/Corrector.js'),
     // AuxCorrector = require(__dirname + '/../main/AuxCorrector.js'),
     Setiadi      = require(__dirname + '/../ref/Setiadi.js'),
     Verberne     = require(__dirname + '/../ref/Verberne.js');
-
-var ngramConst = new ngramUtil.NgramConstant();
-
-const DEFAULT_INPUT_FILE       = __dirname + '/../../res/eval/accuracy.json',
-      DEFAULT_INPUT_PRIOR_FILE = __dirname + '/../../res/eval/accuracy-prior.json',
-      DEFAULT_FALSPOS_FILE     = __dirname + '/../../res/eval/false-positive.json',
-      DEFAULT_TRIE_FILE        = __dirname + '/../../out/trie.json',
-      DEFAULT_INDEX_DIR        = __dirname + '/../../out/ngrams',
-      DEFAULT_SIMILARITY_FILE  = __dirname + '/../../out/similars.json',
-      DEFAULT_REPORT_FILE      = __dirname + '/../../out/eval/accuracy.json',
-      DEFAULT_DISTANCE_LIMIT   = 1,
-      DEFAULT_DISTANCE_MODE    = 'damlev';
 
 var indexer = new Indexer(),
     corrector;
@@ -49,19 +39,20 @@ main();
  * Main logic container.
  */
 function main() {
-    var distanceLimit = _.isUndefined(argv.limit) ? DEFAULT_DISTANCE_LIMIT : argv.limit,
-        distanceMode  = _.isUndefined(argv.mode) ? DEFAULT_DISTANCE_MODE : argv.mode,
-        indexDir      = _.isUndefined(argv.index) ? DEFAULT_INDEX_DIR : argv.index,
-        trieFile      = _.isUndefined(argv.trie) ? DEFAULT_TRIE_FILE : argv.trie,
-        similarFile   = _.isUndefined(argv.similarity) ? DEFAULT_SIMILARITY_FILE : argv.similarity,
+    var distanceLimit = _.isUndefined(argv.limit) ? Default.DISTANCE_LIMIT : argv.limit,
+        distanceMode  = _.isUndefined(argv.mode) ? Default.DISTANCE_MODE : argv.mode,
+        indexDir      = _.isUndefined(argv.index) ? Default.INDEX_DIR : argv.index,
+        trieFile      = _.isUndefined(argv.trie) ? Default.TRIE_FILE : argv.trie,
+        similarFile   = _.isUndefined(argv.similarity) ? Default.SIMILARITY_FILE : argv.similarity,
+        reportFile    = _.isUndefined(argv.report) ? Default.EVAL_REPORT_FILE : argv.report,
         inputFile;
 
     switch (argv.type) {
-        case 'fp': inputFile = DEFAULT_FALSPOS_FILE; break;
-        default: inputFile = DEFAULT_INPUT_FILE;
+        case 'fp': inputFile = Default.FALSE_POSITIVE_FILE; break;
+        default: inputFile = Default.ACCURACY_FILE;
     }
 
-    if (argv.prior) inputFile = DEFAULT_INPUT_PRIOR_FILE;
+    if (argv.prior) inputFile = Default.ACCURACY_PRIOR_FILE;
 
     console.log('Loading N-Gram informations..');
     indexer.loadInformations(indexDir, trieFile, similarFile, function () {
@@ -70,14 +61,14 @@ function main() {
                 corrector = new Corrector(indexer.getInformations(), {
                     distLimit: distanceLimit,
                     distMode: distanceMode,
-                    ngramMode: ngramConst.BIGRAM
+                    ngramMode: ngramUtil.BIGRAM
                 });
                 break;
             case 'rudy-tri':
                 corrector = new Corrector(indexer.getInformations(), {
                     distLimit: distanceLimit,
                     distMode: distanceMode,
-                    ngramMode: ngramConst.TRIGRAM
+                    ngramMode: ngramUtil.TRIGRAM
                 });
                 break;
             case 'setiadi':
@@ -114,9 +105,9 @@ function main() {
             // Start evaluate and get the report from it.
             report = evaluate(corrector, data, inputContent, progressBar);
 
-            jsFile.writeFile(DEFAULT_REPORT_FILE, report, {spaces: 4}, function (err) {
+            jsFile.writeFile(reportFile, report, {spaces: 4}, function (err) {
                 assert.equal(err, null);
-                console.log(`Check detailed result in ${path.resolve(DEFAULT_REPORT_FILE)}`);
+                console.log(`Check detailed result in ${path.resolve(reportFile)}`);
             });
         });
     });

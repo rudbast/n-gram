@@ -4,9 +4,8 @@ var _ = require('lodash');
 
 var levenshtein = require(__dirname + '/../util/levenshtein.js'),
     helper      = require(__dirname + '/../util/helper.js'),
+    Default     = require(__dirname + '/../util/Default.js'),
     ngramUtil   = require(__dirname + '/../util/ngram.js');
-
-const DEFAULT_DISTANCE_LIMIT = 1;
 
 /**
  * @class     Setiadi
@@ -25,7 +24,7 @@ var Setiadi = function (informations, options) {
     options = _.isUndefined(options) ? new Object() : options;
 
     this.data          = informations.data;
-    this.distanceLimit = _.isUndefined(options.distLimit) ? DEFAULT_DISTANCE_LIMIT : options.distLimit;
+    this.distanceLimit = _.isUndefined(options.distLimit) ? Default.DISTANCE_LIMIT : options.distLimit;
 };
 
 Setiadi.prototype = {

@@ -9,14 +9,11 @@ var _              = require('lodash'),
 
 var ngramUtil   = require(__dirname + '/../util/ngram.js'),
     helper      = require(__dirname + '/../util/helper.js'),
+    Default     = require(__dirname + '/../util/Default.js'),
     levenshtein = require(__dirname + '/../util/levenshtein.js'),
     Trie        = require(__dirname + '/../util/Trie.js');
 
-var languageDetector = new LanguageDetect(),
-    ngramConst       = new ngramUtil.NgramConstant();
-
-const DEFAULT_DISTANCE_LIMIT = 1,
-      DEFAULT_DISTANCE_MODE  = 'damlev';
+var languageDetector = new LanguageDetect();
 
 /**
  * @class     Indexer
@@ -38,24 +35,24 @@ var Indexer = function (options) {
     options = _.isUndefined(options) ? new Object() : options;
 
     this.data = {
-        [`${ngramConst.UNIGRAM}`]: new Object(),
-        [`${ngramConst.BIGRAM}`]: new Object(),
-        [`${ngramConst.TRIGRAM}`]: new Object()
+        [`${ngramUtil.UNIGRAM}`]: new Object(),
+        [`${ngramUtil.BIGRAM}`]: new Object(),
+        [`${ngramUtil.TRIGRAM}`]: new Object()
     };
     this.size = {
-        [`${ngramConst.UNIGRAM}`]: 0,
-        [`${ngramConst.BIGRAM}`]: 0,
-        [`${ngramConst.TRIGRAM}`]: 0
+        [`${ngramUtil.UNIGRAM}`]: 0,
+        [`${ngramUtil.BIGRAM}`]: 0,
+        [`${ngramUtil.TRIGRAM}`]: 0
     };
     this.count = {
-        [`${ngramConst.UNIGRAM}`]: 0,
-        [`${ngramConst.BIGRAM}`]: 0,
-        [`${ngramConst.TRIGRAM}`]: 0
+        [`${ngramUtil.UNIGRAM}`]: 0,
+        [`${ngramUtil.BIGRAM}`]: 0,
+        [`${ngramUtil.TRIGRAM}`]: 0
     };
     this.similars      = new Object();
     this.vocabularies  = new Trie();
-    this.distanceLimit = _.isUndefined(options.distLimit) ? DEFAULT_DISTANCE_LIMIT : options.distLimit;
-    this.distanceModel = _.isUndefined(options.distMode) ? DEFAULT_DISTANCE_MODE : options.distMode;
+    this.distanceLimit = _.isUndefined(options.distLimit) ? Default.DISTANCE_LIMIT : options.distLimit;
+    this.distanceMode  = _.isUndefined(options.distMode) ? Default.DISTANCE_MODE : options.distMode;
 };
 
 Indexer.prototype = {
@@ -91,11 +88,11 @@ Indexer.prototype = {
         var progressBar  = new ProgressBar('    Constructing trie: [:bar] :percent :elapseds', {
             complete: '=',
             incomplete: ' ',
-            total: this.size[ngramConst.UNIGRAM]
+            total: this.size[ngramUtil.UNIGRAM]
         });
 
-        for (let word in this.data[ngramConst.UNIGRAM]) {
-            if (word.indexOf(ngramConst.TOKEN_NUMBER) == -1) {
+        for (let word in this.data[ngramUtil.UNIGRAM]) {
+            if (word.indexOf(ngramUtil.NUMBER) == -1) {
                 this.vocabularies.insert(word);
             }
             progressBar.tick();
@@ -118,9 +115,9 @@ Indexer.prototype = {
         var self = this;
 
         var ngrams = {
-            [`${ngramConst.UNIGRAM}`]: new Object(),
-            [`${ngramConst.BIGRAM}`]: new Object(),
-            [`${ngramConst.TRIGRAM}`]: new Object()
+            [`${ngramUtil.UNIGRAM}`]: new Object(),
+            [`${ngramUtil.BIGRAM}`]: new Object(),
+            [`${ngramUtil.TRIGRAM}`]: new Object()
         };
 
         var content   = helper.cleanInitial(`${article.title}, ${article.content}`),
@@ -388,11 +385,11 @@ Indexer.prototype = {
             progressBar     = new ProgressBar('    Constructing similar words: [:bar] :percent :elapseds', {
                 complete: '=',
                 incomplete: ' ',
-                total: this.size[ngramConst.UNIGRAM]
+                total: this.size[ngramUtil.UNIGRAM]
             });
 
-        for (let word in this.data[ngramConst.UNIGRAM]) {
-            if (word.indexOf(ngramConst.TOKEN_NUMBER) == -1) {
+        for (let word in this.data[ngramUtil.UNIGRAM]) {
+            if (word.indexOf(ngramUtil.NUMBER) == -1) {
                 if (this.distanceMode == 'lev') {
                     // Levenshtein.
                     this.similars[word] = this.vocabularies.findWordsWithinLimit(word, this.distanceLimit);

@@ -4,13 +4,8 @@ var _ = require('lodash');
 
 var levenshtein = require(__dirname + '/../util/levenshtein.js'),
     helper      = require(__dirname + '/../util/helper.js'),
+    Default     = require(__dirname + '/../util/Default.js'),
     ngramUtil   = require(__dirname + '/../util/ngram.js');
-
-var ngramConst  = new ngramUtil.NgramConstant();
-
-const DEFAULT_DISTANCE_LIMIT = 1,
-      DEFAULT_DISTANCE_MODE  = 'damlev',
-      DEFAULT_NGRAM_MODE     = ngramConst.TRIGRAM;
 
 /**
  * @class     Corrector
@@ -40,9 +35,9 @@ var Corrector = function (informations, options) {
     this.count         = informations.count;
     this.similars      = informations.similars;
     this.vocabularies  = informations.vocabularies;
-    this.distanceLimit = _.isUndefined(options.distLimit) ? DEFAULT_DISTANCE_LIMIT : options.distLimit;
-    this.distanceMode  = _.isUndefined(options.distMode) ? DEFAULT_DISTANCE_MODE : options.distMode;
-    this.ngramMode     = _.isUndefined(options.ngramMode) ? DEFAULT_NGRAM_MODE : options.ngramMode;
+    this.distanceLimit = _.isUndefined(options.distLimit) ? Default.DISTANCE_LIMIT : options.distLimit;
+    this.distanceMode  = _.isUndefined(options.distMode) ? Default.DISTANCE_MODE : options.distMode;
+    this.ngramMode     = _.isUndefined(options.ngramMode) ? Default.NGRAM_MODE : options.ngramMode;
 };
 
 Corrector.prototype = {
@@ -60,19 +55,19 @@ Corrector.prototype = {
         }
         checkLowerGram = _.isUndefined(checkLowerGram) ? false : checkLowerGram;
 
-        if (gramClass == ngramConst.UNIGRAM) {
+        if (gramClass == ngramUtil.UNIGRAM) {
             return this.vocabularies.has(gram);
         }
 
         let isValidGram = _.has(this.data[gramClass], gram);
 
-        if (isValidGram || !checkLowerGram || gramClass == ngramConst.BIGRAM) {
+        if (isValidGram || !checkLowerGram || gramClass == ngramUtil.BIGRAM) {
             return isValidGram;
         } else {
             let newGrams = ngramUtil.biSplit(gram);
 
-            return _.has(this.data[ngramConst.BIGRAM], _.first(newGrams))
-                && _.has(this.data[ngramConst.BIGRAM], _.last(newGrams));
+            return _.has(this.data[ngramUtil.BIGRAM], _.first(newGrams))
+                && _.has(this.data[ngramUtil.BIGRAM], _.last(newGrams));
         }
     },
 
@@ -87,7 +82,7 @@ Corrector.prototype = {
         includeMainWord = _.isUndefined(includeMainWord) ? false : includeMainWord;
         var similarWords;
 
-        if (this.isValid(inputWord, ngramConst.UNIGRAM)) {
+        if (this.isValid(inputWord, ngramUtil.UNIGRAM)) {
             similarWords = this.similars[inputWord];
         } else if (this.distanceMode == 'lev') {
             // Get suggestions by incorporating Levenshtein with Trie.
@@ -117,25 +112,25 @@ Corrector.prototype = {
             subPart = ngramUtil.tripleNSplit(subPart);
 
             // Skip this gram if it's actually empty.
-            if (subPart[ngramConst.UNIGRAM].length == 0) return;
+            if (subPart[ngramUtil.UNIGRAM].length == 0) return;
             else {
-                let desiredIsTrigram = self.ngramMode == ngramConst.TRIGRAM,
-                    trigramIsEmpty   = subPart[ngramConst.TRIGRAM].length == 0,
-                    bigramIsEmpty    = subPart[ngramConst.BIGRAM].length == 0;
+                let desiredIsTrigram = self.ngramMode == ngramUtil.TRIGRAM,
+                    trigramIsEmpty   = subPart[ngramUtil.TRIGRAM].length == 0,
+                    bigramIsEmpty    = subPart[ngramUtil.BIGRAM].length == 0;
 
                 if (desiredIsTrigram && !trigramIsEmpty) {
                     subPart = _.concat(
-                        _.first(subPart[ngramConst.UNIGRAM]),
-                        _.first(subPart[ngramConst.BIGRAM]),
-                        subPart[ngramConst.TRIGRAM]
+                        _.first(subPart[ngramUtil.UNIGRAM]),
+                        _.first(subPart[ngramUtil.BIGRAM]),
+                        subPart[ngramUtil.TRIGRAM]
                     );
                 } else if ((desiredIsTrigram || !desiredIsTrigram) && !bigramIsEmpty) {
                     subPart = _.concat(
-                        _.first(subPart[ngramConst.UNIGRAM]),
-                        subPart[ngramConst.BIGRAM]
+                        _.first(subPart[ngramUtil.UNIGRAM]),
+                        subPart[ngramUtil.BIGRAM]
                     );
                 } else {
-                    subPart = subPart[ngramConst.UNIGRAM];
+                    subPart = subPart[ngramUtil.UNIGRAM];
                 }
             }
 
@@ -227,7 +222,7 @@ Corrector.prototype = {
             errorIndexes = new Object();
 
         words.forEach(function (word, index) {
-            if (!self.isValid(word, ngramConst.UNIGRAM)) {
+            if (!self.isValid(word, ngramUtil.UNIGRAM)) {
                 errorIndexes[index] = true;
             }
         });
@@ -262,11 +257,11 @@ Corrector.prototype = {
             var subAlternatives = new Array();
 
             words.forEach(function (auxWord, auxIndex) {
-                if (mainIndex == auxIndex && auxWord != ngramConst.TOKEN_NUMBER) {
+                if (mainIndex == auxIndex && auxWord != ngramUtil.NUMBER) {
                     subAlternatives.push(self.getSuggestions(auxWord, true));
                 } else {
                     subAlternatives.push({
-                        [`${auxWord}`]: self.data[ngramConst.UNIGRAM][auxWord]
+                        [`${auxWord}`]: self.data[ngramUtil.UNIGRAM][auxWord]
                     });
                 }
             });
@@ -277,7 +272,7 @@ Corrector.prototype = {
         return self.filterCollectionsResult(
             collections,
             gramClass,
-            { lax: (gramClass == ngramConst.TRIGRAM) }
+            { lax: (gramClass == ngramUtil.TRIGRAM) }
         );
     },
 
@@ -304,8 +299,8 @@ Corrector.prototype = {
 
             if (_.has(errorIndexes, wordIndex + prevAltIndex)) {
                 subWordAlts = prevAltWords[wordIndex + prevAltIndex - 1];
-            } else if (word != ngramConst.TOKEN_NUMBER) {
-                if (gramClass == ngramConst.TRIGRAM) {
+            } else if (word != ngramUtil.NUMBER) {
+                if (gramClass == ngramUtil.TRIGRAM) {
                     subWordAlts = self.getSuggestions(word);
                 }
             }
@@ -318,8 +313,8 @@ Corrector.prototype = {
             [helper.createNgramCombination(subAlternatives)],
             gramClass,
             {
-                lax: (gramClass == ngramConst.TRIGRAM),
-                valid: (gramClass != ngramConst.BIGRAM)
+                lax: (gramClass == ngramUtil.TRIGRAM),
+                valid: (gramClass != ngramUtil.BIGRAM)
             }
         );
     },
@@ -339,8 +334,8 @@ Corrector.prototype = {
             subAlternatives = new Array();
 
         words.forEach(function (word, index) {
-            if (word == ngramConst.TOKEN_NUMBER
-                || (!_.has(errorIndexes, index) && gramClass == ngramConst.BIGRAM)) {
+            if (word == ngramUtil.NUMBER
+                || (!_.has(errorIndexes, index) && gramClass == ngramUtil.BIGRAM)) {
                 subAlternatives.push({ [`${word}`]: 0 });
             } else {
                 subAlternatives.push(self.getSuggestions(word, true));
@@ -352,8 +347,8 @@ Corrector.prototype = {
             gramClass,
             {
                 distinct: true,
-                lax: (gramClass == ngramConst.TRIGRAM),
-                valid: (gramClass != ngramConst.BIGRAM)
+                lax: (gramClass == ngramUtil.TRIGRAM),
+                valid: (gramClass != ngramUtil.BIGRAM)
             }
         );
     },
@@ -388,7 +383,7 @@ Corrector.prototype = {
 
         if (getDistinct) {
             switch (gramClass) {
-                case ngramConst.BIGRAM: distinctData = [ new Object() ]; break;
+                case ngramUtil.BIGRAM: distinctData = [ new Object() ]; break;
                 default: distinctData = [ new Object(), new Object() ];
             }
         }
@@ -441,16 +436,16 @@ Corrector.prototype = {
             validGram, precedenceGram;
 
         switch (gramClass) {
-            case ngramConst.UNIGRAM:
+            case ngramUtil.UNIGRAM:
                 let mainfreq =
-                    !_.has(self.data[ngramConst.UNIGRAM], gram) ? 0 : self.data[ngramConst.UNIGRAM][gram];
+                    !_.has(self.data[ngramUtil.UNIGRAM], gram) ? 0 : self.data[ngramUtil.UNIGRAM][gram];
 
-                probability = (mainfreq + 1) / (self.count[ngramConst.UNIGRAM] + self.size[ngramConst.UNIGRAM]);
+                probability = (mainfreq + 1) / (self.count[ngramUtil.UNIGRAM] + self.size[ngramUtil.UNIGRAM]);
                 break;
 
-            case ngramConst.BIGRAM:
+            case ngramUtil.BIGRAM:
                 precedenceGram = `${words[0]}`;
-                validGram      = _.has(self.data[ngramConst.BIGRAM], gram);
+                validGram      = _.has(self.data[ngramUtil.BIGRAM], gram);
 
                 // Compute probability using Back-off model.
                 if (!validGram) {
@@ -459,13 +454,13 @@ Corrector.prototype = {
                     });
                     logResult = false;
                 } else {
-                    probability = self.data[ngramConst.BIGRAM][gram] / self.data[ngramConst.UNIGRAM][precedenceGram];
+                    probability = self.data[ngramUtil.BIGRAM][gram] / self.data[ngramUtil.UNIGRAM][precedenceGram];
                 }
                 break;
 
-            case ngramConst.TRIGRAM:
+            case ngramUtil.TRIGRAM:
                 precedenceGram = `${words[0]} ${words[1]}`;
-                validGram      = _.has(self.data[ngramConst.TRIGRAM], gram);
+                validGram      = _.has(self.data[ngramUtil.TRIGRAM], gram);
 
                 if (!validGram) {
                     let newGrams = [
@@ -479,7 +474,7 @@ Corrector.prototype = {
                     });
                     logResult = false;
                 } else {
-                    probability = self.data[ngramConst.TRIGRAM][gram] / self.data[ngramConst.BIGRAM][precedenceGram];
+                    probability = self.data[ngramUtil.TRIGRAM][gram] / self.data[ngramUtil.BIGRAM][precedenceGram];
                 }
                 break;
         }

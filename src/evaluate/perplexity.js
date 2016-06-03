@@ -14,12 +14,8 @@ var _      = require('lodash'),
 
 var Indexer   = require(__dirname + '/../main/Indexer.js'),
     ngramUtil = require(__dirname + '/../util/ngram.js'),
+    Default   = require(__dirname + '/../util/Default.js'),
     helper    = require(__dirname + '/../util/helper.js');
-
-var ngramConst = new ngramUtil.NgramConstant();
-
-const DEFAULT_INDEX_DIR    = __dirname + '/../../out/ngrams',
-      DEFAULT_ARTICLE_FILE = __dirname + '/../../res/eval/perplexity.json';
 
 // Main.
 main();
@@ -28,22 +24,22 @@ main();
  * Main logic container.
  */
 function main() {
-    var indexDir  = _.isUndefined(argv.index) ? DEFAULT_INDEX_DIR : argv.index,
-        inputFile = _.isUndefined(argv.article) ? DEFAULT_ARTICLE_FILE : argv.article,
+    var indexDir  = _.isUndefined(argv.index) ? Default.INDEX_DIR : argv.index,
+        inputFile = _.isUndefined(argv.article) ? Default.PERPLEXITY_FILE : argv.article,
         indexer   = new Indexer();
 
     indexer.loadIndex(indexDir, function () {
         jsFile.readFile(inputFile, function (err, article) {
             var sentences         = helper.splitToSentence(helper.cleanInitial(article.content)),
                 averagePerplexity = {
-                    [`${ngramConst.UNIGRAM}`]: 0,
-                    [`${ngramConst.BIGRAM}`]: 0,
-                    [`${ngramConst.TRIGRAM}`]: 0
+                    [`${ngramUtil.UNIGRAM}`]: 0,
+                    [`${ngramUtil.BIGRAM}`]: 0,
+                    [`${ngramUtil.TRIGRAM}`]: 0
                 },
                 totalCounted = {
-                    [`${ngramConst.UNIGRAM}`]: 0,
-                    [`${ngramConst.BIGRAM}`]: 0,
-                    [`${ngramConst.TRIGRAM}`]: 0
+                    [`${ngramUtil.UNIGRAM}`]: 0,
+                    [`${ngramUtil.BIGRAM}`]: 0,
+                    [`${ngramUtil.TRIGRAM}`]: 0
                 },
                 data  = indexer.getInformations().data,
                 count = indexer.getInformations().count,
@@ -58,7 +54,7 @@ function main() {
                     part = helper.cleanExtra(part);
 
                     var grams     = ngramUtil.tripleNSplit(part),
-                        wordCount = grams[ngramConst.UNIGRAM].length;
+                        wordCount = grams[ngramUtil.UNIGRAM].length;
 
                     for (let gram in averagePerplexity) {
                         var currentGram;
@@ -67,15 +63,15 @@ function main() {
                         else {
                             totalCounted[gram]++;
 
-                            if (gram == ngramConst.TRIGRAM) {
+                            if (gram == ngramUtil.TRIGRAM) {
                                 currentGram = _.concat(
-                                    _.first(grams[ngramConst.UNIGRAM]),
-                                    _.first(grams[ngramConst.BIGRAM]),
+                                    _.first(grams[ngramUtil.UNIGRAM]),
+                                    _.first(grams[ngramUtil.BIGRAM]),
                                     grams[gram]
                                 );
-                            } else if (gram == ngramConst.BIGRAM) {
+                            } else if (gram == ngramUtil.BIGRAM) {
                                 currentGram = _.concat(
-                                    _.first(grams[ngramConst.UNIGRAM]),
+                                    _.first(grams[ngramUtil.UNIGRAM]),
                                     grams[gram]
                                 );
                             } else {
@@ -134,15 +130,15 @@ function ngramProbability(gram, data, count, size) {
         logResult   = true;
 
     switch (ngramUtil.getGramClass(ngramUtil.uniSplit(gram).length)) {
-        case ngramConst.UNIGRAM:
-            var mainfreq = _.isUndefined(data[ngramConst.UNIGRAM][gram]) ? 0 : data[ngramConst.UNIGRAM][gram];
+        case ngramUtil.UNIGRAM:
+            var mainfreq = _.isUndefined(data[ngramUtil.UNIGRAM][gram]) ? 0 : data[ngramUtil.UNIGRAM][gram];
             // (C(w_i) + 1) / (N + V)
-            probability = (mainfreq + 1) / (count[ngramConst.UNIGRAM] + size[ngramConst.UNIGRAM]);
+            probability = (mainfreq + 1) / (count[ngramUtil.UNIGRAM] + size[ngramUtil.UNIGRAM]);
             break;
 
-        case ngramConst.BIGRAM:
+        case ngramUtil.BIGRAM:
             precedenceGram = `${words[0]}`;
-            validGram      = !_.isUndefined(data[ngramConst.BIGRAM][gram]);
+            validGram      = !_.isUndefined(data[ngramUtil.BIGRAM][gram]);
 
             if (!validGram) {
                 words.forEach(function (word) {
@@ -150,13 +146,13 @@ function ngramProbability(gram, data, count, size) {
                 });
                 logResult = false;
             } else {
-                probability = data[ngramConst.BIGRAM][gram] / data[ngramConst.UNIGRAM][precedenceGram];
+                probability = data[ngramUtil.BIGRAM][gram] / data[ngramUtil.UNIGRAM][precedenceGram];
             }
             break;
 
-        case ngramConst.TRIGRAM:
+        case ngramUtil.TRIGRAM:
             precedenceGram = `${words[0]} ${words[1]}`;
-            validGram      = !_.isUndefined(data[ngramConst.TRIGRAM][gram]);
+            validGram      = !_.isUndefined(data[ngramUtil.TRIGRAM][gram]);
 
             if (!validGram) {
                 var newGrams = [
@@ -169,7 +165,7 @@ function ngramProbability(gram, data, count, size) {
                 });
                 logResult = false;
             } else {
-                probability = data[ngramConst.TRIGRAM][gram] / data[ngramConst.BIGRAM][precedenceGram];
+                probability = data[ngramUtil.TRIGRAM][gram] / data[ngramUtil.BIGRAM][precedenceGram];
             }
             break;
     }
@@ -178,4 +174,37 @@ function ngramProbability(gram, data, count, size) {
         return Math.log(probability);
     else
         return probability;
+}
+
+// function kneserNeyProbability(words, gramClass) {
+//     const DISCOUNT_WEIGHT = 0.75;
+//     var gram = words.join(' '),
+//         probability;
+
+//     probability = Math.max(bigram - DISCOUNT_WEIGHT, 0);
+//     probability += DISCOUNT_WEIGHT / data[ngramUtil.UNIGRAM][words[0]] * countPrecedingGram(words, ngramUtil.BIGRAM):
+// }
+
+function countPrecedingGram(supercedeGram, gramClass) {
+    if (_.has(this.precede, supercedeGram))
+        return this.precede[supercedeGram];
+
+    var count = 0;
+    _.forEach(data[gramClass], function (probability, dictGram) {
+        if (dictGram.indexOf(supercedeGram) > 0) ++count;
+    });
+
+    return this.precede[supercedeGram] = count;
+}
+
+function countSupercedeGram(precedeGram, gramClass) {
+    if (_.has(this.supercede, precedeGram))
+        return this.supercede[precedeGram];
+
+    var count = 0;
+    _.forEach(data[gramClass], function (probability, dictGram) {
+        if (dictGram.indexOf(precedeGram) > 0) ++count;
+    });
+
+    return this.supercede[precedeGram] = count;
 }

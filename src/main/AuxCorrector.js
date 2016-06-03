@@ -4,9 +4,8 @@ var _ = require('lodash');
 
 var levenshtein = require(__dirname + '/../util/levenshtein.js'),
     helper      = require(__dirname + '/../util/helper.js'),
+    Default     = require(__dirname + '/../util/Default.js'),
     ngramUtil   = require(__dirname + '/../util/ngram.js');
-
-var ngramConst  = new ngramUtil.NgramConstant();
 
 /**
  * @class Corrector
@@ -45,7 +44,7 @@ Corrector.prototype = {
             gramClass = ngramUtil.getGramClass(ngramUtil.uniSplit(gram).length);
         }
 
-        if (gramClass == ngramConst.UNIGRAM && gram != ngramConst.TOKEN_NUMBER) {
+        if (gramClass == ngramUtil.UNIGRAM && gram != ngramUtil.NUMBER) {
             return this.vocabularies.has(gram);
         }
         return _.has(this.data[gramClass], gram);
@@ -62,7 +61,7 @@ Corrector.prototype = {
         includeMainWord = _.isUndefined(includeMainWord) ? false : includeMainWord;
         var similarWords;
 
-        if (this.isValid(inputWord, ngramConst.UNIGRAM)) {
+        if (this.isValid(inputWord, ngramUtil.UNIGRAM)) {
             similarWords = this.similars[inputWord];
         } else {
             // Get suggestions by incorporating Levenshtein with Trie.
@@ -91,14 +90,14 @@ Corrector.prototype = {
             subPart = helper.cleanExtra(subPart);
             subPart = ngramUtil.tripleNSplit(subPart);
 
-            if (subPart[ngramConst.UNIGRAM].length == 0) {
+            if (subPart[ngramUtil.UNIGRAM].length == 0) {
                 return;
-            } else if (subPart[ngramConst.BIGRAM].length == 0) {
-                subPart = subPart[ngramConst.UNIGRAM];
+            } else if (subPart[ngramUtil.BIGRAM].length == 0) {
+                subPart = subPart[ngramUtil.UNIGRAM];
             } else {
                 subPart = _.concat(
-                    _.first(subPart[ngramConst.UNIGRAM]),
-                    subPart[ngramConst.BIGRAM]
+                    _.first(subPart[ngramUtil.UNIGRAM]),
+                    subPart[ngramUtil.BIGRAM]
                 );
             }
 
@@ -187,7 +186,7 @@ Corrector.prototype = {
             errorIndexes = new Object();
 
         words.forEach(function (word, index) {
-            if (!self.isValid(word, ngramConst.UNIGRAM)) {
+            if (!self.isValid(word, ngramUtil.UNIGRAM)) {
                 errorIndexes[index] = true;
             }
         });
@@ -222,11 +221,11 @@ Corrector.prototype = {
             var subAlternatives = new Array();
 
             words.forEach(function (auxWord, auxIndex) {
-                if (mainIndex == auxIndex && auxWord != ngramConst.TOKEN_NUMBER) {
+                if (mainIndex == auxIndex && auxWord != ngramUtil.NUMBER) {
                     subAlternatives.push(self.getSuggestions(auxWord, true));
                 } else {
                     subAlternatives.push({
-                        [`${auxWord}`]: self.data[ngramConst.UNIGRAM][auxWord]
+                        [`${auxWord}`]: self.data[ngramUtil.UNIGRAM][auxWord]
                     });
                 }
             });
@@ -366,16 +365,16 @@ Corrector.prototype = {
             validGram, precedenceGram;
 
         switch (gramClass) {
-            case ngramConst.UNIGRAM:
+            case ngramUtil.UNIGRAM:
                 let mainfreq =
-                    !_.has(self.data[ngramConst.UNIGRAM], gram) ? 0 : self.data[ngramConst.UNIGRAM][gram];
+                    !_.has(self.data[ngramUtil.UNIGRAM], gram) ? 0 : self.data[ngramUtil.UNIGRAM][gram];
 
-                probability = (mainfreq + 1) / (self.count[ngramConst.UNIGRAM] + self.size[ngramConst.UNIGRAM]);
+                probability = (mainfreq + 1) / (self.count[ngramUtil.UNIGRAM] + self.size[ngramUtil.UNIGRAM]);
                 break;
 
-            case ngramConst.BIGRAM:
+            case ngramUtil.BIGRAM:
                 precedenceGram = `${words[0]}`;
-                validGram      = _.has(self.data[ngramConst.BIGRAM], gram);
+                validGram      = _.has(self.data[ngramUtil.BIGRAM], gram);
 
                 // Compute probability using Back-off model.
                 if (!validGram) {
@@ -384,13 +383,13 @@ Corrector.prototype = {
                     });
                     logResult = false;
                 } else {
-                    probability = self.data[ngramConst.BIGRAM][gram] / self.data[ngramConst.UNIGRAM][precedenceGram];
+                    probability = self.data[ngramUtil.BIGRAM][gram] / self.data[ngramUtil.UNIGRAM][precedenceGram];
                 }
                 break;
 
-            case ngramConst.TRIGRAM:
+            case ngramUtil.TRIGRAM:
                 precedenceGram = `${words[0]} ${words[1]}`;
-                validGram      = _.has(self.data[ngramConst.TRIGRAM], gram);
+                validGram      = _.has(self.data[ngramUtil.TRIGRAM], gram);
 
                 if (!validGram) {
                     let newGrams = [
@@ -404,7 +403,7 @@ Corrector.prototype = {
                     });
                     logResult = false;
                 } else {
-                    probability = self.data[ngramConst.TRIGRAM][gram] / self.data[ngramConst.BIGRAM][precedenceGram];
+                    probability = self.data[ngramUtil.TRIGRAM][gram] / self.data[ngramUtil.BIGRAM][precedenceGram];
                 }
                 break;
         }

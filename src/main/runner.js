@@ -10,18 +10,16 @@ var _      = require('lodash'),
     path   = require('path');
 
 var helper   = require(__dirname + '/../util/helper.js'),
+    Default  = require(__dirname + '/../util/Default.js'),
     migrator = require(__dirname + '/../util/migrator.js');
 
-const DEFAULT_ARTICLE_FILE    = __dirname + '/../../out/articles/data.json',
-      DEFAULT_TRIE_FILE       = __dirname + '/../../out/trie.json',
-      DEFAULT_INDEX_DIR       = __dirname + '/../../out/ngrams',
-      DEFAULT_SIMILARITY_FILE = __dirname + '/../../out/similars.json',
-      NOTIFICATION_TITLE      = 'Spelling Corrector Web Runner';
+const DEFAULT_ARTICLE_FILE = __dirname + '/../../out/articles/data.json',
+      NOTIFICATION_TITLE   = 'Spelling Corrector Web Runner';
 
 var articleFile    = DEFAULT_ARTICLE_FILE,
-    indexDir       = DEFAULT_INDEX_DIR,
-    trieFile       = DEFAULT_TRIE_FILE,
-    similarityFile = DEFAULT_SIMILARITY_FILE,
+    indexDir       = Default.INDEX_DIR,
+    trieFile       = Default.TRIE_FILE,
+    similarityFile = Default.SIMILARITY_FILE,
     message        = '';
 
 /**
@@ -179,16 +177,16 @@ function waitForCommandInput(indexer) {
             case 'set':
                 switch (cmd[1]) {
                     case 'article':
-                        articleFile = _.isEmpty(cmd[2]) ? DEFUALT_ARTICLE_FILE : cmd[2];
+                        articleFile = _.isEmpty(cmd[2]) ? DEFAULT_ARTICLE_FILE : cmd[2];
                         break;
                     case 'trie':
-                        trieFile = _.isEmpty(cmd[2]) ? DEFAULT_TRIE_DIR : cmd[2];
+                        trieFile = _.isEmpty(cmd[2]) ? Default.TRIE_DIR : cmd[2];
                         break;
                     case 'index':
-                        indexDir = _.isEmpty(cmd[2]) ? DEFAULT_INDEX_DIR : cmd[2];
+                        indexDir = _.isEmpty(cmd[2]) ? Default.INDEX_DIR : cmd[2];
                         break;
                     case 'similar':
-                        similarityFile = _.isEmpty(cmd[2]) ? DEFAULT_SIMILARITY_FILE : cmd[2];
+                        similarityFile = _.isEmpty(cmd[2]) ? Default.SIMILARITY_FILE : cmd[2];
                         break;
                 }
                 break;

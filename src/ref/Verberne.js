@@ -4,11 +4,8 @@ var _ = require('lodash');
 
 var levenshtein = require(__dirname + '/../util/levenshtein.js'),
     helper      = require(__dirname + '/../util/helper.js'),
+    Default     = require(__dirname + '/../util/Default.js'),
     ngramUtil   = require(__dirname + '/../util/ngram.js');
-
-var ngramConst  = new ngramUtil.NgramConstant();
-
-const DEFAULT_DISTANCE_LIMIT = 1;
 
 /**
  * @class     Verberne
@@ -29,7 +26,7 @@ var Verberne = function (informations, options) {
 
     this.data          = informations.data;
     this.similars      = informations.similars;
-    this.distanceLimit = _.isUndefined(options.distLimit) ? DEFAULT_DISTANCE_LIMIT : options.distLimit;
+    this.distanceLimit = _.isUndefined(options.distLimit) ? Default.DISTANCE_LIMIT : options.distLimit;
 };
 
 Verberne.prototype = {
