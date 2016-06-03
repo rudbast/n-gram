@@ -15,11 +15,17 @@ var ngramUtil   = require(__dirname + '/../util/ngram.js'),
 var languageDetector = new LanguageDetect(),
     ngramConst       = new ngramUtil.NgramConstant();
 
+const DEFAULT_DISTANCE_LIMIT = 1,
+      DEFAULT_DISTANCE_MODE  = 'damlev';
+
 /**
- * Index builder class.
+ * @class     Indexer
+ * @classdesc Index builder class.
  *
  * @constructor
- * @param {number} [distanceLimit=2] Words similarity distance limit
+ * @param {Object} [options]                 Options to initialize the component with
+ * @param {number} [options.distLimit=1]     Word's different (distance) limit
+ * @param {string} [options.distMode=damlev] Word's different (distance) computation method
  *
  * @property {Object} data          N-grams words index container
  * @property {Object} size          Total unique gram/word pair of each N-gram
@@ -28,7 +34,9 @@ var languageDetector = new LanguageDetect(),
  * @property {Trie}   vocabularies  Trie's structured vocabularies
  * @property {number} distanceLimit Words similarity distance limit
  */
-var Indexer = function (distanceLimit) {
+var Indexer = function (options) {
+    options = _.isUndefined(options) ? new Object() : options;
+
     this.data = {
         [`${ngramConst.UNIGRAM}`]: new Object(),
         [`${ngramConst.BIGRAM}`]: new Object(),
@@ -46,14 +54,25 @@ var Indexer = function (distanceLimit) {
     };
     this.similars      = new Object();
     this.vocabularies  = new Trie();
-    this.distanceLimit = !_.isUndefined(distanceLimit) ? distanceLimit : 2;
+    this.distanceLimit = _.isUndefined(options.distLimit) ? DEFAULT_DISTANCE_LIMIT : options.distLimit;
+    this.distanceModel = _.isUndefined(options.distMode) ? DEFAULT_DISTANCE_MODE : options.distMode;
 };
 
 Indexer.prototype = {
     /**
+     * All knowledge/informations built by Indexer from corpus.
+     *
+     * @typedef  {Object} Informations
+     * @property {Object} data         N-grams words index container
+     * @property {Object} size         Total unique gram/word pair of each N-gram
+     * @property {Object} count        Total frequency count of all gram/word pair of each N-gram
+     * @property {Object} similars     Words similarity pair container
+     * @property {Trie}   vocabularies Trie's structured vocabularies
+     */
+    /**
      * Get all the available informations.
      *
-     * @return {Object} All informations
+     * @return {Informations} All informations
      */
     getInformations: function () {
         return {
@@ -89,7 +108,6 @@ Indexer.prototype = {
      * @callback extractIndexCb
      * @param {Object} ngrams Word index container for each gram
      */
-
     /**
      * Extract words index (words' couples, frequency) from article's content.
      *
@@ -375,10 +393,13 @@ Indexer.prototype = {
 
         for (let word in this.data[ngramConst.UNIGRAM]) {
             if (word.indexOf(ngramConst.TOKEN_NUMBER) == -1) {
-                // Levenshtein.
-                this.similars[word] = this.vocabularies.findWordsWithinLimit(word, this.distanceLimit);
-                // Optimal damerau-levensthein.
-                // this.similars[word] = this.vocabularies.findWordsWithinLimitDamLev(word, this.distanceLimit);
+                if (this.distanceMode == 'lev') {
+                    // Levenshtein.
+                    this.similars[word] = this.vocabularies.findWordsWithinLimit(word, this.distanceLimit);
+                } else {
+                    // Optimal damerau-levensthein.
+                    this.similars[word] = this.vocabularies.findWordsWithinLimitDamLev(word, this.distanceLimit);
+                }
             }
             progressBar.tick();
         }

@@ -8,22 +8,28 @@ var levenshtein = require(__dirname + '/../util/levenshtein.js'),
 
 var ngramConst  = new ngramUtil.NgramConstant();
 
+const DEFAULT_DISTANCE_LIMIT = 1;
+
 /**
- * Spelling correction main class (as implemented by Suzan Verberne).
+ * @class     Verberne
+ * @classdesc Spelling correction main class (as implemented by Suzan Verberne).
  * @see http://sverberne.ruhosting.nl/papers/verberne2002.pdf
  *
  * @constructor
- * @param {Object} informations  Words' informations (data, count, size, similars, vocabularies)
- * @param {number} [distanceLimit=2] Words distance limit
+ * @param {Informations} informations          Words' informations (data, count, size, similars, vocabularies)
+ * @param {Object}       [options]             Options to initialize the component with
+ * @param {number}       [options.distLimit=1] Word's different (distance) limit
  *
  * @property {Object} data          N-grams words index container
  * @property {Object} similars      Words with it's similars pairs
  * @property {number} distanceLimit Words distance limit
  */
-var Verberne = function (informations, distanceLimit) {
+var Verberne = function (informations, options) {
+    options = _.isUndefined(options) ? new Object() : options;
+
     this.data          = informations.data;
     this.similars      = informations.similars;
-    this.distanceLimit = !_.isUndefined(distanceLimit) ? distanceLimit : 2;
+    this.distanceLimit = _.isUndefined(options.distLimit) ? DEFAULT_DISTANCE_LIMIT : options.distLimit;
 };
 
 Verberne.prototype = {

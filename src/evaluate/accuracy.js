@@ -23,7 +23,7 @@ var Indexer      = require(__dirname + '/../main/Indexer.js'),
     ngramUtil    = require(__dirname + '/../util/ngram.js'),
     helper       = require(__dirname + '/../util/helper.js'),
     Corrector    = require(__dirname + '/../main/Corrector.js'),
-    AuxCorrector = require(__dirname + '/../main/AuxCorrector.js'),
+    // AuxCorrector = require(__dirname + '/../main/AuxCorrector.js'),
     Setiadi      = require(__dirname + '/../ref/Setiadi.js'),
     Verberne     = require(__dirname + '/../ref/Verberne.js');
 
@@ -36,7 +36,8 @@ const DEFAULT_INPUT_FILE       = __dirname + '/../../res/eval/accuracy.json',
       DEFAULT_INDEX_DIR        = __dirname + '/../../out/ngrams',
       DEFAULT_SIMILARITY_FILE  = __dirname + '/../../out/similars.json',
       DEFAULT_REPORT_FILE      = __dirname + '/../../out/eval/accuracy.json',
-      DEFAULT_DISTANCE_LIMIT   = 1;
+      DEFAULT_DISTANCE_LIMIT   = 1,
+      DEFAULT_DISTANCE_MODE    = 'damlev';
 
 var indexer = new Indexer(),
     corrector;
@@ -49,6 +50,7 @@ main();
  */
 function main() {
     var distanceLimit = _.isUndefined(argv.limit) ? DEFAULT_DISTANCE_LIMIT : argv.limit,
+        distanceMode  = _.isUndefined(argv.mode) ? DEFAULT_DISTANCE_MODE : argv.mode,
         indexDir      = _.isUndefined(argv.index) ? DEFAULT_INDEX_DIR : argv.index,
         trieFile      = _.isUndefined(argv.trie) ? DEFAULT_TRIE_FILE : argv.trie,
         similarFile   = _.isUndefined(argv.similarity) ? DEFAULT_SIMILARITY_FILE : argv.similarity,
@@ -64,11 +66,31 @@ function main() {
     console.log('Loading N-Gram informations..');
     indexer.loadInformations(indexDir, trieFile, similarFile, function () {
         switch (argv.version) {
-            case 'rudy-1': corrector = new Corrector(indexer.getInformations(), distanceLimit); break;
-            case 'rudy-2': corrector = new AuxCorrector(indexer.getInformations(), distanceLimit); break;
-            case 'setiadi': corrector = new Setiadi(indexer.getInformations(), distanceLimit); break;
-            case 'verberne': corrector = new Verberne(indexer.getInformations(), distanceLimit); break;
-            default: corrector = new Corrector(indexer.getInformations(), distanceLimit);
+            case 'rudy-bi':
+                corrector = new Corrector(indexer.getInformations(), {
+                    distLimit: distanceLimit,
+                    distMode: distanceMode,
+                    ngramMode: ngramConst.BIGRAM
+                });
+                break;
+            case 'rudy-tri':
+                corrector = new Corrector(indexer.getInformations(), {
+                    distLimit: distanceLimit,
+                    distMode: distanceMode,
+                    ngramMode: ngramConst.TRIGRAM
+                });
+                break;
+            case 'setiadi':
+                corrector = new Setiadi(indexer.getInformations(), {
+                    distLimit: distanceLimit
+                }); break;
+            case 'verberne':
+                corrector = new Verberne(indexer.getInformations(), {
+                    distLimit: distanceLimit
+                }); break;
+            default: corrector = new Corrector(indexer.getInformations(), {
+                distLimit: distanceLimit
+            });
         }
 
         jsFile.readFile(inputFile, function (err, data) {

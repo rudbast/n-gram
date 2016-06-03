@@ -27,14 +27,17 @@ var connection,
     indexer,
     corrector;
 
-const WEB_PORT       = 3000,
-      DISTANCE_LIMIT = 2,
-      RESULT_LIMIT   = 25,
-      PUBLIC_PATH    = __dirname + '/../../public';
+const PUBLIC_PATH            = __dirname + '/../../public',
+      DEFAULT_WEB_PORT       = 3000,
+      DEFAULT_RESULT_LIMIT   = 25,
+      DEFAULT_DISTANCE_LIMIT = 1,
+      DEFAULT_DISTANCE_MODE  = 'damlev';
 
 var shouldLoadInformation = _.isUndefined(argv.load) ? false : true,
-    distanceLimit         = _.isUndefined(argv.limit) ? DISTANCE_LIMIT : argv.limit,
-    webPort               = _.isUndefined(argv.port) ? WEB_PORT : argv.port;
+    webPort               = _.isUndefined(argv.port) ? DEFAULT_WEB_PORT : argv.port,
+    resultLimit           = _.isUndefined(argv.result) ? DEFAULT_RESULT_LIMIT : argv.result,
+    distanceLimit         = _.isUndefined(argv.limit) ? DEFAULT_DISTANCE_LIMIT : argv.limit,
+    distanceMode          = _.isUndefined(argv.mode) ? DEFAULT_DISTANCE_MODE : argv.mode;
 
 // Register url path for static files.
 app.use('/assets', express.static(PUBLIC_PATH + '/assets'));
@@ -66,15 +69,15 @@ app.post('/correct', function (request, response) {
 
     switch (type) {
         case 'custom':
-            corrector = new Corrector(indexer.getInformations(), distanceLimit);
+            corrector = new Corrector(indexer.getInformations(), { distLimit: distanceLimit, distMode: distanceMode });
             break;
 
         case 'setiadi':
-            corrector = new Setiadi(indexer.getInformations(), distanceLimit);
+            corrector = new Setiadi(indexer.getInformations(), { distLimit: distanceLimit });
             break;
 
         case 'verberne':
-            corrector = new Verberne(indexer.getInformations(), distanceLimit);
+            corrector = new Verberne(indexer.getInformations(), { distLimit: distanceLimit });
             break;
     }
 
@@ -85,7 +88,7 @@ app.post('/correct', function (request, response) {
 
     corrections = corrector.tryCorrect(sentence);
     corrections = helper.mapCorrectionsToCollection(corrections);
-    corrections = helper.limitCollection(corrections, RESULT_LIMIT);
+    corrections = helper.limitCollection(corrections, resultLimit);
 
     // If digits exists, we'll map back the original value to the corrections.
     if (!_.isNull(digits)) {
@@ -102,14 +105,15 @@ app.post('/correct', function (request, response) {
     });
 });
 
+/** Route: Compare different spelling correction system. */
 app.post('/compare', function (request, response) {
     var sentence = request.body.sentence,
         result   = new Array();
 
     var correctors = [
-        new Corrector(indexer.getInformations(), distanceLimit),
-        new Setiadi(indexer.getInformations(), distanceLimit),
-        new Verberne(indexer.getInformations(), distanceLimit)
+        new Corrector(indexer.getInformations(), { distLimit: distanceLimit }),
+        new Setiadi(indexer.getInformations(), { distLimit: distanceLimit }),
+        new Verberne(indexer.getInformations(), { distLimit: distanceLimit })
     ];
 
     var digits, corrections;
@@ -158,7 +162,7 @@ var server = app.listen(webPort, function () {
     helper.notify('Spelling Corrector Server', message);
     console.log(message + '\n');
 
-    indexer = new Indexer(distanceLimit);
+    indexer = new Indexer({ distLimit: distanceLimit, distMode: distanceMode });
 
     if (shouldLoadInformation) {
         runner.initAndStart(indexer);

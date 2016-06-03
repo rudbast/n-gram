@@ -6,20 +6,26 @@ var levenshtein = require(__dirname + '/../util/levenshtein.js'),
     helper      = require(__dirname + '/../util/helper.js'),
     ngramUtil   = require(__dirname + '/../util/ngram.js');
 
+const DEFAULT_DISTANCE_LIMIT = 1;
+
 /**
- * Spelling correction main class (as implemented by Iskandar Setiadi).
+ * @class     Setiadi
+ * @classdesc Spelling correction main class (as implemented by Iskandar Setiadi).
  * @see https://www.researchgate.net/publication/268334497_Damerau-Levenshtein_Algorithm_and_Bayes_Theorem_for_Spell_Checker_Optimization
  *
  * @constructor
- * @param {Object} informations      Words' informations (data, count, size, similars, vocabularies)
- * @param {number} [distanceLimit=2] Words distance limit
+ * @param {Informations} informations          Words' informations (data, count, size, similars, vocabularies)
+ * @param {Object}       [options]             Options to initialize the component with
+ * @param {number}       [options.distLimit=1] Word's different (distance) limit
  *
  * @property {Object} data          N-grams words index container
  * @property {number} distanceLimit Words distance limit
  */
-var Setiadi = function (informations, distanceLimit) {
+var Setiadi = function (informations, options) {
+    options = _.isUndefined(options) ? new Object() : options;
+
     this.data          = informations.data;
-    this.distanceLimit = !_.isUndefined(distanceLimit) ? distanceLimit : 1;
+    this.distanceLimit = _.isUndefined(options.distLimit) ? DEFAULT_DISTANCE_LIMIT : options.distLimit;
 };
 
 Setiadi.prototype = {

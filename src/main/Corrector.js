@@ -8,12 +8,20 @@ var levenshtein = require(__dirname + '/../util/levenshtein.js'),
 
 var ngramConst  = new ngramUtil.NgramConstant();
 
+const DEFAULT_DISTANCE_LIMIT = 1,
+      DEFAULT_DISTANCE_MODE  = 'damlev',
+      DEFAULT_NGRAM_MODE     = ngramConst.TRIGRAM;
+
 /**
- * Spelling correction main class (custom).
+ * @class     Corrector
+ * @classdesc Spelling correction main class.
  *
  * @constructor
- * @param {Object} informations  Words' informations (data, count, size, similars, vocabularies)
- * @param {number} [distanceLimit=2] Words distance limit
+ * @param {Informations} informations                 Words' informations (data, count, size, similars, vocabularies)
+ * @param {Object}       [options]                    Options to initialize the component with
+ * @param {number}       [options.distLimit=1]        Word's different (distance) limit
+ * @param {string}       [options.distMode=damlev]    Word's different (distance) computation method
+ * @param {string}       [options.ngramMode=trigrams] Word's different (distance) computation method
  *
  * @property {Object} data          N-grams words index container
  * @property {Object} size          Total unique gram/word pair of each N-gram
@@ -21,14 +29,20 @@ var ngramConst  = new ngramUtil.NgramConstant();
  * @property {Object} similars      Words with it's similars pairs
  * @property {Trie}   vocabularies  Trie's structured vocabularies
  * @property {number} distanceLimit Words distance limit
+ * @property {string} distanceMode  Words distance computation version
+ * @property {string} ngramMode     Version of n-gram to use as the base logic
  */
-var Corrector = function (informations, distanceLimit) {
+var Corrector = function (informations, options) {
+    options = _.isUndefined(options) ? new Object() : options;
+
     this.data          = informations.data;
     this.size          = informations.size;
     this.count         = informations.count;
     this.similars      = informations.similars;
     this.vocabularies  = informations.vocabularies;
-    this.distanceLimit = !_.isUndefined(distanceLimit) ? distanceLimit : 2;
+    this.distanceLimit = _.isUndefined(options.distLimit) ? DEFAULT_DISTANCE_LIMIT : options.distLimit;
+    this.distanceMode  = _.isUndefined(options.distMode) ? DEFAULT_DISTANCE_MODE : options.distMode;
+    this.ngramMode     = _.isUndefined(options.ngramMode) ? DEFAULT_NGRAM_MODE : options.ngramMode;
 };
 
 Corrector.prototype = {
@@ -54,7 +68,7 @@ Corrector.prototype = {
 
         if (isValidGram || !checkLowerGram || gramClass == ngramConst.BIGRAM) {
             return isValidGram;
-        } else  {
+        } else {
             let newGrams = ngramUtil.biSplit(gram);
 
             return _.has(this.data[ngramConst.BIGRAM], _.first(newGrams))
@@ -75,34 +89,16 @@ Corrector.prototype = {
 
         if (this.isValid(inputWord, ngramConst.UNIGRAM)) {
             similarWords = this.similars[inputWord];
-        } else {
+        } else if (this.distanceMode == 'lev') {
             // Get suggestions by incorporating Levenshtein with Trie.
-            // similarWords = this.vocabularies.findWordsWithinLimit(inputWord, this.distanceLimit);
+            similarWords = this.vocabularies.findWordsWithinLimit(inputWord, this.distanceLimit);
+        } else {
             // Get suggestions by incorporating Optimal Damerau-Levenshtein with Trie.
             similarWords = this.vocabularies.findWordsWithinLimitDamLev(inputWord, this.distanceLimit);
         }
 
         if (includeMainWord) similarWords[inputWord] = 0;
-
         return similarWords;
-
-        // NOTE: Might need to consider whether to remove the code below a little later.
-        // Get suggestions by computing Levenshtein naively.
-        // var suggestions = new Object();
-
-        // for (var dictWord in this.data[ngramConst.UNIGRAM]) {
-        //     if (this.data[ngramConst.UNIGRAM].hasOwnProperty(dictWord)) {
-        //         // var distance = levenshtein.distanceOnThreshold(inputWord, dictWord, this.distanceLimit);
-        //         var distance = levenshtein.distance(inputWord, dictWord);
-
-        //         if (distance <= this.distanceLimit ) {
-        //             var rank = this.data[ngramConst.UNIGRAM][dictWord];
-        //             suggestions[dictWord] = rank;
-        //         }
-        //     }
-        // }
-
-        // return suggestions;
     },
 
     /**
@@ -116,21 +112,31 @@ Corrector.prototype = {
             suggestions = new Object(),
             subParts    = sentence.split(',');
 
-        _.forEach(subParts, function (subPart) {
+        subParts.forEach(function (subPart) {
             subPart = helper.cleanExtra(subPart);
             subPart = ngramUtil.tripleNSplit(subPart);
 
-            // If parts is empty, it means the word is lower than three.
-            if (subPart[ngramConst.TRIGRAM].length == 0) {
-                if (subPart[ngramConst.UNIGRAM].length == 0) {
-                    return;
-                } else if (subPart[ngramConst.BIGRAM].length == 0) {
-                    subPart = subPart[ngramConst.UNIGRAM];
+            // Skip this gram if it's actually empty.
+            if (subPart[ngramConst.UNIGRAM].length == 0) return;
+            else {
+                let desiredIsTrigram = self.ngramMode == ngramConst.TRIGRAM,
+                    trigramIsEmpty   = subPart[ngramConst.TRIGRAM].length == 0,
+                    bigramIsEmpty    = subPart[ngramConst.BIGRAM].length == 0;
+
+                if (desiredIsTrigram && !trigramIsEmpty) {
+                    subPart = _.concat(
+                        _.first(subPart[ngramConst.UNIGRAM]),
+                        _.first(subPart[ngramConst.BIGRAM]),
+                        subPart[ngramConst.TRIGRAM]
+                    );
+                } else if ((desiredIsTrigram || !desiredIsTrigram) && !bigramIsEmpty) {
+                    subPart = _.concat(
+                        _.first(subPart[ngramConst.UNIGRAM]),
+                        subPart[ngramConst.BIGRAM]
+                    );
                 } else {
-                    subPart = subPart[ngramConst.BIGRAM];
+                    subPart = subPart[ngramConst.UNIGRAM];
                 }
-            } else {
-                subPart = subPart[ngramConst.TRIGRAM];
             }
 
             suggestions = helper.createNgramCombination(
@@ -157,7 +163,7 @@ Corrector.prototype = {
             corrections = new Object(),
             previousErrorIndexes, previousGram;
 
-        _.forEach(parts, function (part, partIndex) {
+        parts.forEach(function (part, partIndex) {
             var words        = ngramUtil.uniSplit(part),
                 gramClass    = ngramUtil.getGramClass(words.length),
                 alternatives = new Object();
@@ -220,7 +226,7 @@ Corrector.prototype = {
         var self         = this,
             errorIndexes = new Object();
 
-        _.forEach(words, function (word, index) {
+        words.forEach(function (word, index) {
             if (!self.isValid(word, ngramConst.UNIGRAM)) {
                 errorIndexes[index] = true;
             }
@@ -268,7 +274,11 @@ Corrector.prototype = {
             collections.push(helper.createNgramCombination(subAlternatives));
         });
 
-        return this.filterCollectionsResult(collections, gramClass, { lax: true });
+        return self.filterCollectionsResult(
+            collections,
+            gramClass,
+            { lax: (gramClass == ngramConst.TRIGRAM) }
+        );
     },
 
     /**
@@ -289,23 +299,28 @@ Corrector.prototype = {
             subAlternatives = new Array(),
             prevAltIndex    = MAX_SKIP_COUNT - currentSkipCount;
 
-        _.forEach(words, function (word, wordIndex) {
+        words.forEach(function (word, wordIndex) {
             var subWordAlts = new Object();
 
             if (_.has(errorIndexes, wordIndex + prevAltIndex)) {
                 subWordAlts = prevAltWords[wordIndex + prevAltIndex - 1];
             } else if (word != ngramConst.TOKEN_NUMBER) {
-                subWordAlts = self.getSuggestions(word);
+                if (gramClass == ngramConst.TRIGRAM) {
+                    subWordAlts = self.getSuggestions(word);
+                }
             }
 
             subWordAlts[word] = 0;
             subAlternatives.push(subWordAlts);
         });
 
-        return this.filterCollectionsResult(
+        return self.filterCollectionsResult(
             [helper.createNgramCombination(subAlternatives)],
             gramClass,
-            { lax: true }
+            {
+                lax: (gramClass == ngramConst.TRIGRAM),
+                valid: (gramClass != ngramConst.BIGRAM)
+            }
         );
     },
 
@@ -324,30 +339,42 @@ Corrector.prototype = {
             subAlternatives = new Array();
 
         words.forEach(function (word, index) {
-            if (word == ngramConst.TOKEN_NUMBER) {
+            if (word == ngramConst.TOKEN_NUMBER
+                || (!_.has(errorIndexes, index) && gramClass == ngramConst.BIGRAM)) {
                 subAlternatives.push({ [`${word}`]: 0 });
             } else {
                 subAlternatives.push(self.getSuggestions(word, true));
             }
         });
 
-        return this.filterCollectionsResult(
+        return self.filterCollectionsResult(
             [helper.createNgramCombination(subAlternatives)],
             gramClass,
             {
                 distinct: true,
-                lax: true
+                lax: (gramClass == ngramConst.TRIGRAM),
+                valid: (gramClass != ngramConst.BIGRAM)
             }
         );
     },
 
     /**
+     * Object containing the alternatives and the distinct word information.
+     *
+     * @typedef  {Object} FilterDistinct
+     * @property {Object} alternatives Valid gram combination
+     * @property {Array}  distinctData Distinct words taken from the gram combination
+     */
+    /**
      * Filter combinations result only for the valid ones.
      *
-     * @param  {Array}  collections Array containing list of combinations
-     * @param  {string} gramClass   Class of the gram being processed
-     * @param  {Object} [options]   Indicate needs to get valid gram's distinct word to avoid recomputation
-     * @return {Object}             Valid gram combination
+     * @param  {Array}   collections              Array containing list of combinations
+     * @param  {string}  gramClass                Class of the gram being processed
+     * @param  {Object}  [options]                Options to manipulate filtering
+     * @param  {boolean} [options.distinct=false] Indicate needs to get valid gram's distinct word to avoid recomputation
+     * @param  {boolean} [options.valid=true]     Indicate whether to check for gram's validity
+     * @param  {boolean} [options.lax=false]      Indicate whether to check ngram's validity in lower order (if invalid)
+     * @return {Object|FilterDistinct}            Valid gram combination and the distinct words (optional)
      */
     filterCollectionsResult: function (collections, gramClass, options) {
         options = _.isUndefined(options) ? new Object() : options;
@@ -360,10 +387,10 @@ Corrector.prototype = {
             distinctData;
 
         if (getDistinct) {
-            distinctData = [
-                new Object(),
-                new Object()
-            ];
+            switch (gramClass) {
+                case ngramConst.BIGRAM: distinctData = [ new Object() ]; break;
+                default: distinctData = [ new Object(), new Object() ];
+            }
         }
 
         collections.forEach(function (collection) {
@@ -377,12 +404,11 @@ Corrector.prototype = {
                 if (isValidGram) {
                     // Check if alternatives already exists.
                     if (!_.has(alternatives, combination)) {
-                        alternatives[combination] =
-                            self.ngramProbability(ngramUtil.uniSplit(combination));
+                        alternatives[combination] = self.ngramProbability(ngramUtil.uniSplit(combination));
 
                         if (getDistinct) {
                             let words = _.tail(ngramUtil.uniSplit(combination));
-                            _.forEach(words, function (word, index) {
+                            words.forEach(function (word, index) {
                                 distinctData[index][word] = true;
                             });
                         }
