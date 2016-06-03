@@ -1,7 +1,13 @@
+'use strict';
+
 var ngramUtil = require(__dirname + '/ngram.js');
 
 const ROOT_DIR = __dirname + '/../..';
 
+/**
+ * @class     Default
+ * @classdesc Class with the purpose of providing various default values needed by the system.
+ */
 class Default {
     /**
      * Constants related with spelling corrector / indexer's configuration.
