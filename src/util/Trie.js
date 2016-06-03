@@ -22,7 +22,8 @@ Trie = {
 */
 
 /**
- * Trie data structure object class.
+ * @class     Trie
+ * @classdesc Trie data structure object class.
  *
  * @constructor
  * @property {Object} data Trie structured (using Object) word vocabularies
