@@ -58,14 +58,14 @@ function main() {
     console.log('Loading N-Gram informations..');
     indexer.loadInformations(indexDir, trieFile, similarFile, function () {
         switch (argv.version) {
-            case 'rudy-bi':
+            case 'rudy-bigram':
                 corrector = new Corrector(indexer.getInformations(), {
                     distLimit: distanceLimit,
                     distMode: distanceMode,
                     ngramMode: ngramUtil.BIGRAM
                 });
                 break;
-            case 'rudy-tri':
+            case 'rudy-trigram':
                 corrector = new Corrector(indexer.getInformations(), {
                     distLimit: distanceLimit,
                     distMode: distanceMode,
