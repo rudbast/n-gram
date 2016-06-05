@@ -28,7 +28,8 @@ var Indexer      = require(__dirname + '/../main/Indexer.js'),
     // AuxCorrector = require(__dirname + '/../main/AuxCorrector.js'),
     Setiadi      = require(__dirname + '/../ref/Setiadi.js'),
     AuxSetiadi   = require(__dirname + '/../ref/AuxSetiadi.js'),
-    Verberne     = require(__dirname + '/../ref/Verberne.js');
+    Verberne     = require(__dirname + '/../ref/Verberne.js'),
+    AuxVerberne  = require(__dirname + '/../ref/AuxVerberne.js');
 
 var indexer = new Indexer(),
     corrector;
@@ -84,6 +85,11 @@ function main() {
                 break;
             case 'verberne':
                 corrector = new Verberne(indexer.getInformations(), {
+                    distLimit: distanceLimit
+                });
+                break;
+            case 'verberne-precompute':
+                corrector = new AuxVerberne(indexer.getInformations(), {
                     distLimit: distanceLimit
                 });
                 break;
