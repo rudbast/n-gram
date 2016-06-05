@@ -18,14 +18,14 @@ var levenshtein = require(__dirname + '/../util/levenshtein.js'),
  * @param {number}       [options.distLimit=1] Word's different (distance) limit
  *
  * @property {Object} data          N-grams words index container
- * @property {Object} similars      Words with it's similars pairs
+ * @property {Trie}   vocabularies  Trie's structured vocabularies
  * @property {number} distanceLimit Words distance limit
  */
 var Verberne = function (informations, options) {
     options = _.isUndefined(options) ? new Object() : options;
 
     this.data          = informations.data;
-    this.similars      = informations.similars;
+    this.vocabularies  = informations.vocabularies;
     this.distanceLimit = _.isUndefined(options.distLimit) ? Default.DISTANCE_LIMIT : options.distLimit;
 };
 
@@ -42,7 +42,11 @@ Verberne.prototype = {
             gramClass = ngramUtil.getGramClass(ngramUtil.uniSplit(gram).length);
         }
 
-        return _.has(this.data[gramClass], gram);
+        if (gramClass == ngramUtil.UNIGRAM) {
+            return this.vocabularies.has(gram);
+        } else {
+            return _.has(this.data[gramClass], gram);
+        }
     },
 
     /**
@@ -52,7 +56,7 @@ Verberne.prototype = {
      * @return {Object}           Suggestion list of similar words
      */
     getSuggestions: function (inputWord) {
-        return this.similars[inputWord];
+        return this.vocabularies.findWordsWithinLimit(inputWord, this.distanceLimit);
     },
 
     /**
@@ -109,7 +113,7 @@ Verberne.prototype = {
                 isValidTrigram   = self.detectRealWord(part),
                 alternatives     = new Object();
 
-            if (!isValidTrigram) {
+            if (!isValidTrigram && errorIndexLength == 0) {
                 // Contains real word error.
                 alternatives = self.createAlternatives(words);
             }
