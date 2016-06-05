@@ -57,7 +57,7 @@ Setiadi.prototype = {
             suggestions   = new Object();
 
         for (var dictWord in this.data.unigrams) {
-            if (this.data.unigrams.hasOwnProperty(dictWord)) {
+            if (dictWord.indexOf(ngramUtil.NUMBER) == -1) {
                 var wordLength = dictWord.length;
                 // Pruning words distance calculation.
                 if (wordLength >= checkedLength - 1 || wordLength <= checkedLength + 1) {
@@ -128,7 +128,7 @@ Setiadi.prototype = {
             corrections = new Array();
 
         words.forEach(function (word) {
-            if (self.isValid(word)) {
+            if (self.isValid(word) || word != ngramUtil.NUMBER) {
                 corrections.push({
                     [`${word}`]: self.data.unigrams[word]
                 });
