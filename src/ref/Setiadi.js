@@ -128,7 +128,7 @@ Setiadi.prototype = {
             corrections = new Array();
 
         words.forEach(function (word) {
-            if (self.isValid(word) || word != ngramUtil.NUMBER) {
+            if (self.isValid(word) || word == ngramUtil.NUMBER) {
                 corrections.push({
                     [`${word}`]: self.data.unigrams[word]
                 });
