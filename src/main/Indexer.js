@@ -279,17 +279,17 @@ Indexer.prototype = {
     constructIndex: function (file, callback) {
         var self = this;
 
-        jsFile.readFile(file, function (err, data) {
+        jsFile.readFile(file, function (err, articles) {
             assert.equal(err, null);
 
-            var articlesSize = Object.keys(data.articles).length,
+            var articlesSize = articles.length,
                 progressBar  = new ProgressBar('    Constructing words index: [:bar] :percent :elapseds', {
                     complete: '=',
                     incomplete: ' ',
                     total: articlesSize
                 });
 
-            data.articles.forEach(function (article) {
+            articles.forEach(function (article) {
                 self.extractIndex(article, function (indexResultData) {
                     progressBar.tick();
 
