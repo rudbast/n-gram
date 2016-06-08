@@ -25,8 +25,8 @@ function main() {
     var categories = new Object();
 
     ARTICLE_FILES.forEach(function (file, fileIndex) {
-        jsFile.readFile(file, function (err, data) {
-            data.articles.forEach(function (article) {
+        jsFile.readFile(file, function (err, articles) {
+            articles.forEach(function (article) {
                 if (_.has(categories, article.category)) {
                     categories[article.category]++;
                 } else {
