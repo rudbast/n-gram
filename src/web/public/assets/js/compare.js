@@ -9,8 +9,8 @@ function formSubmitSuccess(response) {
         comparison       = response.comparison;
 
     var tableRowsId = {
-        time: 'Waktu pemrosesan (milisekon)',
-        corrections: 'Usulan ejaan'
+        time: 'Lama Pemrosesan (milisekon)',
+        corrections: 'Daftar Usulan Ejaan'
     };
 
     var childNode = '';
