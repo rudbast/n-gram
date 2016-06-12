@@ -30,7 +30,7 @@ function main() {
                 if (_.has(categories, article.category)) {
                     categories[article.category]++;
                 } else {
-                    categories[article.category] = 0;
+                    categories[article.category] = 1;
                 }
             });
 
