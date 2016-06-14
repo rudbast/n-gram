@@ -4,6 +4,7 @@
  * @param {string} port  Port to listen to
  * @param {string} load  Indicates whether word index need to be loaded first
  * @param {string} limit The limit for words' distance
+ * @param {string} mode  The words' distance computation method
  */
 
 'use strict';
