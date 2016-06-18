@@ -47,6 +47,7 @@ function cleanInitial(content) {
 
     // Replace numbers (float / integer) with a custom identifier
     content = content.replace(/(\d+(\.\d+)?)/g, ngramUtil.NUMBER);
+    content = content.trim();
 
     return content;
 }
@@ -59,8 +60,7 @@ function cleanInitial(content) {
  */
 function cleanExtra(content) {
     content = content.replace(/\s+/g, ' ');
-    content = content.replace(/^\s+/g, '');
-    content = content.replace(/\s+$/g, '');
+    content = content.trim();
     return content;
 }
 
@@ -73,10 +73,17 @@ function cleanExtra(content) {
  */
 function splitToSentence(text) {
     require('shelljs/global');
-    var scriptFullPath = __dirname + '/textment.php';
-    var scriptProcess  = exec('php ' + scriptFullPath + ' "' + text + '"', {silent: true});
-    var sentences      = Array.from(JSON.parse(scriptProcess.stdout));
-    return sentences;
+
+    var scriptFullPath = __dirname + '/textment.php',
+        scriptProcess  = exec('php ' + scriptFullPath + ' "' + text + '"', {silent: true}),
+        scriptOutput   = scriptProcess.stdout.trim(),
+        sentences      = new Array();
+
+    if (_.isEmpty(scriptOutput)) {
+        return sentences;
+    } else {
+        return Array.from(JSON.parse(scriptOutput));
+    }
 }
 
 /**
