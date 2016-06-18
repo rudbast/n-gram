@@ -297,7 +297,7 @@ Indexer.prototype = {
                     for (let gram in indexResultData) {
                         for (let word in indexResultData[gram]) {
                             if (!self.data[gram][word]) {
-                                self.data[gram][word] = 1;
+                                self.data[gram][word] = indexResultData[gram][word];
                             } else {
                                 self.data[gram][word] += indexResultData[gram][word];
                             }
