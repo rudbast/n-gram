@@ -208,8 +208,8 @@ Indexer.prototype = {
         };
 
         sentences.forEach(function (sentence) {
-            // Remove dot at the end tabof sentence.
-            sentence = sentence.replace(/\.$/, '');
+            // Remove dots at the end of sentence.
+            sentence = sentence.replace(/\.+$/, '');
 
             sentence = removeBracketNoise(sentence, '(baca,');
             sentence = removeBracketNoise(sentence, '(baca juga,');
@@ -333,7 +333,14 @@ Indexer.prototype = {
                     assert.equal(err, null);
 
                     var gramFileName = file.split('.')[0];
-                    self.data[gramFileName] = data;
+                    // self.data[gramFileName] = data;
+                    for (let word in data) {
+                        if (!self.data[gramFileName][word]) {
+                            self.data[gramFileName][word] = data[word];
+                        } else {
+                            self.data[gramFileName][word] += data[word];
+                        }
+                    }
 
                     if ((++loadCount) == files.length) {
                         self.setIndexCountAndSize();
