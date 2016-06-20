@@ -119,16 +119,9 @@ Corrector.prototype = {
                     bigramIsEmpty    = subPart[ngramUtil.BIGRAM].length == 0;
 
                 if (desiredIsTrigram && !trigramIsEmpty) {
-                    subPart = _.concat(
-                        _.first(subPart[ngramUtil.UNIGRAM]),
-                        _.first(subPart[ngramUtil.BIGRAM]),
-                        subPart[ngramUtil.TRIGRAM]
-                    );
+                    subPart = subPart[ngramUtil.TRIGRAM];
                 } else if ((desiredIsTrigram || !desiredIsTrigram) && !bigramIsEmpty) {
-                    subPart = _.concat(
-                        _.first(subPart[ngramUtil.UNIGRAM]),
-                        subPart[ngramUtil.BIGRAM]
-                    );
+                    subPart = subPart[ngramUtil.BIGRAM];
                 } else {
                     subPart = subPart[ngramUtil.UNIGRAM];
                 }
@@ -141,8 +134,8 @@ Corrector.prototype = {
             );
         });
 
-        return _.mapValues(suggestions, function (probability) {
-            return Math.exp(probability);
+        return _.mapValues(suggestions, function (probability, suggestion) {
+            return Math.exp(probability + self.appendExtraProbability(suggestion));
         });
     },
 
@@ -192,6 +185,8 @@ Corrector.prototype = {
                         });
                         previousGram = correctionResult.distinctData;
                     }
+                } else if (isValidGram) {
+                    //
                 } else if (words.length > 1 || partIndex < parts.length - 1) {
                     // We'll generate alternatives for when it contains real word error,
                     // AND even if there's no error found (valid bigram)
@@ -257,7 +252,7 @@ Corrector.prototype = {
             var subAlternatives = new Array();
 
             words.forEach(function (auxWord, auxIndex) {
-                if (mainIndex == auxIndex && auxWord != ngramUtil.NUMBER) {
+                if (mainIndex == auxIndex && auxWord.indexOf(ngramUtil.NUMBER) == -1) {
                     subAlternatives.push(self.getSuggestions(auxWord, true));
                 } else {
                     subAlternatives.push({
@@ -299,7 +294,7 @@ Corrector.prototype = {
 
             if (_.has(errorIndexes, wordIndex + prevAltIndex)) {
                 subWordAlts = prevAltWords[wordIndex + prevAltIndex - 1];
-            } else if (word != ngramUtil.NUMBER) {
+            } else if (word.indexOf(ngramUtil.NUMBER) == -1) {
                 if (gramClass == ngramUtil.TRIGRAM) {
                     subWordAlts = self.getSuggestions(word);
                 }
@@ -334,7 +329,7 @@ Corrector.prototype = {
             subAlternatives = new Array();
 
         words.forEach(function (word, index) {
-            if (word == ngramUtil.NUMBER
+            if (word.indexOf(ngramUtil.NUMBER) != -1
                 || (!_.has(errorIndexes, index) && gramClass == ngramUtil.BIGRAM)) {
                 subAlternatives.push({ [`${word}`]: 0 });
             } else {
@@ -432,7 +427,6 @@ Corrector.prototype = {
             probability = 0,
             gram        = words.join(' '),
             gramClass   = ngramUtil.getGramClass(words.length),
-            logResult   = true,
             validGram, precedenceGram;
 
         switch (gramClass) {
@@ -452,7 +446,8 @@ Corrector.prototype = {
                     words.forEach(function (word) {
                         probability += self.ngramProbability([word]);
                     });
-                    logResult = false;
+                    // Stupid back-off's alpha value.
+                    probability += Math.log(0.4);
                 } else {
                     probability = self.data[ngramUtil.BIGRAM][gram] / self.data[ngramUtil.UNIGRAM][precedenceGram];
                 }
@@ -472,17 +467,39 @@ Corrector.prototype = {
                     newGrams.forEach(function (newGram) {
                         probability += self.ngramProbability(newGram);
                     });
-                    logResult = false;
+                    // Stupid back-off's alpha value.
+                    probability += Math.log(0.4);
                 } else {
                     probability = self.data[ngramUtil.TRIGRAM][gram] / self.data[ngramUtil.BIGRAM][precedenceGram];
                 }
                 break;
         }
 
-        if (logResult)
-            return Math.log(probability);
-        else
-            return probability;
+        return Math.log(probability);
+    },
+
+    /**
+     * Append extra probability computation (sentence's word prefixes).
+     *
+     * @param  {string} sentence The sentence to append for the prefix's probability
+     * @return {number}          Sentence prefix's probability in log form
+     */
+    appendExtraProbability: function (sentence) {
+        var self             = this,
+            words            = ngramUtil.uniSplit(sentence),
+            extraProbability = 0,
+            initials         = new Array();
+
+        if (words.length > 1) initials.push([`${words[0]}`]);
+        if (words.length > 2) initials.push([`${words[0]} ${words[1]}`]);
+
+        if (initials.length > 0) {
+            initials.forEach(function (word) {
+                extraProbability += self.ngramProbability(initials);
+            });
+        }
+
+        return extraProbability;
     }
 };
 
