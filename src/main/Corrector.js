@@ -425,6 +425,7 @@ Corrector.prototype = {
     ngramProbability: function (words) {
         var self        = this,
             probability = 0,
+            shouldLog   = true,
             gram        = words.join(' '),
             gramClass   = ngramUtil.getGramClass(words.length),
             validGram, precedenceGram;
@@ -448,6 +449,7 @@ Corrector.prototype = {
                     });
                     // Stupid back-off's alpha value.
                     probability += Math.log(0.4);
+                    shouldLog = false;
                 } else {
                     probability = self.data[ngramUtil.BIGRAM][gram] / self.data[ngramUtil.UNIGRAM][precedenceGram];
                 }
@@ -469,13 +471,15 @@ Corrector.prototype = {
                     });
                     // Stupid back-off's alpha value.
                     probability += Math.log(0.4);
+                    shouldLog = false;
                 } else {
                     probability = self.data[ngramUtil.TRIGRAM][gram] / self.data[ngramUtil.BIGRAM][precedenceGram];
                 }
                 break;
         }
 
-        return Math.log(probability);
+        if (shouldLog) return Math.log(probability);
+        else return probability;
     },
 
     /**
