@@ -182,7 +182,7 @@ Verberne.prototype = {
 
         // Create alternate suggestions, excluding the token <number>.
         words.forEach(function (word) {
-            if (word != ngramUtil.NUMBER) {
+            if (word.indexOf(ngramUtil.NUMBER) == -1) {
                 suggestWords.push(self.getSuggestions(word));
             } else {
                 suggestWords.push(word);
