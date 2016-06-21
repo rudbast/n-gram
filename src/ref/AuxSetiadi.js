@@ -40,33 +40,15 @@ class AuxSetiadi extends Setiadi {
     /**
      * Get list of similar words suggestion given a word.
      *
-     * @param  {string}  inputWord         Input word
-     * @param  {boolean} useWordAssumption Indicates needs of additional points for word rank
-     * @return {Object}                    Suggestion list of similar words
+     * @param  {string} inputWord Input word
+     * @return {Object}           Suggestion list of similar words
      */
-    getSuggestions(inputWord, useWordAssumption) {
-        var self          = this,
-            checkedLength = inputWord.length,
-            dictLength    = _.keys(this.data.unigrams).length,
-            ranksMarginal = Math.floor(dictLength / 3),
-            suggestions   = this.vocabularies.findWordsWithinLimitDamLev(inputWord, this.distanceLimit),
-            wordLength    = inputWord.length;
+    getSuggestions(inputWord) {
+        var self        = this,
+            suggestions = this.vocabularies.findWordsWithinLimitDamLev(inputWord, this.distanceLimit);
 
         _.forEach(suggestions, function (distance, word) {
-            // Bayes theorem implementation.
-            var rank       = self.data.unigrams[word],
-                wordLength = word.length;
-
-            // Words' statictics' probabilities using assumption.
-            if (useWordAssumption) {
-                if (wordLength > checkedLength) {
-                    rank += 2 * ranksMarginal;
-                } else if (wordLength == checkedLength) {
-                    rank += 1 * ranksMarginal;
-                }
-            }
-
-            suggestions[word] = rank;
+            suggestions[word] = self.data.unigrams[word];
         });
 
         return suggestions;
