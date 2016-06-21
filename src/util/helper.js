@@ -34,19 +34,20 @@ function cleanInitial(content) {
 
     // NOTE: Code below is to be run twice, in case a double 'single'
     //      apostrophe occurred but had a space in between.
-    content = content.replace(/(\s'|'\s|")/g, ' ');
-    content = content.replace(/(\s'|'\s|")/g, ' ');
+    content = content.replace(/('|")/g, ' ');
+    content = content.replace(/('|")/g, ' ');
 
     // NOTE: Code below is only needed to avoid error when splitting
     //      sentence.
     content = content.replace(/\\/g, '');
 
     content = content.replace(/[;!?|]|\s-\s|\.\.\.|:\s/g, ',');
-    content = content.replace(/,+/g, ', ');
-    content = content.replace(/\s+/g, ' ');
 
     // Replace numbers (float / integer) with a custom identifier
-    content = content.replace(/(\d+(\.\d+)?)/g, ngramUtil.NUMBER);
+    content = content.replace(/(\d+((\.|\,)\d+)?)/g, ngramUtil.NUMBER);
+
+    content = content.replace(/,+/g, ', ');
+    content = content.replace(/\s+/g, ' ');
     content = content.trim();
 
     return content;
