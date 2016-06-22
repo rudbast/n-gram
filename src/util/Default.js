@@ -15,6 +15,7 @@ class Default {
     static get DISTANCE_LIMIT() { return 1 }
     static get DISTANCE_MODE() { return 'damlev' }
     static get NGRAM_MODE() { return ngramUtil.TRIGRAM }
+    static get SUGGESTIONS_LIMIT() { return 5 }
 
     /**
      * Constants related with spelling correction's informations.

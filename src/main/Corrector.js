@@ -100,12 +100,14 @@ Corrector.prototype = {
      * Try correcting the given sentence if there exists any error.
      *
      * @param  {string} sentence Text input in a sentence form
+     * @param  {number} limit    Suggestions limit
      * @return {Object}          List of suggestions (if error exists)
      */
-    tryCorrect: function (sentence) {
-        var self        = this,
-            suggestions = new Object(),
-            subParts    = sentence.split(',');
+    tryCorrect: function (sentence, limit) {
+        var self            = this,
+            suggestions     = new Object(),
+            subParts        = sentence.split(','),
+            suggestionLimit = _.isUndefined(limit) ? Default.SUGGESTIONS_LIMIT : limit;
 
         subParts.forEach(function (subPart) {
             subPart = helper.cleanExtra(subPart);
@@ -130,12 +132,18 @@ Corrector.prototype = {
             suggestions = helper.createNgramCombination(
                 [suggestions, self.doCorrect(subPart)],
                 'plus',
-                'join'
+                'join',
+                suggestionLimit
             );
+
+            // Compute sentence prefix's probability.
+            for (let index in suggestions) {
+                suggestions[index] = suggestions[index] + self.appendExtraProbability(index);
+            }
         });
 
-        return _.mapValues(suggestions, function (probability, suggestion) {
-            return Math.exp(probability + self.appendExtraProbability(suggestion));
+        return _.mapValues(suggestions, function (probability) {
+            return Math.exp(probability);
         });
     },
 
@@ -186,10 +194,9 @@ Corrector.prototype = {
                         previousGram = correctionResult.distinctData;
                     }
                 } else if (isValidGram) {
-                    //
+                    // Skip if gram is already valid.
                 } else if (words.length > 1 || partIndex < parts.length - 1) {
                     // We'll generate alternatives for when it contains real word error,
-                    // AND even if there's no error found (valid bigram)
                     // AND ONLY IF the words length is more than 1, else it's not eligible
                     // for real word correction.
                     alternatives = self.createRealWordGram(words, gramClass);
@@ -267,7 +274,10 @@ Corrector.prototype = {
         return self.filterCollectionsResult(
             collections,
             gramClass,
-            { lax: (gramClass == ngramUtil.TRIGRAM) }
+            {
+                lax: (gramClass == ngramUtil.TRIGRAM),
+                valid: (gramClass != ngramUtil.BIGRAM)
+            }
         );
     },
 

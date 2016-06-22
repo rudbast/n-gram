@@ -96,9 +96,10 @@ function splitToSentence(text) {
  * @param  {string} joinType      Type of join with the combinations
  * @return {Object}               Sentence made from words combination with it's probability
  */
-function createNgramCombination(corrections, rankOperation, joinType) {
+function createNgramCombination(corrections, rankOperation, joinType, limit) {
     rankOperation = _.isUndefined(rankOperation) ? 'plus' : rankOperation;
     joinType      = _.isUndefined(joinType) ? 'assimilate' : joinType;
+    limit         = _.isUndefined(limit) ? 0 : limit;
 
     var combination = new Object();
 
@@ -143,6 +144,20 @@ function createNgramCombination(corrections, rankOperation, joinType) {
 
         combination = newCombination;
     });
+
+    // Limit the correction's combination to only top X highest probabilities.
+    if (limit != 0) {
+        let newCombination;
+
+        newCombination = mapCorrectionsToCollection(combination),
+        newCombination = limitCollection(newCombination, limit);
+
+        combination = new Object();
+
+        newCombination.forEach(function (correction) {
+            combination[correction.sentence] = correction.probability;
+        });
+    }
 
     return combination;
 }

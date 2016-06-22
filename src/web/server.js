@@ -30,12 +30,11 @@ var connection,
     corrector;
 
 const PUBLIC_PATH          = __dirname + '/../../public',
-      DEFAULT_WEB_PORT     = 3000,
-      DEFAULT_RESULT_LIMIT = 25;
+      DEFAULT_WEB_PORT     = 3000;
 
 var shouldLoadInformation = !_.isUndefined(argv.load),
     webPort               = _.isUndefined(argv.port) ? DEFAULT_WEB_PORT : argv.port,
-    resultLimit           = _.isUndefined(argv.result) ? DEFAULT_RESULT_LIMIT : argv.result,
+    resultLimit           = _.isUndefined(argv.result) ? Default.SUGGESTIONS_LIMIT : argv.result,
     distanceLimit         = _.isUndefined(argv.limit) ? Default.DISTANCE_LIMIT : argv.limit,
     distanceMode          = _.isUndefined(argv.mode) ? Default.DISTANCE_MODE : argv.mode;
 
@@ -86,9 +85,8 @@ app.post('/correct', function (request, response) {
     digits   = helper.getDigits(sentence);
     sentence = helper.cleanInitial(sentence);
 
-    corrections = corrector.tryCorrect(sentence);
+    corrections = corrector.tryCorrect(sentence, resultLimit);
     corrections = helper.mapCorrectionsToCollection(corrections);
-    corrections = helper.limitCollection(corrections, resultLimit);
 
     // If digits exists, we'll map back the original value to the corrections.
     if (!_.isNull(digits)) {
