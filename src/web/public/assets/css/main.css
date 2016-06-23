@@ -8,14 +8,24 @@ main {
     flex: 1 0 auto;
 }
 
-#form-corrector {
-    margin-top: 5em;
+.top-wrapper {
+    margin-top: 3em;
 }
 
-#correction-result {
+.result-wrapper {
     font-style: bold italic;
+}
+
+.list-odd {
+    background-color: #f5f5f5 !important;
 }
 
 .correction-item {
     cursor: pointer;
+    color: #212121;
+}
+
+.correction-word {
+    color: #ef6c00;
+    font-style: italic;
 }

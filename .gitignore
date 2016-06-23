@@ -46,8 +46,9 @@ vendor
 bower_components
 
 ## CUSTOM (own)
-src/test
-out/test.dat
-out/articles/test.json
-out/ngrams
-out/similars.json
+src/misc/test.js
+
+out
+!out/articles
+
+src/experiment

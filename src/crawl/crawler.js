@@ -1,22 +1,26 @@
-'use strict';
-
 /**
- * Program arguments: <file>
+ * Script for crawling articles from a news site (specificly: Kompas).
  *
  * @param {string} file Full path of the file used as program output (articles data).
  */
 
-var fs     = require('fs'),
+'use strict';
+
+var _      = require('lodash'),
+    fs     = require('fs'),
     prompt = require('prompt'),
-    jsfile = require('jsonfile');
-// var kompas = require('indonesian-news-scraper').Kompas;
-var kompas = require(__dirname + '/CustomKompas.js');
+    jsfile = require('jsonfile'),
+    assert = require('assert');
+
+// var kompas = require('indonesian-news-scraper').Kompas,
+var kompas = require(__dirname + '/CustomKompas.js'),
+    helper = require(__dirname + '/../util/helper.js');
 
 var currDate = new Date();
 kompas.setDesiredDate(currDate.getDate(), currDate.getMonth(), currDate.getFullYear());
 
 // Main Logic Variables
-var docFile = (process.argv.length > 2 ? process.argv[2] : ''),
+var docFile = (process.argv.length > 2 ? process.argv[2] : 'out/articles/test.json'),
     index   = 0;
 
 prompt.start();
@@ -24,19 +28,18 @@ waitForCommandInput();
 
 /**
  * Recursively wait for program command input.
- *
- * @param  {Function} callback Callback function.
- * @return {void}
  */
-function waitForCommandInput(callback) {
+function waitForCommandInput() {
     /**
      * Print menu & request input.
-     *
-     * @return {void}
      */
     function getCommandInput() {
         prompt.get(['command'], function (err, input) {
-            if (err) { return onErr(err); }
+            if (err) {
+                console.log(err);
+                return 1;
+            }
+
             console.log();
             processCmd(input.command);
         });
@@ -45,8 +48,7 @@ function waitForCommandInput(callback) {
     /**
      * Process command.
      *
-     * @param  {string} command Command string
-     * @return {void}
+     * @param {string} command Command string
      */
     function processCmd(command) {
         var cmd = command.split(' ');
@@ -61,7 +63,7 @@ function waitForCommandInput(callback) {
                 break;
 
             case 'clear':
-                clearScreen();
+                helper.clearScreen();
                 break;
 
             case 'date':
@@ -90,12 +92,12 @@ function waitForCommandInput(callback) {
                 break;
 
             case 'scrap':
-                console.log('start scrapping ..');
-                startScrapper((cmd[1] != 'undefined' ? cmd[1] : 0), function (data) {
-                    console.log('Scrapping finished.');
+                console.log('start Scraping ..');
+                startScrapper(cmd[1], function (data) {
+                    console.log('Scraping finished.');
 
                     jsfile.writeFile(docFile, data, {spaces: 4}, function (err) {
-                        if (err) onErr(err);
+                        assert.equal(err, null);
                     });
                 });
                 break;
@@ -104,7 +106,7 @@ function waitForCommandInput(callback) {
                 process.exit(0);
         }
 
-        console.log('\n');
+        console.log();
         getCommandInput();
     }
 
@@ -112,66 +114,56 @@ function waitForCommandInput(callback) {
     getCommandInput();
 }
 
-
-/**
- * Log error and exit.
- *
- * @param  {string}  err Error message
- * @return {integer}     Exit type
- */
-function onErr(err) {
-    console.error(err);
-    return 1;
-}
-
 /**
  * Print command list menu.
- *
- * @return {void}
  */
 function printMenu() {
     var menu = 'check                      - check program\'s variables\n';
         menu += 'clear                      - clear screen\n';
-        menu += 'date  <day> <month> <year> - set article date to scrap from\n';
-        menu += 'file  <file path>          - set file to be appended on scrap\n';
+        menu += 'date  <day> <month> <year> - set article date to scrape from\n';
+        menu += 'file  <file path>          - set file output for scraped data\n';
         menu += 'index <number>             - set article index\n';
-        menu += 'page  <number>             - set page to scrap from\n';
-        menu += 'scrap <?article limit>     - start scrapping (limitable)\n';
+        menu += 'page  <number>             - set page to scrape from\n';
+        menu += 'scrape <article limit>     - start scraping\n';
         menu += 'exit                       - exit program';
 
     console.log(menu);
 }
 
 /**
- * Clear screen.
- *
- * @return {void}
+ * @typedef Article
+ * @type {Object}
+ * @property {string} index    Article's identifier
+ * @property {string} category Article's Category
+ * @property {string} title    Article's title
+ * @property {string} date     Article's date
+ * @property {string} content  Article's content
  */
-function clearScreen() {
-    var i = 0;
-    while (i++ < 60) { console.log() };
-}
+
+/**
+ * Callback for when finished scraping the web for articles.
+ *
+ * @callback scrapeFinish
+ * @param {Array.<Article>} articles Articles scraped from a web
+ */
 
 /**
  * Start scrap process.
  *
- * @param  {integer}  scrapLimit Article's scrap limit
- * @param  {Function} callback   Callback function
- * @return {void}
+ * @param {number}       scrapLimit Article's scrap limit
+ * @param {scrapeFinish} [callback] Callback function
  */
 function startScrapper(scrapLimit, callback) {
     /**
      * The scrap process logic.
-     *
-     * @return {void}
      */
-    function doScrap() {
-        console.log('Article Count  : ' + articleCount);
+    function doScrape() {
+        console.log('Article Count  : ' + articles.length);
         console.log('URL in process : ' + kompas.getBaseURL());
 
         kompas.scrap().then(function (scraps) {
             scraps.forEach(function (news) {
-                if (!news.content || scrapLimit == articleCount) {
+                if (!news.content || scrapLimit == articles.length) {
                     return;
                 }
 
@@ -183,12 +175,10 @@ function startScrapper(scrapLimit, callback) {
                     content: news.content
                 };
 
-                data.articles.push(article);
-                ++data.count;
-                ++articleCount;
+                articles.push(article);
             });
 
-            console.log(scraps.length + ' articles appended to file.');
+            console.log(scraps.length + ' articles scraped.');
 
             // Process next batch (or page) of articles.
             if (scraps.length < 10) {
@@ -202,17 +192,15 @@ function startScrapper(scrapLimit, callback) {
             }
 
             // Decide whether to continue scrap or not.
-            if (scrapLimit == 0 || scrapLimit > articleCount) {
+            if (scrapLimit > articles.length) {
                 console.log();
-                doScrap();
-            } else if (scrapLimit <= articleCount) {
-                callback(data);
+                doScrape();
+            } else if (scrapLimit <= articles.length) {
+                if (_.isFunction(callback)) callback(articles);
             }
         });
     }
 
-    var data         = {count: 0, articles: []};
-    var articleCount = 0;
-
-    doScrap();
+    var articles = new Array();
+    doScrape();
 }

@@ -1,180 +1,230 @@
 'use strict';
 
+var _ = require('lodash');
+
 var levenshtein = require(__dirname + '/../util/levenshtein.js'),
     helper      = require(__dirname + '/../util/helper.js'),
+    Default     = require(__dirname + '/../util/Default.js'),
     ngramUtil   = require(__dirname + '/../util/ngram.js');
 
 /**
- * Spelling correction main class (custom).
+ * @class     Corrector
+ * @classdesc Spelling correction main class.
  *
- * @param {object}  ngrams        Word index
- * @param {object}  similars      Words with it's similars pairs
- * @param {integer} distanceLimit Words distance limit
- * @param {object}  vocabularies  Trie's structured vocabularies
- *
- * @property {object}  data          N-grams words index container
- * @property {object}  similars      Words with it's similars pairs
- * @property {integer} distanceLimit Words distance limit
- * @property {object}  vocabularies  Trie's structured vocabularies
- * @property {string}  NGRAM_UNIGRAM String representation for unigram
- * @property {string}  NGRAM_BIGRAM  String representation for bigram
- * @property {string}  NGRAM_TRIGRAM String representation for trigram
  * @constructor
+ * @param {Informations} informations                 Words' informations (data, count, size, similars, vocabularies)
+ * @param {Object}       [options]                    Options to initialize the component with
+ * @param {number}       [options.distLimit=1]        Word's different (distance) limit
+ * @param {string}       [options.distMode=damlev]    Word's different (distance) computation method
+ * @param {string}       [options.ngramMode=trigrams] Word's different (distance) computation method
+ *
+ * @property {Object} data          N-grams words index container
+ * @property {Object} size          Total unique gram/word pair of each N-gram
+ * @property {Object} count         Total frequency count of all gram/word pair of each N-gram
+ * @property {Object} similars      Words with it's similars pairs
+ * @property {Trie}   vocabularies  Trie's structured vocabularies
+ * @property {number} distanceLimit Words distance limit
+ * @property {string} distanceMode  Words distance computation version
+ * @property {string} ngramMode     Version of n-gram to use as the base logic
  */
-var Corrector = function (ngrams, similars, distanceLimit, vocabularies) {
-    this.data          = ngrams;
-    this.similars      = similars;
-    this.distanceLimit = distanceLimit !== undefined ? distanceLimit : 2;
-    this.vocabularies  = vocabularies;
+var Corrector = function (informations, options) {
+    options = _.isUndefined(options) ? new Object() : options;
 
-    this.NGRAM_UNIGRAM = 'unigrams';
-    this.NGRAM_BIGRAM  = 'bigrams';
-    this.NGRAM_TRIGRAM = 'trigrams';
+    this.data          = informations.data;
+    this.size          = informations.size;
+    this.count         = informations.count;
+    this.similars      = informations.similars;
+    this.vocabularies  = informations.vocabularies;
+    this.distanceLimit = _.isUndefined(options.distLimit) ? Default.DISTANCE_LIMIT : options.distLimit;
+    this.distanceMode  = _.isUndefined(options.distMode) ? Default.DISTANCE_MODE : options.distMode;
+    this.ngramMode     = _.isUndefined(options.ngramMode) ? Default.NGRAM_MODE : options.ngramMode;
 };
 
 Corrector.prototype = {
     /**
-     * Re-set the words distance limit.
-     *
-     * @param {integer} distanceLimit Words distance limit
-     */
-    setDistanceLimit: function (distanceLimit) {
-        this.distanceLimit = distanceLimit;
-    },
-
-    /**
      * Check the validity of given gram.
      *
-     * @param  {string}  gram      Word pair in a form of certain n-gram
-     * @param  {string}  gramClass String representation of the n-gram
-     * @return {boolean}           Gram validity
+     * @param  {string}  gram             Word pair in a form of certain n-gram
+     * @param  {string}  [gramClass]      String representation of the n-gram
+     * @param  {boolean} [checkLowerGram] Indicates whether to check lower gram (back-off) when validity fails
+     * @return {boolean}                  Gram validity
      */
-    isValid: function (gram, gramClass) {
-        if (gramClass === undefined) {
-            gramClass = this.getGramClass(ngramUtil.uniSplit(gram).length);
+    isValid: function (gram, gramClass, checkLowerGram) {
+        if (_.isUndefined(gramClass)) {
+            gramClass = ngramUtil.getGramClass(ngramUtil.uniSplit(gram).length);
         }
+        checkLowerGram = _.isUndefined(checkLowerGram) ? false : checkLowerGram;
 
-        if (gramClass == this.NGRAM_UNIGRAM) {
+        if (gramClass == ngramUtil.UNIGRAM) {
             return this.vocabularies.has(gram);
         }
-        return this.data[gramClass].hasOwnProperty(gram);
+
+        let isValidGram = _.has(this.data[gramClass], gram);
+
+        if (isValidGram || !checkLowerGram || gramClass == ngramUtil.BIGRAM) {
+            return isValidGram;
+        } else {
+            let newGrams = ngramUtil.biSplit(gram);
+
+            return _.has(this.data[ngramUtil.BIGRAM], _.first(newGrams))
+                && _.has(this.data[ngramUtil.BIGRAM], _.last(newGrams));
+        }
     },
 
     /**
      * Get list of similar words suggestion given a word.
      *
-     * @param  {string} inputWord Input word
-     * @return {object}           Suggestion list of similar words
+     * @param  {string}  inputWord         Input word
+     * @param  {boolean} [includeMainWord] Indicates whether the input word should be included in result
+     * @return {Object}                    Suggestion list of similar words
      */
-    getSuggestions: function (inputWord) {
-        if (this.isValid(inputWord, this.NGRAM_UNIGRAM)) {
-            return this.similars[inputWord];
+    getSuggestions: function (inputWord, includeMainWord) {
+        includeMainWord = _.isUndefined(includeMainWord) ? false : includeMainWord;
+        var similarWords;
+
+        if (this.isValid(inputWord, ngramUtil.UNIGRAM)) {
+            similarWords = this.similars[inputWord];
+        } else if (this.distanceMode == 'lev') {
+            // Get suggestions by incorporating Levenshtein with Trie.
+            similarWords = this.vocabularies.findWordsWithinLimit(inputWord, this.distanceLimit);
+        } else {
+            // Get suggestions by incorporating Optimal Damerau-Levenshtein with Trie.
+            similarWords = this.vocabularies.findWordsWithinLimitDamLev(inputWord, this.distanceLimit);
         }
 
-        // Get suggestions by incorporating Levenshtein with Trie.
-        return this.vocabularies.findWordsWithinLimit(inputWord, this.distanceLimit);
-
-        // NOTE: Might need to consider whether to remove the code below a little later.
-        // Get suggestions by computing Levenshtein naively.
-        // var suggestions = new Object();
-
-        // for (var dictWord in this.data.unigrams) {
-        //     if (this.data.unigrams.hasOwnProperty(dictWord)) {
-        //         // var distance = levenshtein.distanceOnThreshold(inputWord, dictWord, this.distanceLimit);
-        //         var distance = levenshtein.distance(inputWord, dictWord);
-
-        //         if (distance <= this.distanceLimit ) {
-        //             var rank = this.data.unigrams[dictWord];
-        //             suggestions[dictWord] = rank;
-        //         }
-        //     }
-        // }
-
-        // return suggestions;
+        if (includeMainWord) similarWords[inputWord] = 0;
+        return similarWords;
     },
 
     /**
      * Try correcting the given sentence if there exists any error.
      *
      * @param  {string} sentence Text input in a sentence form
-     * @return {object}          List of suggestions (if error exists)
+     * @param  {number} limit    Suggestions limit
+     * @return {Object}          List of suggestions (if error exists)
      */
-    tryCorrect: function (sentence) {
-        var self = this;
+    tryCorrect: function (sentence, limit) {
+        var self            = this,
+            suggestions     = new Object(),
+            subParts        = sentence.split(','),
+            suggestionLimit = _.isUndefined(limit) ? Default.SUGGESTIONS_LIMIT : limit;
 
-        var corrections = new Array(),
-            parts       = ngramUtil.triSplit(sentence);
+        subParts.forEach(function (subPart) {
+            subPart = helper.cleanExtra(subPart);
+            subPart = ngramUtil.tripleNSplit(subPart);
 
-        // If parts is empty, it means the word is lower than three.
-        if (parts.length == 0) {
-            var tempWords = ngramUtil.uniSplit(sentence);
+            // Skip this gram if it's actually empty.
+            if (subPart[ngramUtil.UNIGRAM].length == 0) return;
+            else {
+                let desiredIsTrigram = self.ngramMode == ngramUtil.TRIGRAM,
+                    trigramIsEmpty   = subPart[ngramUtil.TRIGRAM].length == 0,
+                    bigramIsEmpty    = subPart[ngramUtil.BIGRAM].length == 0;
 
-            if (tempWords.length == 2) {
-                parts.push(tempWords[0] + ' ' + tempWords[1]);
-            } else {
-                parts.push(tempWords[0]);
-            }
-        }
-
-        parts.forEach(function (part) {
-            var words            = ngramUtil.uniSplit(part),
-                gramClass        = self.getGramClass(words.length),
-                errorIndexes     = self.detectNonWord(words),
-                errorIndexLength = Object.keys(errorIndexes).length,
-                isValidGram      = self.detectRealWord(part, gramClass),
-                alternatives     = new Object();
-
-            if (errorIndexLength == 0 && isValidGram) {
-                // Contains no error.
-                alternatives[part] = self.ngramProbability(part);
-            } else if (errorIndexLength != 0) {
-                // Contains non-word error.
-                alternatives = self.createAlternativesNonWord(words, gramClass, errorIndexes);
-            } else if (!isValidGram) {
-                // Contains real word error.
-                // NOTE: Current real word error correction only allows 1 word from
-                //      any word length (2/3) to be corrected. This means if the current
-                //      gram has more than 2 real word error, only 1 will be corrected
-                //      and not the other, so the correction will fail. Might need to
-                //      reconsider this problem.
-                alternatives = self.createAlternativesRealWord(words, gramClass);
+                if (desiredIsTrigram && !trigramIsEmpty) {
+                    subPart = subPart[ngramUtil.TRIGRAM];
+                } else if ((desiredIsTrigram || !desiredIsTrigram) && !bigramIsEmpty) {
+                    subPart = subPart[ngramUtil.BIGRAM];
+                } else {
+                    subPart = subPart[ngramUtil.UNIGRAM];
+                }
             }
 
-            corrections.push(alternatives);
+            suggestions = helper.createNgramCombination(
+                [suggestions, self.doCorrect(subPart)],
+                'plus',
+                'join',
+                suggestionLimit
+            );
+
+            // Compute sentence prefix's probability.
+            for (let index in suggestions) {
+                suggestions[index] = suggestions[index] + self.appendExtraProbability(index);
+            }
         });
 
-        var suggestions = helper.createNgramCombination(corrections, 'multiply');
-        return suggestions;
+        return _.mapValues(suggestions, function (probability) {
+            return Math.exp(probability);
+        });
     },
 
     /**
-     * Find out what n-gram class of the given word count, represented
-     * by a string.
+     * Main correction's logic.
      *
-     * @param  {integer} wordCount Word count
-     * @return {string}            String representation of the n-gram
+     * @param  {Array}  parts Ngram split word
+     * @return {Object}       Correction results in a form of hash/dictionary
      */
-    getGramClass: function (wordCount) {
-        switch (wordCount) {
-            case 1: return this.NGRAM_UNIGRAM;
-            case 2: return this.NGRAM_BIGRAM;
-            case 3: return this.NGRAM_TRIGRAM;
-            default: return 'invalid';
-        }
+    doCorrect: function (parts) {
+        var self        = this,
+            skipCount   = 0,
+            corrections = new Object(),
+            previousErrorIndexes, previousGram;
+
+        parts.forEach(function (part, partIndex) {
+            var words        = ngramUtil.uniSplit(part),
+                gramClass    = ngramUtil.getGramClass(words.length),
+                alternatives = new Object();
+
+            // Skip checking current trigram and just combine result from previous correction
+            // if previous ones contains non word error.
+            if ((--skipCount) >= 0) {
+                alternatives = self.createGramFrom(words,
+                                                   gramClass,
+                                                   previousErrorIndexes,
+                                                   previousGram,
+                                                   skipCount);
+            } else {
+                let errorIndexes     = self.detectNonWord(words),
+                    errorIndexLength = _.keys(errorIndexes).length,
+                    isValidGram      = self.detectRealWord(part, gramClass),
+                    correctionResult;
+
+                if (errorIndexLength != 0) {
+                    // Contains non-word error.
+                    correctionResult = self.createNonWordGram(words, gramClass, errorIndexes);
+                    alternatives     = correctionResult.alternatives;
+
+                    // Skipping only applies if there's more part to be checked.
+                    if (partIndex < parts.length - 1) {
+                        previousErrorIndexes = errorIndexes;
+                        // Find the last occurred error's index, and we'll skip checking the next
+                        // 'skipCount' part of trigram.
+                        _.forEach(errorIndexes, function (value, index) {
+                            skipCount = Math.max(skipCount, index);
+                        });
+                        previousGram = correctionResult.distinctData;
+                    }
+                } else if (isValidGram) {
+                    // Skip if gram is already valid.
+                } else if (words.length > 1 || partIndex < parts.length - 1) {
+                    // We'll generate alternatives for when it contains real word error,
+                    // AND ONLY IF the words length is more than 1, else it's not eligible
+                    // for real word correction.
+                    alternatives = self.createRealWordGram(words, gramClass);
+                }
+            }
+
+            // We'll push the original part (word) as one of the alternatives, whether
+            // there's an error or not.
+            alternatives[part] = self.ngramProbability(words);
+
+            corrections = helper.createNgramCombination([corrections, alternatives]);
+        });
+
+        return corrections;
     },
 
     /**
      * Detect non word error if exists.
      *
-     * @param  {array}  words List of words (ordered) from a sentence
-     * @return {object}       Index of the word having an error (empty if no error found)
+     * @param  {Array}  words List of words (ordered) from a sentence
+     * @return {Object}       Index of the word having an error (empty if no error found)
      */
     detectNonWord: function (words) {
-        var self = this;
-        var errorIndexes = new Object();
+        var self         = this,
+            errorIndexes = new Object();
 
         words.forEach(function (word, index) {
-            if (!self.isValid(word, self.NGRAM_UNIGRAM)) {
+            if (!self.isValid(word, ngramUtil.UNIGRAM)) {
                 errorIndexes[index] = true;
             }
         });
@@ -194,163 +244,276 @@ Corrector.prototype = {
     },
 
     /**
-     * Create valid trigram alternatives from a list of words' similarity,
-     * only allows 1 different word from the original trigram.
+     * Create valid n-gram alternatives from a list of words' similarity,
+     * only allows 1 different word from the original n-gram.
      *
-     * @param  {array}  words     List of words (ordered) from a sentence
+     * @param  {Array}  words     List of words (ordered) from a sentence
      * @param  {string} gramClass String representation of the n-gram
-     * @return {object}           Valid n-grams with it's probability
+     * @return {Object}           Valid n-grams with it's probability
      */
-    createAlternativesRealWord: function (words, gramClass) {
-        var self = this;
+    createRealWordGram: function (words, gramClass) {
+        var self        = this,
+            collections = new Array();
 
-        var alternatives = new Object(),
-            wordAlts    = new Array(),
-            collections  = new Array();
-
-        words.forEach(function (word) {
-            wordAlts.push({
-                [`${word}`]: self.data.unigrams[word]
-            });
-        });
-
-        for (var i = 0; i < words.length; ++i) {
+        words.forEach(function (word, mainIndex) {
             var subAlternatives = new Array();
 
-            for (var j = 0; j < words.length; ++j) {
-                if (i == j) {
-                    subAlternatives.push(self.getSuggestions(words[j]));
+            words.forEach(function (auxWord, auxIndex) {
+                if (mainIndex == auxIndex && auxWord.indexOf(ngramUtil.NUMBER) == -1) {
+                    subAlternatives.push(self.getSuggestions(auxWord, true));
                 } else {
-                    subAlternatives.push(wordAlts[j]);
+                    subAlternatives.push({
+                        [`${auxWord}`]: self.data[ngramUtil.UNIGRAM][auxWord]
+                    });
                 }
-            }
-            collections.push(helper.createNgramCombination(subAlternatives));
-        }
+            });
 
-        collections.forEach(function (collection) {
-            for (var combination in collection) {
-                // Only accept valid word combination (exists in n-gram knowledge).
-                if (self.isValid(combination, gramClass)) {
-                    // Check if alternatives already exists.
-                    if (!alternatives.hasOwnProperty(combination)) {
-                        alternatives[combination] = self.ngramProbability(combination);
-                    }
-                }
-            }
+            collections.push(helper.createNgramCombination(subAlternatives));
         });
 
-        return alternatives;
+        return self.filterCollectionsResult(
+            collections,
+            gramClass,
+            {
+                lax: (gramClass == ngramUtil.TRIGRAM),
+                valid: (gramClass != ngramUtil.BIGRAM)
+            }
+        );
     },
 
     /**
-     * Create valid trigram alternatives from a list of words' similarity,
-     * only allows 1 different word from the original trigram excluding the
+     * Create new combination of trigram, given that previous trigram contains a non
+     * word error that is also in the current trigram.
+     *
+     * @param  {Array}  words        List of words (ordered)
+     * @param  {string} gramClass    String representation of the n-gram
+     * @param  {Object} errorIndexes Indexes of previous word list that indicates an error
+     * @param  {Array}  prevAltWords Unique words of resulted trigram of previous correction
+     * @param  {number} skipCount    Current skip count
+     * @return {Object}              Alternatives gain by combining previous alternatives
+     */
+    createGramFrom: function (words, gramClass, errorIndexes, prevAltWords, currentSkipCount) {
+        const MAX_SKIP_COUNT = ngramUtil.getGramClass(gramClass) - 1;
+
+        var self            = this,
+            subAlternatives = new Array(),
+            prevAltIndex    = MAX_SKIP_COUNT - currentSkipCount;
+
+        words.forEach(function (word, wordIndex) {
+            var subWordAlts = new Object();
+
+            if (_.has(errorIndexes, wordIndex + prevAltIndex)) {
+                subWordAlts = prevAltWords[wordIndex + prevAltIndex - 1];
+            } else if (word.indexOf(ngramUtil.NUMBER) == -1) {
+                if (gramClass == ngramUtil.TRIGRAM) {
+                    subWordAlts = self.getSuggestions(word);
+                }
+            }
+
+            subWordAlts[word] = 0;
+            subAlternatives.push(subWordAlts);
+        });
+
+        return self.filterCollectionsResult(
+            [helper.createNgramCombination(subAlternatives)],
+            gramClass,
+            {
+                lax: (gramClass == ngramUtil.TRIGRAM),
+                valid: (gramClass != ngramUtil.BIGRAM)
+            }
+        );
+    },
+
+    /**
+     * Create valid n-gram alternatives from a list of words' similarity,
+     * only allows 1 different word from the original n-gram excluding the
      * word which is categorized as non-word error.
      *
-     * @param  {array}  words        List of words (ordered) from a sentence
+     * @param  {Array}  words        List of words (ordered) from a sentence
      * @param  {string} gramClass    String representation of the n-gram
-     * @param  {object} errorIndexes Container for indexes of the error word
-     * @return {object}              Valid trigrams with it's probability
+     * @param  {Object} errorIndexes Container for indexes of the error word
+     * @return {Object}              Valid trigrams with it's probability
      */
-    createAlternativesNonWord: function (words, gramClass, errorIndexes) {
-        var self = this;
-
-        var wordAlts        = new Array(),
-            alternatives    = new Object(),
-            nonErrorIndexes = new Array();
+    createNonWordGram: function (words, gramClass, errorIndexes) {
+        var self            = this,
+            subAlternatives = new Array();
 
         words.forEach(function (word, index) {
-            if (errorIndexes.hasOwnProperty(index)) {
-                // If the current index word is an error, just push
-                // empty string.
-                wordAlts.push('');
+            if (word.indexOf(ngramUtil.NUMBER) != -1
+                || (!_.has(errorIndexes, index) && gramClass == ngramUtil.BIGRAM)) {
+                subAlternatives.push({ [`${word}`]: 0 });
             } else {
-                wordAlts.push({
-                    [`${word}`]: self.data.unigrams[word]
-                });
-
-                nonErrorIndexes.push(index);
+                subAlternatives.push(self.getSuggestions(word, true));
             }
         });
 
-        var totalAlternates    = words.length - Object.keys(errorIndexes).length + 1,
-            collections        = new Array(),
-            nonErrorIndex      = 0,
-            nonErrorIndexValue = nonErrorIndexes[nonErrorIndex];
-
-        // Begin constructing alternatives.
-        for (var i = 0; i < totalAlternates; ++i) {
-            var subAlternatives     = new Array(),
-                incrementCleanIndex = false;
-
-            words.forEach(function (word, index) {
-                if (errorIndexes.hasOwnProperty(index)) {
-                    // Current index is an error, we need to get suggestion for it.
-                    subAlternatives.push(self.getSuggestions(word));
-                } else {
-                    if (index == nonErrorIndexValue) {
-                        subAlternatives.push(self.getSuggestions(word));
-                        incrementCleanIndex = true;
-                    } else {
-                        subAlternatives.push(wordAlts[index]);
-                    }
-                }
-            });
-
-            if (incrementCleanIndex) {
-                if (nonErrorIndex < nonErrorIndexes.length - 1) {
-                    nonErrorIndexValue = nonErrorIndexes[++nonErrorIndex];
-                } else {
-                    nonErrorIndexValue = -1;
-                }
-                incrementCleanIndex = false;
+        return self.filterCollectionsResult(
+            [helper.createNgramCombination(subAlternatives)],
+            gramClass,
+            {
+                distinct: true,
+                lax: (gramClass == ngramUtil.TRIGRAM),
+                valid: (gramClass != ngramUtil.BIGRAM)
             }
+        );
+    },
 
-            collections.push(helper.createNgramCombination(subAlternatives));
+    /**
+     * Object containing the alternatives and the distinct word information.
+     *
+     * @typedef  {Object} FilterDistinct
+     * @property {Object} alternatives Valid gram combination
+     * @property {Array}  distinctData Distinct words taken from the gram combination
+     */
+    /**
+     * Filter combinations result only for the valid ones.
+     *
+     * @param  {Array}   collections              Array containing list of combinations
+     * @param  {string}  gramClass                Class of the gram being processed
+     * @param  {Object}  [options]                Options to manipulate filtering
+     * @param  {boolean} [options.distinct=false] Indicate needs to get valid gram's distinct word to avoid recomputation
+     * @param  {boolean} [options.valid=true]     Indicate whether to check for gram's validity
+     * @param  {boolean} [options.lax=false]      Indicate whether to check ngram's validity in lower order (if invalid)
+     * @return {Object|FilterDistinct}            Valid gram combination and the distinct words (optional)
+     */
+    filterCollectionsResult: function (collections, gramClass, options) {
+        options = _.isUndefined(options) ? new Object() : options;
+
+        var self         = this,
+            alternatives = new Object(),
+            getDistinct  = _.isUndefined(options.distinct) ? false : options.distinct,
+            onlyValid    = _.isUndefined(options.valid) ? true : options.valid,
+            allowLax     = _.isUndefined(options.lax) ? false : options.lax,
+            distinctData;
+
+        if (getDistinct) {
+            switch (gramClass) {
+                case ngramUtil.BIGRAM: distinctData = [ new Object() ]; break;
+                default: distinctData = [ new Object(), new Object() ];
+            }
         }
 
         collections.forEach(function (collection) {
-            for (var combination in collection) {
-                // Only accept valid word combination (exists in n-gram knowledge).
-                if (self.isValid(combination, gramClass)) {
+            for (let combination in collection) {
+                let isValidGram;
+                // Check if valid options is ON,
+                // then only accept valid word combination (exists in n-gram knowledge).
+                if (onlyValid) isValidGram = self.isValid(combination, gramClass, allowLax);
+                else isValidGram = true;
+
+                if (isValidGram) {
                     // Check if alternatives already exists.
-                    if (!alternatives.hasOwnProperty(combination)) {
-                        alternatives[combination] = self.ngramProbability(combination);
+                    if (!_.has(alternatives, combination)) {
+                        alternatives[combination] = self.ngramProbability(ngramUtil.uniSplit(combination));
+
+                        if (getDistinct) {
+                            let words = _.tail(ngramUtil.uniSplit(combination));
+                            words.forEach(function (word, index) {
+                                distinctData[index][word] = true;
+                            });
+                        }
                     }
                 }
             }
         });
 
-        return alternatives;
+        if (getDistinct) {
+            return {
+                alternatives: alternatives,
+                distinctData: distinctData
+            };
+        } else return alternatives;
     },
 
     /**
      * Compute the probability of a n-gram.
      * @see https://en.wikipedia.org/wiki/Bigram
      *
-     * @param  {sentence} ngram Text in a form of n-gram
-     * @return {float}          Probability of the n-gram (range 0-1)
+     * @param  {Array}  words Collection of words (ordered)
+     * @return {number}       Probability of the n-gram (range 0-1)
      */
-    ngramProbability: function (ngram) {
-        var words       = ngramUtil.uniSplit(ngram),
+    ngramProbability: function (words) {
+        var self        = this,
             probability = 0,
-            precedenceGram;
+            shouldLog   = true,
+            gram        = words.join(' '),
+            gramClass   = ngramUtil.getGramClass(words.length),
+            validGram, precedenceGram;
 
-        switch (words.length) {
-            case 1: // Unigram.
-                probability = this.data.unigrams[ngram] / Object.keys(this.data.unigrams).length;
+        switch (gramClass) {
+            case ngramUtil.UNIGRAM:
+                let mainfreq =
+                    !_.has(self.data[ngramUtil.UNIGRAM], gram) ? 0 : self.data[ngramUtil.UNIGRAM][gram];
+
+                probability = (mainfreq + 1) / (self.count[ngramUtil.UNIGRAM] + self.size[ngramUtil.UNIGRAM]);
                 break;
-            case 2: // Bigram.
+
+            case ngramUtil.BIGRAM:
                 precedenceGram = `${words[0]}`;
-                probability    = this.data.bigrams[ngram] / this.data.unigrams[precedenceGram];
+                validGram      = _.has(self.data[ngramUtil.BIGRAM], gram);
+
+                // Compute probability using Back-off model.
+                if (!validGram) {
+                    words.forEach(function (word) {
+                        probability += self.ngramProbability([word]);
+                    });
+                    // Stupid back-off's alpha value.
+                    probability += Math.log(0.4);
+                    shouldLog = false;
+                } else {
+                    probability = self.data[ngramUtil.BIGRAM][gram] / self.data[ngramUtil.UNIGRAM][precedenceGram];
+                }
                 break;
-            case 3: // Trigram.
+
+            case ngramUtil.TRIGRAM:
                 precedenceGram = `${words[0]} ${words[1]}`;
-                probability    = this.data.trigrams[ngram] / this.data.bigrams[precedenceGram];
+                validGram      = _.has(self.data[ngramUtil.TRIGRAM], gram);
+
+                if (!validGram) {
+                    let newGrams = [
+                        _.slice(words, 0, 2),
+                        _.slice(words, 1)
+                    ];
+
+                    // Compute probability using Back-off model.
+                    newGrams.forEach(function (newGram) {
+                        probability += self.ngramProbability(newGram);
+                    });
+                    // Stupid back-off's alpha value.
+                    probability += Math.log(0.4);
+                    shouldLog = false;
+                } else {
+                    probability = self.data[ngramUtil.TRIGRAM][gram] / self.data[ngramUtil.BIGRAM][precedenceGram];
+                }
                 break;
         }
 
-        return probability;
+        if (shouldLog) return Math.log(probability);
+        else return probability;
+    },
+
+    /**
+     * Append extra probability computation (sentence's word prefixes).
+     *
+     * @param  {string} sentence The sentence to append for the prefix's probability
+     * @return {number}          Sentence prefix's probability in log form
+     */
+    appendExtraProbability: function (sentence) {
+        var self             = this,
+            words            = ngramUtil.uniSplit(sentence),
+            extraProbability = 0,
+            initials         = new Array();
+
+        if (words.length > 1) initials.push([`${words[0]}`]);
+        if (words.length > 2) initials.push([`${words[0]} ${words[1]}`]);
+
+        if (initials.length > 0) {
+            initials.forEach(function (word) {
+                extraProbability += self.ngramProbability(initials);
+            });
+        }
+
+        return extraProbability;
     }
 };
 

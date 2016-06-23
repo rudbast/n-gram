@@ -1,37 +1,42 @@
-'use strict';
-
 /**
- * Program arguments: <directory>
+ * Spelling Corrector's server instance.
  *
- * @param {string} directory Directory path which contains the ngrams index file (to be loaded upon demand)
+ * @param {string} port  Port to listen to
+ * @param {string} load  Indicates whether word index need to be loaded first
+ * @param {string} limit The limit for words' distance
+ * @param {string} mode  The words' distance computation method
  */
 
-var express    = require('express'),
+'use strict';
+
+var _          = require('lodash'),
+    express    = require('express'),
     app        = express(),
-    bodyParser = require('body-parser');
+    bodyParser = require('body-parser'),
+    path       = require('path'),
+    now        = require('performance-now'),
+    argv        = require('yargs').argv;
 
 var helper    = require(__dirname + '/../util/helper.js'),
+    Default   = require(__dirname + '/../util/Default.js'),
     Indexer   = require(__dirname + '/../main/Indexer.js'),
-    Corrector = require(__dirname + '/../main/Corrector.js');
-    // Corrector = require(__dirname + '/../ref/Setiadi.js');
-    // Corrector = require(__dirname + '/../ref/Verberne.js');
-
-const DB_HOST  = 'localhost',
-      DB_PORT  = '27017',
-      DB_NAME  = 'autocorrect',
-      WEB_PORT = '3000';
+    Corrector = require(__dirname + '/../main/Corrector.js'),
+    Setiadi   = require(__dirname + '/../ref/Setiadi.js'),
+    Verberne  = require(__dirname + '/../ref/Verberne.js'),
+    runner    = require(__dirname + '/../main/runner.js');
 
 var connection,
     indexer,
     corrector;
 
-const DISTANCE_LIMIT      = 2,
-      DEFAULT_OUTPUT_DIR  = __dirname + '/../../out/ngrams',
-      DEFAULT_OUTPUT_FILE = __dirname + '/../../out/similars.json',
-      PUBLIC_PATH         = __dirname + '/public';
+const PUBLIC_PATH          = __dirname + '/../../public',
+      DEFAULT_WEB_PORT     = 3000;
 
-var outputDir  = process.argv.length > 2 ? process.argv[2] : DEFAULT_OUTPUT_DIR,
-    outputFile = process.argv.length > 3 ? process.argv[3] : DEFAULT_OUTPUT_FILE;
+var shouldLoadInformation = !_.isUndefined(argv.load),
+    webPort               = _.isUndefined(argv.port) ? DEFAULT_WEB_PORT : argv.port,
+    resultLimit           = _.isUndefined(argv.result) ? Default.SUGGESTIONS_LIMIT : argv.result,
+    distanceLimit         = _.isUndefined(argv.limit) ? Default.DISTANCE_LIMIT : argv.limit,
+    distanceMode          = _.isUndefined(argv.mode) ? Default.DISTANCE_MODE : argv.mode;
 
 // Register url path for static files.
 app.use('/assets', express.static(PUBLIC_PATH + '/assets'));
@@ -43,132 +48,123 @@ app.use(bodyParser.urlencoded({
 
 /** Index page. */
 app.get('/', function (request, response) {
-    response.sendFile(PUBLIC_PATH + '/index.html');
+    response.sendFile(path.resolve(PUBLIC_PATH + '/index.html'));
 });
 
-/** Words informations manipulation. */
-app.get('/data/:action/:target', function (request, response) {
-    var action = request.params.action,
-        target = request.params.target;
-
-    const totalTask = 2;
-
-    var check = function (finishedTask, callback) {
-        if (finishedTask == totalTask) {
-            callback();
-        }
-    }
-
-    var finished = function () {
-        corrector = new Corrector(indexer.getData(), indexer.getSimilars(), DISTANCE_LIMIT, indexer.getVocabularies());
-        response.send('finished loading/saving informations from/to file.');
-    }
-
-    var taskCount = 0;
-    switch (action) {
-        case 'load':
-            if (target == 'file') {
-                // Load informations.
-                indexer.loadIndexFromFile(outputDir, function () {
-                    // Fill trie data structure.
-                    indexer.buildVocabularies();
-                    check(++taskCount, finished);
-                });
-                indexer.loadSimilaritiesFromFile(outputFile, function () {
-                    check(++taskCount, finished);
-                });
-            } else {}
-            break;
-
-        case 'build':
-            if (target == 'file') {
-                console.time('constructIndex');
-
-                // Construct informations.
-                indexer.constructIndex(function () {
-                    console.timeEnd('constructIndex');
-
-                    // Fill trie data structure.
-                    indexer.buildVocabularies();
-
-                    // Save informations.
-                    indexer.saveIndexToFile(outputDir, function () {
-                        check(++taskCount, finished);
-
-                        console.time('constructSimilarities');
-                        indexer.constructSimilarities(function () {
-                            console.timeEnd('constructSimilarities');
-
-                            indexer.saveSimilaritiesToFile(outputFile, function () {
-                                check(++taskCount, finished);
-                            });
-                        });
-                    });
-                });
-            } else {}
-            break;
-    }
+/** Compare page. */
+app.get('/compare', function (request, response) {
+    response.sendFile(path.resolve(PUBLIC_PATH + '/compare.html'));
 });
 
-/** Route: check word validity. */
-app.get('/check/:word/:limit', function (request, response) {
-    var inputWord     = request.params.word,
-        distanceLimit = request.params.limit;
-
-    if (!indexer || !corrector) {
-        response.send('Corrector object is not constructed yet.');
-        return;
-    }
-
-    if (corrector.isValid(inputWord)) {
-        var responseMessage = `${inputWord} is a valid word.<br/>`;
-        response.send(responseMessage + JSON.stringify(corrector.getSuggestions(inputWord)));
-    } else {
-        var responseMessage = `${inputWord} is not a valid word. Here is a list of similar words:<br/>`;
-        response.send(responseMessage + JSON.stringify(corrector.getSuggestions(inputWord)));
-    }
+/** About page. */
+app.get('/about', function (request, response) {
+    response.sendFile(path.resolve(PUBLIC_PATH + '/about.html'));
 });
 
 /** Route: try correcting a sentence. */
-app.get('/correct/:sentence', function (request, response) {
-    var sentence = request.params.sentence;
-
-    if (!indexer || !corrector) {
-        response.send('Indexer / Corrector object is not constructed yet.');
-        return;
-    }
-
-    response.send(corrector.tryCorrect(sentence));
-});
-
-/** Route: try correcting a sentence. (POST version) */
 app.post('/correct', function (request, response) {
-    var sentence = request.body.sentence;
+    var sentence = request.body.sentence,
+        type     = request.body.type;
 
-    if (!indexer || !corrector) {
-        response.send('Indexer / Corrector object is not constructed yet.');
-        return;
+    switch (type) {
+        case 'custom':
+            corrector = new Corrector(indexer.getInformations(), { distLimit: distanceLimit, distMode: distanceMode });
+            break;
+
+        case 'setiadi':
+            corrector = new Setiadi(indexer.getInformations(), { distLimit: distanceLimit });
+            break;
+
+        case 'verberne':
+            corrector = new Verberne(indexer.getInformations(), { distLimit: distanceLimit });
+            break;
     }
 
-    response.send({corrections: corrector.tryCorrect(sentence)});
+    var digits, corrections;
+
+    digits   = helper.getDigits(sentence);
+    sentence = helper.cleanInitial(sentence);
+
+    corrections = corrector.tryCorrect(sentence, resultLimit);
+    corrections = helper.mapCorrectionsToCollection(corrections);
+
+    // If digits exists, we'll map back the original value to the corrections.
+    if (!_.isNull(digits)) {
+        sentence    = helper.mapBackDigits(sentence, digits);
+        corrections = _.map(corrections, function (correction) {
+            correction.sentence = helper.mapBackDigits(correction.sentence, digits);
+            return correction;
+        });
+    }
+
+    response.send({
+        sentence: sentence,
+        corrections: corrections
+    });
 });
 
-// Connect to database and create new instance of 'Corrector'.
-helper.connectDatabase(DB_HOST, DB_PORT, DB_NAME, function (db) {
-    console.log('Connected to database.');
+/** Route: Compare different spelling correction system. */
+app.post('/compare', function (request, response) {
+    var sentence = request.body.sentence,
+        result   = new Array();
 
-    connection = db;
-    indexer    = new Indexer(db, DISTANCE_LIMIT);
+    var correctors = [
+        new Corrector(indexer.getInformations(), { distLimit: distanceLimit }),
+        new Setiadi(indexer.getInformations(), { distLimit: distanceLimit }),
+        new Verberne(indexer.getInformations(), { distLimit: distanceLimit })
+    ];
 
-    process.on('exit', function () {
-        connection.close();
-        console.log('Database connection closed.')
+    var digits, corrections;
+
+    digits   = helper.getDigits(sentence);
+    sentence = helper.cleanInitial(sentence);
+
+    correctors.forEach(function (corrector) {
+        var corrections, startTime, endTime;
+
+        startTime   = now();
+        corrections = corrector.tryCorrect(sentence);
+        endTime     = now();
+
+        corrections = helper.mapCorrectionsToCollection(corrections);
+        corrections = helper.limitCollection(corrections, resultLimit);
+
+        // If digits exists, we'll map back the original value to the corrections.
+        if (!_.isNull(digits)) {
+            corrections = _.map(corrections, function (correction) {
+                correction.sentence = helper.mapBackDigits(correction.sentence, digits);
+                return correction;
+            });
+        }
+
+        result.push({
+            corrections: corrections,
+            time: endTime - startTime
+        });
+    });
+
+    // If digits exists, we'll map back the original value to the corrections.
+    if (!_.isNull(digits)) {
+        sentence = helper.mapBackDigits(sentence, digits);
+    }
+
+    response.send({
+        sentence: sentence,
+        comparison: result
     });
 });
 
 /** Start listening for request. */
-var server = app.listen(WEB_PORT, function () {
-    var port = server.address().port;
+var server = app.listen(webPort, function () {
+    var message = 'App listening at http://0.0.0.0:' + webPort;
+    helper.notify('Spelling Corrector Server', message);
+    console.log(message + '\n');
 
-    console.log('App listening at http://localhost:%s', port);
+    indexer = new Indexer({ distLimit: distanceLimit, distMode: distanceMode });
+
+    if (shouldLoadInformation) {
+        runner.initAndStart(indexer);
+    } else {
+        runner.start(indexer);
+    }
 });

@@ -14,8 +14,8 @@ var Promise = require('bluebird')
 
 var Kompas = function () {}
 
-Kompas.prototype.source = 'Kompas'
-Kompas.prototype.baseURL = "http://indeks.kompas.com/"
+Kompas.prototype.source = 'Kompas';
+Kompas.prototype.baseURL = "http://indeks.kompas.com/";
 Kompas.prototype.page = 1;
 Kompas.prototype.day;
 Kompas.prototype.month;
@@ -27,8 +27,8 @@ Kompas.prototype.year;
  * @return {string} Website's base URL, can be HTML/RSS/XML.
  */
 Kompas.prototype.getBaseURL = function() {
-	return Kompas.prototype.baseURL + Kompas.prototype.getDesiredDate + Kompas.prototype.getDesiredPage;
-}
+	return Kompas.prototype.baseURL + Kompas.prototype.getDesiredDate() + Kompas.prototype.getDesiredPage();
+};
 
 /**
  * Get website's date URL parameter.
@@ -37,7 +37,7 @@ Kompas.prototype.getBaseURL = function() {
  */
 Kompas.prototype.getDesiredDate = function () {
 	return "?tanggal=" + Kompas.prototype.day + "&bulan=" + Kompas.prototype.month + "&tahun=" + Kompas.prototype.year;
-}
+};
 
 /**
  * Set website's URL parameter for date.
@@ -50,7 +50,7 @@ Kompas.prototype.setDesiredDate = function (day, month, year) {
 	Kompas.prototype.day = day;
 	Kompas.prototype.month = month;
 	Kompas.prototype.year = year;
-}
+};
 
 /**
  * Get website's URL parameter for page.
@@ -59,7 +59,7 @@ Kompas.prototype.setDesiredDate = function (day, month, year) {
  */
 Kompas.prototype.getDesiredPage = function () {
 	return "&p=" + Kompas.prototype.page;
-}
+};
 
 /**
  * Set website's URL parameter to the next page.
@@ -68,7 +68,7 @@ Kompas.prototype.getDesiredPage = function () {
  */
 Kompas.prototype.nextPage = function() {
 	Kompas.prototype.page += 1;
-}
+};
 
 /**
  * Set website's URL parameter for page.
@@ -77,7 +77,7 @@ Kompas.prototype.nextPage = function() {
  */
 Kompas.prototype.setDesiredPage = function(page) {
 	Kompas.prototype.page = parseInt(page);
-}
+};
 
 /**
  * Reset website's URL parameter for page.
@@ -86,7 +86,7 @@ Kompas.prototype.setDesiredPage = function(page) {
  */
 Kompas.prototype.resetPage = function() {
 	Kompas.prototype.page = 1;
-}
+};
 
 /**
  * Scrap all news from all URL in website's main page.
@@ -107,19 +107,19 @@ Kompas.prototype.scrap = function() {
 								uri: url,
 								headers: { 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36' },
 								json: true
-							}
-							return options
+							};
+							return options;
 						})
 						.then(request)
 						.then(Kompas.prototype.getDataFromSinglePage)
 						.catch(function (e) {
-							console.error('['+Kompas.prototype.source+'] ['+e.name+' - '+e.message.replace(/(\n|\r)/g,'').slice(0,32)+' ...] '+url)
-							return {}
-						})
-				})
-			return Promise.all(promises)
-		})
-}
+							console.error('['+Kompas.prototype.source+'] ['+e.name+' - '+e.message.replace(/(\n|\r)/g,'').slice(0,32)+' ...] '+url);
+							return {};
+						});
+				});
+			return Promise.all(promises);
+		});
+};
 
 /**
  * Get all single page URLs from main page.
@@ -130,8 +130,8 @@ Kompas.prototype.getURLs = function() {
 	return Promise.resolve()
 		.then(Kompas.prototype.getBaseURL)
 		.then(request)
-		.then(Kompas.prototype.getURLsFromMainPage)
-}
+		.then(Kompas.prototype.getURLsFromMainPage);
+};
 
 /**
  * Get all single page URLs from scraped main page.
@@ -139,14 +139,14 @@ Kompas.prototype.getURLs = function() {
  * @return {Array} Array of URLs scraped from Website's main page.
  */
 Kompas.prototype.getURLsFromMainPage = function(scrap) {
-	var $ = cheerio.load(scrap)
+	var $ = cheerio.load(scrap);
 	var urls = $('div.kcm-main-list ul li')
 		.map(function (index, item) {
-			return $(item).find('div h3 a').attr('href')
+			return $(item).find('div h3 a').attr('href');
 		})
-		.get()
-	return urls
-}
+		.get();
+	return urls;
+};
 
 /**
  * Get all data from scraped single page.
@@ -154,13 +154,13 @@ Kompas.prototype.getURLsFromMainPage = function(scrap) {
  * @return {Array} Array of URLs scraped from Website's main page.
  */
 Kompas.prototype.getDataFromSinglePage = function(scrap) {
-	var $ = cheerio.load(scrap)
-	var url = Kompas.prototype.getURL($)
-	var title = Kompas.prototype.getTitle($)
-	var date = Kompas.prototype.getDate($)
-	var category = Kompas.prototype.getCategory($)
-	var img = Kompas.prototype.getImg($)
-	var content = Kompas.prototype.getContent($)
+	var $ = cheerio.load(scrap);
+	var url = Kompas.prototype.getURL($);
+	var title = Kompas.prototype.getTitle($);
+	var date = Kompas.prototype.getDate($);
+	var category = Kompas.prototype.getCategory($);
+	var img = Kompas.prototype.getImg($);
+	var content = Kompas.prototype.getContent($);
 	var result = {
 		'url': url,
 		'title': title,
@@ -169,8 +169,8 @@ Kompas.prototype.getDataFromSinglePage = function(scrap) {
 		'img': img,
 		'content': content,
 		'source': Kompas.prototype.source
-	}
-	return result
+	};
+	return result;
 }
 
 /**
@@ -179,7 +179,7 @@ Kompas.prototype.getDataFromSinglePage = function(scrap) {
  * @return {string} URL
  */
 Kompas.prototype.getURL = function($) {
-	return $('meta[property="og:url"]').attr('content')
+	return $('meta[property="og:url"]').attr('content');
 }
 
 /**
@@ -188,11 +188,11 @@ Kompas.prototype.getURL = function($) {
  * @return {string} title
  */
 Kompas.prototype.getTitle = function($) {
-	var title = undefined
-	title = (_.isEmpty(title)) ? $('div.kcm-read div.kcm-read-top h2').text() : title
-	title = (_.isEmpty(title)) ? $('div.kcm-read-content-top h2').text() : title
-	title = (_.isEmpty(title)) ? $('div.baca-content h1').text() : title
-	return title
+	var title = undefined;
+	title = (_.isEmpty(title)) ? $('div.kcm-read div.kcm-read-top h2').text() : title;
+	title = (_.isEmpty(title)) ? $('div.kcm-read-content-top h2').text() : title;
+	title = (_.isEmpty(title)) ? $('div.baca-content h1').text() : title;
+	return title;
 }
 
 /**
@@ -201,22 +201,22 @@ Kompas.prototype.getTitle = function($) {
  * @return {string} date
  */
 Kompas.prototype.getDate = function($) {
-	var date = undefined
-	date = (_.isEmpty(date)) ? $('div.kcm-read div.msmall.grey.mb2').text() : date
-	date = (_.isEmpty(date)) ? $('div.kcm-date.msmall.grey').text() : date
+	var date = undefined;
+	date = (_.isEmpty(date)) ? $('div.kcm-read div.msmall.grey.mb2').text() : date;
+	date = (_.isEmpty(date)) ? $('div.kcm-date.msmall.grey').text() : date;
 
-	date = date.replace(/Januari/g, 'Januari')
-	date = date.replace(/February/g, 'February')
-	date = date.replace(/Maret/g, 'March')
-	date = date.replace(/Mei/g, 'May')
-	date = date.replace(/Juni/g, 'June')
-	date = date.replace(/Juli/g, 'July')
-	date = date.replace(/Agustus/g, 'Mei')
-	date = date.replace(/Oktober/g, 'October')
-	date = date.replace(/Desember/g, 'December')
+	date = date.replace(/Januari/g, 'Januari');
+	date = date.replace(/February/g, 'February');
+	date = date.replace(/Maret/g, 'March');
+	date = date.replace(/Mei/g, 'May');
+	date = date.replace(/Juni/g, 'June');
+	date = date.replace(/Juli/g, 'July');
+	date = date.replace(/Agustus/g, 'Mei');
+	date = date.replace(/Oktober/g, 'October');
+	date = date.replace(/Desember/g, 'December');
 
-	var d = moment(date, 'D MMMM YYYY | HH:mm')
-	return d.toISOString()
+	var d = moment(date, 'D MMMM YYYY | HH:mm');
+	return d.toISOString();
 }
 
 /**
@@ -225,9 +225,12 @@ Kompas.prototype.getDate = function($) {
  * @return {string} news' category
  */
 Kompas.prototype.getCategory = function ($) {
-  var content = $('h1.tcenter').text();
-  content = Kompas.prototype.cleanContent(content);
-  return content;
+  var category = undefined;
+  category = (_.isEmpty(category)) ? $('h1.tcenter').text() : category;
+  category = (_.isEmpty(category)) ? $('h1.mt1').text() : category;
+
+  category = Kompas.prototype.cleanContent(category);
+  return category;
 }
 
 /**
@@ -236,7 +239,7 @@ Kompas.prototype.getCategory = function ($) {
  * @return {string} image source
  */
 Kompas.prototype.getImg = function($) {
-	return $('meta[property="og:image"]').attr('content')
+	return $('meta[property="og:image"]').attr('content');
 }
 
 /**
@@ -249,26 +252,26 @@ Kompas.prototype.getContent = function($) {
 		.filter(function() { return this.type === 'text' })
 		.filter(function() { return this.type !== 'tag' })
 		.map(function(idx, item) { return item.data })
-		.get().join(' ')
-	content = Kompas.prototype.cleanContent(content)
+		.get().join(' ');
+	content = Kompas.prototype.cleanContent(content);
 	if (content==='')
-		content = $('div.kcm-read-text').text()
-	content = Kompas.prototype.cleanContent(content)
+		content = $('div.kcm-read-text').text();
+	content = Kompas.prototype.cleanContent(content);
 	if (content==='') {
 		if ($('div span.kcmread1114').html() !== null) {
-			$('div span.kcmread1114').find('strong').remove()
-			$('div span.kcmread1114').html($('div span.kcmread1114').html().replace(/\<br\>/g, '\n'))
-			content = $('div span.kcmread1114').text()
+			$('div span.kcmread1114').find('strong').remove();
+			$('div span.kcmread1114').html($('div span.kcmread1114').html().replace(/\<br\>/g, '\n'));
+			content = $('div span.kcmread1114').text();
 		}
 	}
 	if (content==='') {
 		if ($('div.content-text div.div-read').html() !== null) {
-			$('div.content-text div.div-read').find('strong').remove()
-			$('div.content-text div.div-read').html($('div.content-text div.div-read').html().replace(/\<br\>/g, '\n'))
-			content = $('div.content-text div.div-read').text()
+			$('div.content-text div.div-read').find('strong').remove();
+			$('div.content-text div.div-read').html($('div.content-text div.div-read').html().replace(/\<br\>/g, '\n'));
+			content = $('div.content-text div.div-read').text();
 		}
 	}
-	content = Kompas.prototype.cleanContent(content)
+	content = Kompas.prototype.cleanContent(content);
 	return content
 }
 
@@ -278,16 +281,16 @@ Kompas.prototype.getContent = function($) {
  * @return {string} news' clean content
  */
 Kompas.prototype.cleanContent = function(content) {
-	content = (_.isUndefined(content)) ? '' : content
-	content = content.replace(/(\n|\t|\r)+/g, ' ')
-	content = content.replace(/(\ |\ |\ |\ )+/g, ' ')
-	content = content.replace(/(–|—|--)+/g, '-')
-	content = content.replace(/”|“/g, '"')
+	content = (_.isUndefined(content)) ? '' : content;
+	content = content.replace(/(\n|\t|\r)+/g, ' ');
+	content = content.replace(/(\ |\ |\ |\ )+/g, ' ');
+	content = content.replace(/(–|—|--)+/g, '-');
+	content = content.replace(/”|“/g, '"');
 	while (content.length > 0 && content[0].match(/( |-|,)/))
-		content = content.substring(1)
+		content = content.substring(1);
 	while (content.length > 0 && content[content.length-1]===' ')
-		content = content.substring(0, content.length-1)
-	return content
+		content = content.substring(0, content.length-1);
+	return content;
 }
 
-module.exports = new Kompas ()
+module.exports = new Kompas ();

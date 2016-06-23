@@ -1,33 +1,32 @@
 'use strict';
 
+var _ = require('lodash');
+
 var levenshtein = require(__dirname + '/../util/levenshtein.js'),
     helper      = require(__dirname + '/../util/helper.js'),
+    Default     = require(__dirname + '/../util/Default.js'),
     ngramUtil   = require(__dirname + '/../util/ngram.js');
 
 /**
- * Spelling correction main class (as implemented by Suzan Verberne).
+ * @class     Verberne
+ * @classdesc Spelling correction main class (as implemented by Suzan Verberne).
  * @see http://sverberne.ruhosting.nl/papers/verberne2002.pdf
  *
- * @param {object}  ngrams        Word index
- * @param {object}  similars      Words with it's similars pairs
- * @param {integer} distanceLimit Words distance limit
- *
- * @property {object}  data          N-grams words index container
- * @property {object}  similars      Words with it's similars pairs
- * @property {integer} distanceLimit Words distance limit
- * @property {string}  NGRAM_UNIGRAM String representation for unigram
- * @property {string}  NGRAM_BIGRAM  String representation for bigram
- * @property {string}  NGRAM_TRIGRAM String representation for trigram
  * @constructor
+ * @param {Informations} informations          Words' informations (data, count, size, similars, vocabularies)
+ * @param {Object}       [options]             Options to initialize the component with
+ * @param {number}       [options.distLimit=1] Word's different (distance) limit
+ *
+ * @property {Object} data          N-grams words index container
+ * @property {Trie}   vocabularies  Trie's structured vocabularies
+ * @property {number} distanceLimit Words distance limit
  */
-var Verberne = function (ngrams, similars, distanceLimit) {
-    this.data          = ngrams;
-    this.similars      = similars;
-    this.distanceLimit = distanceLimit !== undefined ? distanceLimit : 2;
+var Verberne = function (informations, options) {
+    options = _.isUndefined(options) ? new Object() : options;
 
-    this.NGRAM_UNIGRAM = 'unigrams';
-    this.NGRAM_BIGRAM  = 'bigrams';
-    this.NGRAM_TRIGRAM = 'trigrams';
+    this.data          = informations.data;
+    this.vocabularies  = informations.vocabularies;
+    this.distanceLimit = _.isUndefined(options.distLimit) ? Default.DISTANCE_LIMIT : options.distLimit;
 };
 
 Verberne.prototype = {
@@ -40,96 +39,113 @@ Verberne.prototype = {
      */
     isValid: function (gram, gramClass) {
         if (gramClass === undefined) {
-            gramClass = this.getGramClass(ngramUtil.uniSplit(gram).length);
+            gramClass = ngramUtil.getGramClass(ngramUtil.uniSplit(gram).length);
         }
 
-        if (gramClass == this.NGRAM_UNIGRAM) {
-            for (var dictGram in this.data[gramClass]) {
-                if (dictGram == gram) {
-                    return true;
-                }
-            }
-            return false;
+        if (gramClass == ngramUtil.UNIGRAM) {
+            return this.vocabularies.has(gram);
+        } else {
+            return _.has(this.data[gramClass], gram);
         }
-        return this.data[gramClass].hasOwnProperty(gram);
     },
 
     /**
      * Get list of similar words suggestion given a word.
      *
      * @param  {string} inputWord Input word
-     * @return {object}           Suggestion list of similar words
+     * @return {Object}           Suggestion list of similar words
      */
     getSuggestions: function (inputWord) {
-        return this.similars[inputWord];
+        return this.vocabularies.findWordsWithinLimit(inputWord, this.distanceLimit);
     },
 
     /**
      * Try correcting the given sentence if there exists any error.
      *
      * @param  {string} sentence Text input in a sentence form
-     * @return {object}          List of suggestions (if error exists)
+     * @return {Object}          List of suggestions (if error exists)
      */
     tryCorrect: function (sentence) {
-        var self = this;
+        var self        = this,
+            suggestions = new Object(),
+            subParts    = sentence.split(',');
 
-        var corrections = new Array(),
-            parts       = ngramUtil.triSplit(sentence);
+        subParts.forEach(function (subPart) {
+            subPart = helper.cleanExtra(subPart);
+            subPart = ngramUtil.tripleNSplit(subPart);
 
-        parts.forEach(function (part) {
-            var words            = ngramUtil.uniSplit(part),
-                errorIndexes     = self.detectNonWord(words),
-                errorIndexLength = Object.keys(errorIndexes).length,
-                isValidTrigram   = self.detectRealWord(part),
-                alternatives     = new Object();
-
-            if (errorIndexLength == 0 && isValidTrigram) {
-                // Contains no error.
-                alternatives[part] = self.data.trigrams[part];
-            } else if (errorIndexLength != 0) {
-                // Since verberne's spelling corrector only correct real word error,
-                // we'll push the original ones in if it contains non-word error.
-                alternatives[part] = 0;
-            } else if (!isValidTrigram) {
-                // Contains real word error.
-                alternatives = self.createAlternatives(words);
+            if (subPart[ngramUtil.TRIGRAM].length == 0) {
+                if (subPart[ngramUtil.UNIGRAM].length == 0) {
+                    return;
+                } else if (subPart[ngramUtil.BIGRAM].length == 0) {
+                    subPart = subPart[ngramUtil.UNIGRAM];
+                } else {
+                    subPart = subPart[ngramUtil.BIGRAM];
+                }
+            } else {
+                subPart = subPart[ngramUtil.TRIGRAM];
             }
 
-            corrections.push(alternatives);
+            suggestions = helper.createNgramCombination(
+                [suggestions, self.doCorrect(subPart)],
+                'plus',
+                'join'
+            );
         });
 
-        var suggestions = helper.createNgramCombination(corrections, 'plus');
         return suggestions;
     },
 
     /**
-     * Find out what n-gram class of the given word count, represented
-     * by a string.
+     * Main correction's logic.
      *
-     * @param  {integer} wordCount Word count
-     * @return {string}            String representation of the n-gram
+     * @param  {Array}  parts Ngram split word
+     * @return {Object}       Correction results in a form of hash/dictionary
      */
-    getGramClass: function (wordCount) {
-        switch (wordCount) {
-            case 1: return this.NGRAM_UNIGRAM;
-            case 2: return this.NGRAM_BIGRAM;
-            case 3: return this.NGRAM_TRIGRAM;
-            default: return 'invalid';
-        }
+    doCorrect: function (parts) {
+        var self        = this,
+            corrections = new Object();
+
+        parts.forEach(function (part) {
+            var words            = ngramUtil.uniSplit(part),
+                errorIndexes     = self.detectNonWord(words),
+                errorIndexLength = _.keys(errorIndexes).length,
+                isValidTrigram   = self.detectRealWord(part),
+                alternatives     = new Object();
+
+            if (!isValidTrigram && errorIndexLength == 0) {
+                // Contains real word error.
+                alternatives = self.createAlternatives(words);
+            }
+
+            if (isValidTrigram) {
+                // If trigram is valid, we'll add it into the alternatives, with
+                // its' frequency information.
+                alternatives[part] = self.data[ngramUtil.TRIGRAM][part];
+            } else {
+                // Append original trigram as the alternatives when ANY error
+                // is detected.
+                alternatives[part] = 0;
+            }
+
+            corrections = helper.createNgramCombination([corrections, alternatives]);
+        });
+
+        return corrections;
     },
 
     /**
      * Detect non word error if exists.
      *
-     * @param  {array} words List of words (ordered) from a sentence
-     * @return {array}       Index of the word having an error (empty if no error found)
+     * @param  {Array} words List of words (ordered) from a sentence
+     * @return {Array}       Index of the word having an error (empty if no error found)
      */
     detectNonWord: function (words) {
-        var self = this;
+        var self         = this,
+            errorIndexes = new Array();
 
-        var errorIndexes = new Array();
         words.forEach(function (word, index) {
-            if (!self.isValid(word, self.NGRAM_UNIGRAM)) {
+            if (!self.isValid(word, ngramUtil.UNIGRAM)) {
                 errorIndexes.push(index);
             }
         });
@@ -144,40 +160,48 @@ Verberne.prototype = {
      * @return {boolean}         Indicates if the trigram is valid.
      */
     detectRealWord: function (trigram) {
-        return this.isValid(trigram, this.NGRAM_TRIGRAM);
+        return this.isValid(trigram, ngramUtil.TRIGRAM);
     },
 
     /**
      * Create valid trigram alternatives from a list of words' similarity,
      * only allows 1 different word from the original trigram.
      *
-     * @param  {array}  words List of words (ordered) from a sentence
-     * @return {object}       Valid trigrams with its' rank
+     * @param  {Array}  words List of words (ordered) from a sentence
+     * @return {Object}       Valid trigrams with its' rank
      */
     createAlternatives: function (words) {
-        var self = this;
+        var self         = this,
+            alternatives = new Object(),
+            wordAlts     = [
+                {[`${words[0]}`]: this.data[ngramUtil.UNIGRAM][words[0]]},
+                {[`${words[1]}`]: this.data[ngramUtil.UNIGRAM][words[1]]},
+                {[`${words[2]}`]: this.data[ngramUtil.UNIGRAM][words[2]]}
+            ],
+            suggestWords = new Array();
 
-        var alternatives = new Object();
-
-        var wordAlts = [
-            {[`${words[0]}`]: this.data.unigrams[words[0]]},
-            {[`${words[1]}`]: this.data.unigrams[words[1]]},
-            {[`${words[2]}`]: this.data.unigrams[words[2]]}
-        ];
+        // Create alternate suggestions, excluding the token <number>.
+        words.forEach(function (word) {
+            if (word.indexOf(ngramUtil.NUMBER) == -1) {
+                suggestWords.push(self.getSuggestions(word));
+            } else {
+                suggestWords.push(word);
+            }
+        });
 
         var collections = [
-            helper.createNgramCombination([this.getSuggestions(words[0]), wordAlts[1], wordAlts[2]]),
-            helper.createNgramCombination([wordAlts[0], this.getSuggestions(words[1]), wordAlts[2]]),
-            helper.createNgramCombination([wordAlts[0], wordAlts[1], this.getSuggestions(words[2])])
+            helper.createNgramCombination([suggestWords[0], wordAlts[1], wordAlts[2]]),
+            helper.createNgramCombination([wordAlts[0], suggestWords[1], wordAlts[2]]),
+            helper.createNgramCombination([wordAlts[0], wordAlts[1], suggestWords[2]])
         ];
 
         collections.forEach(function (collection) {
             for (var combination in collection) {
                 // Only accept valid word combination (exists in n-gram knowledge).
-                if (self.isValid(combination, self.NGRAM_TRIGRAM)) {
+                if (self.isValid(combination, ngramUtil.TRIGRAM)) {
                     // Check if alternatives already exists.
-                    if (!alternatives.hasOwnProperty(combination)) {
-                        alternatives[combination] = self.data.trigrams[combination];
+                    if (!_.has(alternatives, combination)) {
+                        alternatives[combination] = self.data[ngramUtil.TRIGRAM][combination];
                     }
                 }
             }

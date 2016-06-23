@@ -5,9 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "mini-test": "node src/test/test.js",
+    "mini-test": "node src/misc/test.js",
     "crawler": "node src/crawl/crawler.js",
-    "start": "node src/web/server.js"
+    "start": "node src/web/server.js",
+    "eval-perplexity": "node src/evaluate/perplexity.js",
+    "eval-accuracy": "node src/evaluate/accuracy.js",
+    "stats-category": "node src/statistic/articlescategory.js"
   },
   "repository": {
     "type": "git",
@@ -20,23 +23,33 @@
   },
   "homepage": "https://github.com/rudbast/n-gram#readme",
   "dependencies": {
+    "bluebird": "^3.3.5",
     "body-parser": "^1.15.0",
+    "cheerio": "^0.20.0",
     "cookie-parser": "^1.4.1",
     "express": "^4.13.4",
     "indonesian-news-scraper": "^2.7.7",
     "jsonfile": "^2.2.3",
     "languagedetect": "^1.1.1",
+    "lodash": "^4.11.2",
     "mongodb": "^2.1.16",
     "multer": "^1.1.0",
+    "node-notifier": "^4.5.0",
+    "performance-now": "^0.2.0",
+    "progress": "^1.1.8",
     "prompt": "^1.0.0",
-    "shelljs": "^0.6.0"
+    "request-promise": "^3.0.0",
+    "shelljs": "^0.6.0",
+    "yargs": "^4.7.1"
   },
   "devDependencies": {
     "del": "^2.2.0",
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.0",
     "gulp-cssnano": "^2.1.2",
+    "gulp-htmlmin": "^2.0.0",
     "gulp-minify": "0.0.11",
-    "gulp-notify": "^2.2.0"
+    "gulp-notify": "^2.2.0",
+    "run-sequence": "^1.1.5"
   }
 }

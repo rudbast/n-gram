@@ -1,0 +1,1 @@
+body{display:flex;min-height:100vh;flex-direction:column}main{flex:1 0 auto}.top-wrapper{margin-top:3em}.result-wrapper{font-style:bold italic}.list-odd{background-color:#f5f5f5!important}.correction-item{cursor:pointer;color:#212121}.correction-word{color:#ef6c00;font-style:italic}

@@ -1,26 +1,30 @@
 'use strict';
 
+var _ = require('lodash');
+
 var levenshtein = require(__dirname + '/../util/levenshtein.js'),
     helper      = require(__dirname + '/../util/helper.js'),
+    Default     = require(__dirname + '/../util/Default.js'),
     ngramUtil   = require(__dirname + '/../util/ngram.js');
 
 /**
- * Spelling correction main class (as implemented by Iskandar Setiadi).
+ * @class     Setiadi
+ * @classdesc Spelling correction main class (as implemented by Iskandar Setiadi).
  * @see https://www.researchgate.net/publication/268334497_Damerau-Levenshtein_Algorithm_and_Bayes_Theorem_for_Spell_Checker_Optimization
  *
- * @param {object}  ngrams        Word index
- * @param {object}  similars      Words with it's similars pairs
- * @param {integer} distanceLimit Words distance limit
- *
- * @property {object}  data          N-grams words index container
- * @property {object}  similars      Words with it's similars pairs
- * @property {integer} distanceLimit Words distance limit
  * @constructor
+ * @param {Informations} informations          Words' informations (data, count, size, similars, vocabularies)
+ * @param {Object}       [options]             Options to initialize the component with
+ * @param {number}       [options.distLimit=1] Word's different (distance) limit
+ *
+ * @property {Object} data          N-grams words index container
+ * @property {number} distanceLimit Words distance limit
  */
-var Setiadi = function (ngrams, similars, distanceLimit) {
-    this.data          = ngrams;
-    this.similars      = similars;
-    this.distanceLimit = distanceLimit !== undefined ? distanceLimit : 1;
+var Setiadi = function (informations, options) {
+    options = _.isUndefined(options) ? new Object() : options;
+
+    this.data          = informations.data;
+    this.distanceLimit = _.isUndefined(options.distLimit) ? Default.DISTANCE_LIMIT : options.distLimit;
 };
 
 Setiadi.prototype = {
@@ -44,17 +48,16 @@ Setiadi.prototype = {
      *
      * @param  {string}  inputWord         Input word
      * @param  {boolean} useWordAssumption Indicates needs of additional points for word rank
-     * @return {object}                    Suggestion list of similar words
+     * @return {Object}                    Suggestion list of similar words
      */
     getSuggestions: function (inputWord, useWordAssumption) {
         var checkedLength = inputWord.length,
-            dictLength    = Object.keys(this.data.unigrams).length,
-            ranksMarginal = Math.floor(dictLength / 3);
-
-        var suggestions   = new Object();
+            dictLength    = _.keys(this.data.unigrams).length,
+            ranksMarginal = Math.floor(dictLength / 3),
+            suggestions   = new Object();
 
         for (var dictWord in this.data.unigrams) {
-            if (this.data.unigrams.hasOwnProperty(dictWord)) {
+            if (dictWord.indexOf(ngramUtil.NUMBER) == -1) {
                 var wordLength = dictWord.length;
                 // Pruning words distance calculation.
                 if (wordLength >= checkedLength - 1 || wordLength <= checkedLength + 1) {
@@ -74,9 +77,9 @@ Setiadi.prototype = {
                         // Words' statictics' probabilities using assumption.
                         if (useWordAssumption) {
                             if (wordLength > checkedLength) {
-                                rank += 3 * ranksMarginal;
-                            } else if (wordLength == checkedLength) {
                                 rank += 2 * ranksMarginal;
+                            } else if (wordLength == checkedLength) {
+                                rank += 1 * ranksMarginal;
                             }
                         }
 
@@ -93,42 +96,58 @@ Setiadi.prototype = {
      * Try correcting the given sentence if there exists any error.
      *
      * @param  {string} sentence Text input in a sentence form
-     * @return {object}          List of suggestions (if error exists)
+     * @return {Object}          List of suggestions (if error exists)
      */
     tryCorrect: function (sentence) {
-        var self = this;
+        var self        = this,
+            suggestions = new Object(),
+            subParts    = sentence.split(',');
 
-        var corrections = new Array(),
-            parts       = ngramUtil.uniSplit(sentence);
+        subParts.forEach(function (subPart) {
+            subPart = helper.cleanExtra(subPart);
+            subPart = ngramUtil.uniSplit(subPart);
 
-        parts.forEach(function (part) {
-            // var containsInvalidChars = part.match(/[\W\d_]/),
-            //     word                 = part.replace(/[\W\d_]/g, '');
+            suggestions = helper.createNgramCombination(
+                [suggestions, self.doCorrect(subPart)],
+                'plus',
+                'join'
+            );
+        });
 
-            var word = part.toLowerCase();
+        return suggestions;
+    },
 
-            // if (containsInvalidChars || (!containsInvalidChars && self.isValid(word))) {
-            if (self.isValid(word)) {
+    /**
+     * Main correction's logic.
+     *
+     * @param  {Array}  words Ngram split word
+     * @return {Object}       Correction results in a form of hash/dictionary
+     */
+    doCorrect: function (words) {
+        var self = this,
+            corrections = new Array();
+
+        words.forEach(function (word) {
+            if (self.isValid(word) || word == ngramUtil.NUMBER) {
                 corrections.push({
-                    [`${part}`]: self.data.unigrams[word]
+                    [`${word}`]: self.data.unigrams[word]
                 });
             } else {
-                var useWordAssumption   = false,
+                var useWordAssumption   = true,
                     wordSuggestions     = self.getSuggestions(word, useWordAssumption),
-                    wordSuggestionsSize = Object.keys(wordSuggestions).length;
+                    wordSuggestionsSize = _.keys(wordSuggestions).length;
 
                 if (wordSuggestionsSize != 0) {
                     corrections.push(wordSuggestions);
                 } else {
                     corrections.push({
-                        [`${part}`]: 0
+                        [`${word}`]: 0
                     });
                 }
             }
         });
 
-        var suggestions = helper.createUnigramCombination(corrections, 'plus');
-        return suggestions;
+        return helper.createNgramCombination(corrections);
     }
 };
 

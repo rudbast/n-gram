@@ -2,6 +2,16 @@
 
 A Spelling Correction System for both kind of spelling mistake type (real word & non-word) using N-Gram and Edit Distance with Trie Structure.
 
+## Dependency
+
+Software dependency list:
+
+- Composer `$ composer install` (any version)
+
+- Node.Js v6.0.0 `$ npm install`
+
+- Bower `$ bower install`
+
 ## How to
 
 ### Scripts
