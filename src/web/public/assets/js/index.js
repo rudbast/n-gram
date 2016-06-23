@@ -14,7 +14,7 @@ function formSubmitSuccess(response) {
             identifier  = (index++ % 2 == 0) ? '' : ' list-odd',
             childNode   =
                 '<li class="collection-item' + identifier + '">\
-                    <div class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Probability: ' + probability + '">\
+                    <div class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Probabilitas: ' + probability + '">\
                         <span class="correction-item">' + markStringDifference(originalSentence, sentence) + '</span>\
                     </div>\
                 </li>';
