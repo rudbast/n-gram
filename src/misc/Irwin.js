@@ -3,7 +3,9 @@
 var _      = require('lodash');
 
 var Setiadi     = require(__dirname + '/../ref/Setiadi.js'),
-    levenshtein = require(__dirname + '/../util/levenshtein.js');
+    helper      = require(__dirname + '/../util/helper.js'),
+    levenshtein = require(__dirname + '/../util/levenshtein.js'),
+    ngramUtil   = require(__dirname + '/../util/ngram.js');
 
 /**
  * @class     Irwin
@@ -58,6 +60,38 @@ class Irwin extends Setiadi {
         }
 
         return suggestions;
+    }
+
+    /**
+     * Main correction's logic.
+     *
+     * @param  {Array}  words Ngram split word
+     * @return {Object}       Correction results in a form of hash/dictionary
+     */
+    doCorrect(words) {
+        var corrections = new Array();
+
+        words.forEach(word => {
+            if (this.isValid(word) || word == ngramUtil.NUMBER) {
+                corrections.push({
+                    [`${word}`]: 0
+                });
+            } else {
+                var useWordAssumption   = true,
+                    wordSuggestions     = this.getSuggestions(word, useWordAssumption),
+                    wordSuggestionsSize = _.keys(wordSuggestions).length;
+
+                if (wordSuggestionsSize != 0) {
+                    corrections.push(wordSuggestions);
+                } else {
+                    corrections.push({
+                        [`${word}`]: 0
+                    });
+                }
+            }
+        });
+
+        return helper.createNgramCombination(corrections);
     }
 }
 
