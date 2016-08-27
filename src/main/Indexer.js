@@ -322,32 +322,12 @@ Indexer.prototype = {
      */
     loadIndex: function (directory, callback) {
         var self = this;
+        const kbbiVocabFile = __dirname + '/../../res/vocabulary.json';
 
-        fs.readdir(directory, function (err, files) {
+        jsFile.readFile(kbbiVocabFile, function (err, data) {
             assert.equal(err, null);
-
-            var loadCount = 0;
-
-            files.forEach(function (file, index) {
-                jsFile.readFile(`${directory}/${file}`, function (err, data) {
-                    assert.equal(err, null);
-
-                    var gramFileName = file.split('.')[0];
-                    // self.data[gramFileName] = data;
-                    for (let word in data) {
-                        if (!self.data[gramFileName][word]) {
-                            self.data[gramFileName][word] = data[word];
-                        } else {
-                            self.data[gramFileName][word] += data[word];
-                        }
-                    }
-
-                    if ((++loadCount) == files.length) {
-                        self.setIndexCountAndSize();
-                        if (_.isFunction(callback)) callback();
-                    }
-                });
-            });
+            self.data = data;
+            if (_.isFunction(callback)) callback();
         });
     },
 
